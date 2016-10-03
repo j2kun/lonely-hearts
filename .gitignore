@@ -58,3 +58,6 @@ instance/
 
 # virtualenv
 venv/
+
+# local copies of databases
+*.sqlite3
