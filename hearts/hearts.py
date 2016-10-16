@@ -18,7 +18,7 @@ class Trick(object):
             The `cards` attribute is the raw trick data, a list
             of pairs (player, card)
         '''
-        self.cards = cards_played
+        self.cards_played = cards_played
 
     def winner(self):
         '''
@@ -36,9 +36,17 @@ class Trick(object):
         '''
             Return a serialized representation of the trick
         '''
-        return [
-            [player.username, card] for (player, card) in self.cards_played
-        ]
+        return {
+            player.username: dict(turn=i, card=card)
+            for (i, (player, card)) in enumerate(self.cards_played)
+        }
+
+    @staticmethod
+    def deserialize():
+        '''
+            Convert the serialized representation back to a Python object
+        '''
+        return Trick()  # FIXME: implement this
 
 
 class Hand(set):
