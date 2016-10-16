@@ -15,8 +15,7 @@ pip install -r requirements.txt
 Test to see if the server is working by running
 
 ```
-python manage.py migrate
-python manage.py runserver
+python app.py
 ```
 
-and browse to `http://127.0.0.1:8000/`.
+and browse to `http://127.0.0.1:5000/`.
