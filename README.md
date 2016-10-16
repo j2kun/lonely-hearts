@@ -7,8 +7,14 @@ Run the following from the command line
 ```
 git clone git@github.com:j2kun/lonely-hearts.git
 cd lonely-hearts
-virtualenv -p python3 venv
+virtualenv -p python3 venv  
+
+# on Mac/Linux
 source venv/bin/activate
+
+# on Windows
+. venv/Scripts/activate
+
 pip install -r requirements.txt
 ```
 
