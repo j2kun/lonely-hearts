@@ -62,6 +62,7 @@ class Round(object):
             A Round object tracks the state of a given round.
         '''
         self.players = players
+        self.hands = dict()      # Player -> Hand
         self.tricks = []
         self.turn = None
 
