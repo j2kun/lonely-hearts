@@ -18,6 +18,35 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Getting new changes
+
+To get new changes to the repository (usually you do this every time you start
+working) run
+
+```
+git pull
+```
+
+If your git starts outputting strange messages and you want to reset it (at the
+cost of losing any local changes) run
+
+```
+git reset --hard origin/master
+```
+
+### Fixing problems
+
+To delete and recreate your virtual envrionment, run the following
+from the base directory of the project.
+
+```
+deactivate
+rm -rf venv
+virtualenv -p python3.5 venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
 ## Testing
 
 Use `py.test` to run the test suite. This will find all files starting with
