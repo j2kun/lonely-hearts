@@ -1,3 +1,4 @@
+
 CARDS = set([
     '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', 'Th', 'Jh', 'Qh', 'Kh', 'Ah',
     '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', 'Ts', 'Js', 'Qs', 'Ks', 'As',
@@ -10,6 +11,32 @@ class Player(object):
     def __init__(self, username):
         self.username = username
 
+def get_player_object(name):
+    #return player object from input name
+    pass
+
+def card_value(card):
+    number = card[0]
+    if number == 'T':
+        return 10
+    elif number == 'J':
+        return 11
+    elif number == 'Q':
+        return 12
+    elif number == 'K':
+        return 13
+    elif number == 'A':
+        return 14
+    else:
+        return int(number)
+
+def if_dominates(card1, card2):
+    if card2[1] == card1[1]:  #check that suit matches
+        if card_value(card1) < card_value(card2):
+            return True 
+    else:
+        return False
+  
 
 class Trick(object):
     def __init__(self, cards_played):
@@ -20,17 +47,33 @@ class Trick(object):
         '''
         self.cards_played = cards_played
 
+    def leading_suit(self):
+        #returns the suit that was led
+        #either 'c', 'd', 's', 'h'
+        card = self.cards_played[0][1]
+        card_type = card[1]
+                           
+        return card_type
+  
+
     def winner(self):
         '''
             Return the player who won the trick
         '''
-        pass
+        winner, winning_card = self.cards_played[0]
+                
+        for (player, card) in self.cards_played[1:]:
+            if if_dominates(winning_card, card) == True:
+                winner = player
+                winning_card = card     
+    
+        return winner
 
     def leader(self):
         '''
             Return the player who led the trick
         '''
-        pass
+        return self.cards_played[0][0]
 
     def serialize(self):
         '''
@@ -42,10 +85,11 @@ class Trick(object):
         }
 
     @staticmethod
-    def deserialize():
+    def deserialize(data):
         '''
             Convert the serialized representation back to a Python object
         '''
+
         return Trick()  # FIXME: implement this
 
 
