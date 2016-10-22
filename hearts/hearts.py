@@ -8,8 +8,9 @@ CARDS = set([
 
 
 def get_player_object(name):
-    #return player object from input name
+    # return player object from input name
     pass
+
 
 def card_value(card):
     number = card[0]
@@ -26,6 +27,7 @@ def card_value(card):
     else:
         return int(number)
 
+
 def if_dominates(card1, card2):
     if card2[1] == card1[1] and card_value(card1) < card_value(card2):
         return True
@@ -40,16 +42,14 @@ class Player(object):
 
 class Game(object):
     def __init___(self, players):
-        '''
-	    Blah comments
-	'''
+        pass
+
 
 class Hand(set):
-    def __init__(self, cards):  #cards is a list of cardnames
+    def __init__(self, cards):  # cards is a list of cardnames
         if not all(c in CARDS for c in cards):
             raise ValueError('A hand can only contain values from: {}'.format(CARDS))
         super().__init__(cards)
-
 
 
 class Round(object):
@@ -61,16 +61,14 @@ class Round(object):
         '''
         self.players = players   # list of players in seated order
         self.hands = dict()      # Player -> Hand
-        self.tricks = []	 #first trick must be played by '2c'
+        self.tricks = []         # first trick must be played by '2c'
         self.turn = None
         self.hearts_broken = False
-        self.who_starts = None   #player with '2c'
-
+        self.who_starts = None   # player with '2c'
 
     def can_follow_suit(self, player):
-        #returns True if player holds a suit of the most recent trick
+        # returns True if player holds a suit of the most recent trick
         pass
-
 
     def is_valid_play(self, player, card):
         '''
@@ -83,35 +81,34 @@ class Round(object):
         '''
         pass
 
-
     def play_card(self, player, card):
         '''
             Play a given card (this method assumes the move is valid)
         '''
-	#check if player has '2c'
+        # check if player has '2c'
         if '2c' in self.hands[player]:
             new_trick = Trick([(player, '2c')])
             self.tricks.append(new_trick)
 
-        #check if player is the winner of previous hand to start new trick
+        # check if player is the winner of previous hand to start new trick
         elif len(self.tricks[-1]) == 4 and player == self.tricks[-1].winner():
 
             try:
-                is_valid_play(self, player, card)
+                self.is_valid_play(self, player, card)
                 new_trick = Trick([player, card])
                 self.tricks.append(new_trick)
 
-            except(ValueError):
-                #Do somethign
+            except ValueError:
+                # Do something
                 pass
         else:
             try:
-                is_valid_play(self, player, card)
+                self.is_valid_play(self, player, card)
                 last_trick = self.tricks[-1]
                 last_trick.cards_played.append((player, card))
 
-            except(ValueError):
-                #Do something
+            except ValueError:
+                # Do something
                 pass
 
     def serialize(self):
@@ -121,7 +118,6 @@ class Round(object):
             'hands': self.hands,
             'tricks': self.tricks.serialize(),
         }
-
 
 
 class Trick(object):
@@ -140,16 +136,14 @@ class Trick(object):
         winner, winning_card = self.cards_played[0]
 
         for (player, card) in self.cards_played[1:]:
-            if if_dominates(winning_card, card) == True:
+            if if_dominates(winning_card, card):
                 winner = player
                 winning_card = card
         return winner
 
-
     def leader(self):
-        #return the Player who led the trick
+        # return the Player who led the trick
         return self.cards_played[0][0]
-
 
     def serialize(self):
         '''
@@ -162,11 +156,10 @@ class Trick(object):
 
     @staticmethod
     def deserialize(trick_data):
-        #trick_data is a dictionary with keys('player name')
-	#and values( dict{ 'turn': int, 'card': 'cardname'} )
+        # trick_data is a dictionary with keys('player name')
+        # and values( dict{ 'turn': int, 'card': 'cardname'} )
 
-        play_sequence = [0,0,0,0]
+        play_sequence = [0, 0, 0, 0]
         for username, play in trick_data.items():
             play_sequence[play['turn']] = (Player(username), play['card'])
         return Trick(play_sequence)
-
