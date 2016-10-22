@@ -1,5 +1,30 @@
 import pytest
 from hearts.hearts import Hand, Player, Trick
+from hearts.hearts import card_value, if_dominates
+
+P1 = Player('Lauren')
+P2 = Player('Erin')
+P3 = Player('Jeremy')
+P4 = Player('Daniel')
+
+def test_trick_winner():
+    trick = Trick([
+        (P1, '5h'),
+        (P2, '3h'),
+        (P3, 'Jh'),
+        (P4, 'Qs'),
+    ])
+ 
+    assert trick.winner() == P3
+
+def test_trick_leader():
+    trick = Trick([
+        (P3, '5h'),
+        (P2, '3h'),
+        (P1, 'Jh'),
+        (P4, 'Qs'),
+    ])
+    assert trick.leader() == P3
 
 
 def test_hand():
@@ -12,8 +37,7 @@ def test_hand():
     with pytest.raises(ValueError):
         Hand(['Xq'])
 
-
-def test_trick_serialize():
+def test_serialize():
     trick = Trick([
         (Player('Lauren'), '2h'),
         (Player('Erin'), '8s'),
@@ -29,4 +53,10 @@ def test_trick_serialize():
     }
 
     assert expected_serialized == trick.serialize()
-    assert trick == Trick.deserialize(trick.serialize())
+    
+    deserialized = Trick.deserialize(trick.serialize())
+
+    for i in range(4):
+        assert trick.cards_played[i][0].username == deserialized.cards_played[i][0].username
+        assert trick.cards_played[i][1] == deserialized.cards_played[i][1]
+

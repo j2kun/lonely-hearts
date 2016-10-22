@@ -7,10 +7,6 @@ CARDS = set([
 ])
 
 
-class Player(object):
-    def __init__(self, username):
-        self.username = username
-
 def get_player_object(name):
     #return player object from input name
     pass
@@ -31,49 +27,129 @@ def card_value(card):
         return int(number)
 
 def if_dominates(card1, card2):
-    if card2[1] == card1[1]:  #check that suit matches
-        if card_value(card1) < card_value(card2):
-            return True 
+    if card2[1] == card1[1] and card_value(card1) < card_value(card2):
+        return True
     else:
-        return False
+        return False       
+
   
+class Player(object):
+    def __init__(self, username):
+        self.username = username
+
+
+class Game(object):
+    def __init___(self, players):
+        '''
+	    Blah comments
+	'''
+
+class Hand(set):
+    def __init__(self, cards):  #cards is a list of cardnames
+        if not all(c in CARDS for c in cards):
+            raise ValueError('A hand can only contain values from: {}'.format(CARDS))
+        super(set).__init__(cards)
+
+
+
+class Round(object):
+    def __init__(self, players):
+        '''
+            A Round object tracks the state of a given round.
+            
+            TO DO: 1. Keep track of who_starts and whose turn it is
+        '''
+        self.players = players   # list of players in seated order
+        self.hands = dict()      # Player -> Hand
+        self.tricks = []	 #first trick must be played by '2c'
+        self.turn = None	 
+        self.hearts_broken = False	
+        self.who_starts = None   #player with '2c'
+
+    
+    def can_follow_suit(self, player): 
+        #returns True if player holds a suit of the most recent trick
+        pass
+
+
+    def is_valid_play(self, player, card):
+        '''
+            Validate if the given player is allowed to play the given card.
+            Raise a ValueError if the move is invalid.
+            
+            TO DO: 1. (for leading a trick) Check if hearts are broken
+                   2. (for continuing a trick) Check if player has any cards from the led suit
+                  
+        '''
+        pass
+
+
+    def play_card(self, player, card):
+        '''
+            Play a given card (this method assumes the move is valid)
+        '''
+	#check if player has '2c'
+        if '2c' in self.hands[player]:
+            new_trick = Trick([(player, '2c')])
+            self.tricks.append(new_trick)
+
+        #check if player is the winner of previous hand to start new trick
+        elif len(self.tricks[-1]) == 4 and player == self.tricks[-1].winner():
+
+            try:
+                is_valid_play(self, player, card)
+                new_trick = Trick([player, card])
+                self.tricks.append(new_trick)
+                
+            except(ValueError):
+                #Do somethign
+                pass
+        else:
+            try:
+                is_valid_play(self, player, card)
+                last_trick = self.tricks[-1]
+                last_trick.cards_played.append((player, card))
+
+            except(ValueError):
+                #Do something
+                pass
+
+    def serialize(self):
+        return {
+            'players': self.players,
+            'turn': None,   # FIXME: add player turn
+            'hands': self.hands,
+            'tricks': self.tricks.serialize(),
+        }
+
+
 
 class Trick(object):
     def __init__(self, cards_played):
         '''
             A Trick is an ordering of cards and who played them.
             The `cards` attribute is the raw trick data, a list
-            of pairs (player, card)
+            of pairs (player, card).  Trick is assumed to be initialized by 
+            a non-empty list.
         '''
         self.cards_played = cards_played
-
-    def leading_suit(self):
-        #returns the suit that was led
-        #either 'c', 'd', 's', 'h'
-        card = self.cards_played[0][1]
-        card_type = card[1]
-                           
-        return card_type
-  
+        self.suit = self.cards_played[0][1][1]
 
     def winner(self):
-        '''
-            Return the player who won the trick
-        '''
+
         winner, winning_card = self.cards_played[0]
                 
         for (player, card) in self.cards_played[1:]:
             if if_dominates(winning_card, card) == True:
                 winner = player
                 winning_card = card     
-    
         return winner
 
+
     def leader(self):
-        '''
-            Return the player who led the trick
-        '''
+        #return the Player who led the trick
         return self.cards_played[0][0]
+
 
     def serialize(self):
         '''
@@ -85,48 +161,12 @@ class Trick(object):
         }
 
     @staticmethod
-    def deserialize(data):
-        '''
-            Convert the serialized representation back to a Python object
-        '''
+    def deserialize(trick_data):
+        #trick_data is a dictionary with keys('player name')
+	#and values( dict{ 'turn': int, 'card': 'cardname'} )
 
-        return Trick()  # FIXME: implement this
+        play_sequence = [0,0,0,0]
+        for username, play in trick_data.items():
+            play_sequence[play['turn']] = (Player(username), play['card'])    
+        return Trick(play_sequence)
 
-
-class Hand(set):
-    def __init__(self, cards):
-        if not all(c in CARDS for c in cards):
-            raise ValueError('A hand can only contain values from: {}'.format(CARDS))
-        super().__init__(cards)
-
-
-class Round(object):
-    def __init__(self, players):
-        '''
-            A Round object tracks the state of a given round.
-        '''
-        self.players = players
-        self.hands = dict()      # Player -> Hand
-        self.tricks = []
-        self.turn = None
-
-    def is_valid_play(self, player, card):
-        '''
-            Validate if the given player is allowed to play the given card.
-            Raise a ValueError if the move is invalid.
-        '''
-        pass
-
-    def play_card(self, player, card):
-        '''
-            Play a given card (this method assumes the move is valid)
-        '''
-        pass
-
-    def serialize(self):
-        return {
-            'players': self.players,
-            'turn': None,   # FIXME: add player turn
-            'hands': self.hands,
-            'tricks': self.tricks.serialize(),
-        }
