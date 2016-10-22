@@ -6,6 +6,7 @@ CARDS = set([
     '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', 'Td', 'Jd', 'Qd', 'Kd', 'Ad',
 ])
 
+
 def get_player_object(name):
     # return player object from input name
     pass
