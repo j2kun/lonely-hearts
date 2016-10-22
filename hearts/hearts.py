@@ -6,7 +6,6 @@ CARDS = set([
     '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', 'Td', 'Jd', 'Qd', 'Kd', 'Ad',
 ])
 
-
 def get_player_object(name):
     # return player object from input name
     pass
@@ -94,7 +93,7 @@ class Round(object):
         elif len(self.tricks[-1]) == 4 and player == self.tricks[-1].winner():
 
             try:
-                self.is_valid_play(self, player, card)
+                self.is_valid_play(player, card)
                 new_trick = Trick([player, card])
                 self.tricks.append(new_trick)
 
@@ -103,7 +102,7 @@ class Round(object):
                 pass
         else:
             try:
-                self.is_valid_play(self, player, card)
+                self.is_valid_play(player, card)
                 last_trick = self.tricks[-1]
                 last_trick.cards_played.append((player, card))
 
@@ -116,7 +115,7 @@ class Round(object):
             'players': self.players,
             'turn': None,   # FIXME: add player turn
             'hands': self.hands,
-            'tricks': self.tricks.serialize(),
+            'tricks': [trick.serialize() for trick in self.tricks],
         }
 
 
