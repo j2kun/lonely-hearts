@@ -1,4 +1,5 @@
 # Hearts
+![travis-badge](https://travis-ci.org/j2kun/lonely-hearts.svg?branch=master)
 
 ## First time project setup
 
