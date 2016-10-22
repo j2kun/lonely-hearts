@@ -7,5 +7,5 @@ def test_flake8():
 
 
 def test_pylint():
-    exit_status = subprocess.call(['pylint', '-E', 'hearts'])
+    exit_status = subprocess.call(['pylint', '-E', '--rcfile', '.pylintrc', 'hearts'])
     assert exit_status == 0
