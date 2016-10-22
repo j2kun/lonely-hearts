@@ -30,9 +30,9 @@ def if_dominates(card1, card2):
     if card2[1] == card1[1] and card_value(card1) < card_value(card2):
         return True
     else:
-        return False       
+        return False
 
-  
+
 class Player(object):
     def __init__(self, username):
         self.username = username
@@ -48,7 +48,7 @@ class Hand(set):
     def __init__(self, cards):  #cards is a list of cardnames
         if not all(c in CARDS for c in cards):
             raise ValueError('A hand can only contain values from: {}'.format(CARDS))
-        super(set).__init__(cards)
+        super().__init__(cards)
 
 
 
@@ -56,18 +56,18 @@ class Round(object):
     def __init__(self, players):
         '''
             A Round object tracks the state of a given round.
-            
+
             TO DO: 1. Keep track of who_starts and whose turn it is
         '''
         self.players = players   # list of players in seated order
         self.hands = dict()      # Player -> Hand
         self.tricks = []	 #first trick must be played by '2c'
-        self.turn = None	 
-        self.hearts_broken = False	
+        self.turn = None
+        self.hearts_broken = False
         self.who_starts = None   #player with '2c'
 
-    
-    def can_follow_suit(self, player): 
+
+    def can_follow_suit(self, player):
         #returns True if player holds a suit of the most recent trick
         pass
 
@@ -76,10 +76,10 @@ class Round(object):
         '''
             Validate if the given player is allowed to play the given card.
             Raise a ValueError if the move is invalid.
-            
+
             TO DO: 1. (for leading a trick) Check if hearts are broken
                    2. (for continuing a trick) Check if player has any cards from the led suit
-                  
+
         '''
         pass
 
@@ -100,7 +100,7 @@ class Round(object):
                 is_valid_play(self, player, card)
                 new_trick = Trick([player, card])
                 self.tricks.append(new_trick)
-                
+
             except(ValueError):
                 #Do somethign
                 pass
@@ -129,7 +129,7 @@ class Trick(object):
         '''
             A Trick is an ordering of cards and who played them.
             The `cards` attribute is the raw trick data, a list
-            of pairs (player, card).  Trick is assumed to be initialized by 
+            of pairs (player, card).  Trick is assumed to be initialized by
             a non-empty list.
         '''
         self.cards_played = cards_played
@@ -138,11 +138,11 @@ class Trick(object):
     def winner(self):
 
         winner, winning_card = self.cards_played[0]
-                
+
         for (player, card) in self.cards_played[1:]:
             if if_dominates(winning_card, card) == True:
                 winner = player
-                winning_card = card     
+                winning_card = card
         return winner
 
 
@@ -167,6 +167,6 @@ class Trick(object):
 
         play_sequence = [0,0,0,0]
         for username, play in trick_data.items():
-            play_sequence[play['turn']] = (Player(username), play['card'])    
+            play_sequence[play['turn']] = (Player(username), play['card'])
         return Trick(play_sequence)
 
