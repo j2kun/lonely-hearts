@@ -46,17 +46,23 @@ class Game(object):
 
 
 class Hand(set):
-    def __init__(self, cards):  # cards is a list of cardnames
+    def __init__(self, cards):     # cards is a list of cardnames
         if not all(c in CARDS for c in cards):
             raise ValueError('A hand can only contain values from: {}'.format(CARDS))
         super().__init__(cards)
+
+    def has_suit(self, suit):  # suit is either 'c', 'd', 'h', or 's'
+        for card in self:
+            if card[1] == suit:
+                return True
+            else:
+                return False
 
 
 class Round(object):
     def __init__(self, players):
         '''
             A Round object tracks the state of a given round.
-
             TO DO: 1. Keep track of who_starts and whose turn it is
         '''
         self.players = players   # list of players in seated order

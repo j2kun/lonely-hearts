@@ -3,6 +3,7 @@ import pytest
 from hearts.hearts import Hand
 from hearts.hearts import Player
 from hearts.hearts import Trick
+from hearts.hearts import Round
 
 P1 = Player('Lauren')
 P2 = Player('Erin')
@@ -32,8 +33,10 @@ def test_trick_leader():
 
 
 def test_hand():
-    hand = Hand(['Ah', '7d', '6c', '2s'])
+    hand = Hand(['Ah', '7d', '6h', '2s'])
     assert '7d' in hand
+    assert hand.has_suit('h') == True
+    assert hand.has_suit('c') == False
 
     with pytest.raises(ValueError):
         Hand(['1h'])
@@ -64,3 +67,17 @@ def test_serialize():
     for i in range(4):
         assert trick.cards_played[i][0].username == deserialized.cards_played[i][0].username
         assert trick.cards_played[i][1] == deserialized.cards_played[i][1]
+
+
+def test_is_valid_play():
+    pass
+
+
+def test_play_card():
+    pass
+
+
+def test_serialize_Round():
+    pass
+
+
