@@ -17,9 +17,9 @@ if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
+app.config['SECRET_KEY'] = os.envrion.get('SECRET_KEY', 'abc123')
 socketio = SocketIO(app)
-db_client = MongoClient('mongodb://localhost:27107/')
+db_client = MongoClient(os.environ.get('DATABASE_URL'))
 
 
 @socketio.on('chat message', namespace='/chat')
