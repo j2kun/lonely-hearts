@@ -2,10 +2,12 @@ from flask import Flask
 from flask import render_template
 from flask_socketio import SocketIO
 from flask_socketio import emit
+from pymongo import MongoClient
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
+db_client = MongoClient('mongodb://localhost:27107/')
 
 
 @socketio.on('chat message', namespace='/chat')
