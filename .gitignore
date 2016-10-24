@@ -61,3 +61,6 @@ venv/
 
 # local copies of databases
 *.sqlite3
+
+# Local test mongodb database directory
+data/
