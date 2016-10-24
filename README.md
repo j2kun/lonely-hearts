@@ -3,6 +3,8 @@
 
 ## First time project setup
 
+### Set up python requirements
+
 Run the following from the command line
 
 ```
@@ -17,6 +19,21 @@ source venv/bin/activate
 . venv/Scripts/activate
 
 pip install -r requirements.txt
+```
+
+### Set up database
+
+First install the mongo database and `mongod` (daemon that runs the database)
+from the [mongodb website](https://www.mongodb.com/). For OS X, you can run
+
+```
+brew install mongodb
+```
+
+Then create the local data directory for the database.
+
+```
+mkdir -p data/db
 ```
 
 ### Getting new changes
@@ -57,7 +74,13 @@ trace.
 
 ## Running a local server
 
-Test to see if the server is working by running
+Start the database
+
+```
+mongod --dbpath data/db
+```
+
+In a separate terminal window, run the web app
 
 ```
 python app.py
