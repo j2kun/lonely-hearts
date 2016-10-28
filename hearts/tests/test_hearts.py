@@ -79,5 +79,3 @@ def test_play_card():
 
 def test_serialize_Round():
     pass
-
-

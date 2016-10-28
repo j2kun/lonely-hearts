@@ -55,8 +55,7 @@ class Hand(set):
         for card in self:
             if card[1] == suit:
                 return True
-            else:
-                return False
+        return False
 
 
 class Round(object):
@@ -65,56 +64,66 @@ class Round(object):
             A Round object tracks the state of a given round.
             TO DO: 1. Keep track of who_starts and whose turn it is
         '''
-        self.players = players   # list of players in seated order
+        self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
-        self.tricks = []         # first trick must be played by '2c'
+        self.tricks = []         # Should all 13 tricks be initialized at the beginning?
         self.turn = None
         self.hearts_broken = False
-        self.who_starts = None   # player with '2c'
+        self.who_starts = None   # Player with '2c'
 
-    def can_follow_suit(self, player):
-        # returns True if player holds a suit of the most recent trick
+        self.deal()
+
+    def deal(self):
+        # Populate self.hands with a random deal
         pass
 
-    def is_valid_play(self, player, card):
+    def can_follow_suit(self, player, trick):
+        current_hand = self.hands[player]
+        return current_hand.has_suit(trick.suit)
+
+    def is_hearts_broken(self):
+        if self.hearts_broken:
+            return
+        else:
+            # Raise an error "hearts haven't been broken!"
+            pass
+
+    def is_valid_play(self, player, card, trick):
         '''
             Validate if the given player is allowed to play the given card.
-            Raise a ValueError if the move is invalid.
-
-            TO DO: 1. (for leading a trick) Check if hearts are broken
-                   2. (for continuing a trick) Check if player has any cards from the led suit
-
+            Raise a ValueError if the card is invalid.  Assume that the play
+            is a continuation of a trick.
         '''
         pass
 
     def play_card(self, player, card):
         '''
-            Play a given card (this method assumes the move is valid)
+            Play a given card (assuming it's the player's turn and card is valid)
         '''
-        # check if player has '2c'
+        last_trick = self.tricks[-1]
+
+        # The very first play
         if '2c' in self.hands[player]:
             new_trick = Trick([(player, '2c')])
             self.tricks.append(new_trick)
 
-        # check if player is the winner of previous hand to start new trick
-        elif len(self.tricks[-1]) == 4 and player == self.tricks[-1].winner():
-
-            try:
-                self.is_valid_play(player, card)
-                new_trick = Trick([player, card])
-                self.tricks.append(new_trick)
-
-            except ValueError:
-                # Do something
-                pass
+        # Check if player is the winner of previous hand to start new trick
+        elif len(last_trick.cards_played) == 4 and player == last_trick.winner():
+            if card[1] == 'h':
+                try:
+                    self.is_hearts_broken()
+                    new_trick = Trick([player, card])
+                    self.tricks.append(new_trick)
+                except ValueError:
+                    # Hearts have not been broken
+                    pass
         else:
             try:
-                self.is_valid_play(player, card)
-                last_trick = self.tricks[-1]
+                self.is_valid_play(player, card, last_trick)
                 last_trick.cards_played.append((player, card))
-
             except ValueError:
-                # Do something
+                # Do something (card is not the same suit as the leading suit
+                # and player has that suit.
                 pass
 
     def serialize(self):
