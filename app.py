@@ -1,11 +1,25 @@
+import os
+
+import dotenv
 from flask import Flask
 from flask import render_template
 from flask_socketio import SocketIO
 from flask_socketio import emit
+from pymongo import MongoClient
+
+'''
+    Load the configuration variables from .env
+'''
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+dotenv_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
+app.config['SECRET_KEY'] = os.envrion.get('SECRET_KEY', 'abc123')
 socketio = SocketIO(app)
+db_client = MongoClient(os.environ.get('DATABASE_URL'))
 
 
 @socketio.on('chat message', namespace='/chat')
