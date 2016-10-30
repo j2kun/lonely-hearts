@@ -14,22 +14,6 @@ def get_player_object(name):
     pass
 
 
-def card_value(card):
-    number = card[0]
-    if number == 'T':
-        return 10
-    elif number == 'J':
-        return 11
-    elif number == 'Q':
-        return 12
-    elif number == 'K':
-        return 13
-    elif number == 'A':
-        return 14
-    else:
-        return int(number)
-
-
 def if_dominates(card1, card2):
     if card2[1] == card1[1] and card_value(card1) < card_value(card2):
         return True
@@ -49,19 +33,8 @@ class Game(object):
 
 class Card(object):
     rank_values = {
-        '2': 2,
-        '3': 3,
-        '4': 4,
-        '5': 5,
-        '6': 6,
-        '7': 7,
-        '8': 8,
-        '9': 9,
-        'T': 10,
-        'J': 11,
-        'Q': 12,
-        'K': 13,
-        'A': 14,
+        '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+        'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14,
     }
 
     def __init__(self, rank, suit):
@@ -83,6 +56,10 @@ class Card(object):
 
     def serialize(self):
         return ''.join([self.rank, self.suit])
+
+    @property
+    def integer_rank(self):
+        return Card.rank_values[self.rank]
 
 
 class Hand(list):
