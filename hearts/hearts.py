@@ -1,40 +1,9 @@
 from random import shuffle
 
 
-CARDS = [
-    '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', 'Th', 'Jh', 'Qh', 'Kh', 'Ah',
-    '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', 'Ts', 'Js', 'Qs', 'Ks', 'As',
-    '2c', '3c', '4c', '5c', '6c', '7c', '8c', '9c', 'Tc', 'Jc', 'Qc', 'Kc', 'Ac',
-    '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', 'Td', 'Jd', 'Qd', 'Kd', 'Ad',
-]
-
-
 def get_player_object(name):
     # return player object from input name
     pass
-
-
-def card_value(card):
-    number = card[0]
-    if number == 'T':
-        return 10
-    elif number == 'J':
-        return 11
-    elif number == 'Q':
-        return 12
-    elif number == 'K':
-        return 13
-    elif number == 'A':
-        return 14
-    else:
-        return int(number)
-
-
-def if_dominates(card1, card2):
-    if card2[1] == card1[1] and card_value(card1) < card_value(card2):
-        return True
-    else:
-        return False
 
 
 class Player(object):
@@ -48,8 +17,48 @@ class Game(object):
 
 
 class Card(object):
-    def __init__(self):
-        pass
+    rank_values = {
+        '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+        'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14,
+    }
+
+    def __init__(self, rank, suit):
+        self.rank = rank
+        self.suit = suit
+
+    def validate(self):
+        if self.rank not in Card.rank_values:
+            raise ValueError('Invalid rank {}'.format(self.rank))
+        if self.suit not in ['h', 's', 'c', 'd']:
+            raise ValueError('Invalid suit {}'.format(self.suit))
+
+    @staticmethod
+    def deserialize(serialized):
+        rank, suit = serialized[0], serialized[1]
+        card = Card(rank, suit)
+        card.validate()
+        return card
+
+    def serialize(self):
+        return ''.join([self.rank, self.suit])
+
+    @property
+    def integer_rank(self):
+        return Card.rank_values[self.rank]
+
+    def dominates(self, other):
+        return self.suit == other.suit and self.integer_rank > other.integer_rank
+
+    def __eq__(self, other):
+        return self.rank == other.rank and self.suit == other.suit
+
+
+CARDS = [Card.deserialize(c) for c in [
+    '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', 'Th', 'Jh', 'Qh', 'Kh', 'Ah',
+    '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', 'Ts', 'Js', 'Qs', 'Ks', 'As',
+    '2c', '3c', '4c', '5c', '6c', '7c', '8c', '9c', 'Tc', 'Jc', 'Qc', 'Kc', 'Ac',
+    '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', 'Td', 'Jd', 'Qd', 'Kd', 'Ad',
+]]
 
 
 class Hand(list):
@@ -60,7 +69,7 @@ class Hand(list):
 
     def has_suit(self, suit):  # suit is either 'c', 'd', 'h', or 's'
         for card in self:
-            if card[1] == suit:
+            if card.suit == suit:
                 return True
         return False
 
@@ -183,17 +192,18 @@ class Trick(object):
             a non-empty list.
         '''
         self.cards_played = cards_played
-        self.suit = self.cards_played[0][1][1]
+        first_card = self.cards_played[0][1]
+        self.suit = first_card.suit
         self.size = len(self.cards_played)
 
     def winner(self):
-
         winner, winning_card = self.cards_played[0]
 
         for (player, card) in self.cards_played[1:]:
-            if if_dominates(winning_card, card):
+            if card.dominates(winning_card):
                 winner = player
                 winning_card = card
+
         return winner
 
     def leader(self):
@@ -205,7 +215,7 @@ class Trick(object):
             Return a serialized representation of the trick
         '''
         return {
-            player.username: dict(turn=i, card=card)
+            player.username: dict(turn=i, card=card.serialize())
             for (i, (player, card)) in enumerate(self.cards_played)
         }
 
@@ -216,5 +226,5 @@ class Trick(object):
 
         play_sequence = [0, 0, 0, 0]
         for username, play in trick_data.items():
-            play_sequence[play['turn']] = (Player(username), play['card'])
+            play_sequence[play['turn']] = (Player(username), Card.deserialize(play['card']))
         return Trick(play_sequence)
