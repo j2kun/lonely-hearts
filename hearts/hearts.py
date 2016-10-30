@@ -14,13 +14,6 @@ def get_player_object(name):
     pass
 
 
-def if_dominates(card1, card2):
-    if card2[1] == card1[1] and card_value(card1) < card_value(card2):
-        return True
-    else:
-        return False
-
-
 class Player(object):
     def __init__(self, username):
         self.username = username
@@ -61,6 +54,8 @@ class Card(object):
     def integer_rank(self):
         return Card.rank_values[self.rank]
 
+    def dominates(self, other):
+        return self.suit == other.suit and self.integer_rank > other.integer_rank
 
 class Hand(list):
     def __init__(self, cards):     # cards is a list of cardnames
