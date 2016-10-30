@@ -68,6 +68,12 @@ class Card(object):
         self.rank = rank
         self.suit = suit
 
+    def validate(self):
+        if self.rank not in Card.rank_values:
+            raise Exception('Invalid rank {}'.format(self.rank))
+        if self.suit not in ['h', 's', 'c', 'd']:
+            raise Exception('Invalid suit {}'.format(self.suit))
+
     @staticmethod
     def deserialize(serialized):
         rank, suit = serialized[0], serialized[1]
