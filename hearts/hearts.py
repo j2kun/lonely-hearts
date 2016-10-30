@@ -57,6 +57,9 @@ class Card(object):
     def dominates(self, other):
         return self.suit == other.suit and self.integer_rank > other.integer_rank
 
+    def __eq__(self, other):
+        return self.rank == other.rank and self.suit == other.suit
+
 
 class Hand(list):
     def __init__(self, cards):     # cards is a list of cardnames
