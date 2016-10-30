@@ -1,9 +1,10 @@
 import pytest
 
+from hearts.hearts import Card
 from hearts.hearts import Hand
 from hearts.hearts import Player
-from hearts.hearts import Trick
 from hearts.hearts import Round
+from hearts.hearts import Trick
 
 P1 = Player('Lauren')
 P2 = Player('Erin')
@@ -16,7 +17,15 @@ CARDS = [
     '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', 'Ts', 'Js', 'Qs', 'Ks', 'As',
     '2c', '3c', '4c', '5c', '6c', '7c', '8c', '9c', 'Tc', 'Jc', 'Qc', 'Kc', 'Ac',
     '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', 'Td', 'Jd', 'Qd', 'Kd', 'Ad',
-] 
+]
+
+""" Card class tests """
+
+
+def test_card_serialize():
+    card = Card('A', 'h')
+    assert 'Ah' == card.serialize()
+    assert card == Card.deserialize('Ah')
 
 
 """ Hand Class Tests """
@@ -99,7 +108,7 @@ def test_can_follow_suit():
     trick = Trick([
         (P1, '5h'),
         (P2, '3h'),
-        (P3, 'Jh')        
+        (P3, 'Jh')
     ])
     sample_round.hands[P4] = hand1
     assert sample_round.can_follow_suit(P4, trick) == False
