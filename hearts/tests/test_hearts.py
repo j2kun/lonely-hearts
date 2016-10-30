@@ -21,6 +21,15 @@ def test_card_serialize():
     assert card == Card.deserialize('Ah')
 
 
+def test_card_validate():
+    with pytest.raises(ValueError):
+        Card.deserialize('Ch')
+    with pytest.raises(ValueError):
+        Card.deserialize('Q4')
+    with pytest.raises(ValueError):
+        Card.deserialize('2t')
+
+
 """ Hand Class Tests """
 
 
