@@ -69,7 +69,7 @@ class Hand(list):
 
     def has_suit(self, suit):  # suit is either 'c', 'd', 'h', or 's'
         for card in self:
-            if card[1] == suit:
+            if card.suit == suit:
                 return True
         return False
 
@@ -192,7 +192,8 @@ class Trick(object):
             a non-empty list.
         '''
         self.cards_played = cards_played
-        self.suit = self.cards_played[0][1][1]
+        first_card = self.cards_played[0][1]
+        self.suit = first_card.suit
         self.size = len(self.cards_played)
 
     def winner(self):
@@ -214,7 +215,7 @@ class Trick(object):
             Return a serialized representation of the trick
         '''
         return {
-            player.username: dict(turn=i, card=card)
+            player.username: dict(turn=i, card=card.serialize())
             for (i, (player, card)) in enumerate(self.cards_played)
         }
 
@@ -225,5 +226,5 @@ class Trick(object):
 
         play_sequence = [0, 0, 0, 0]
         for username, play in trick_data.items():
-            play_sequence[play['turn']] = (Player(username), play['card'])
+            play_sequence[play['turn']] = (Player(username), Card.deserialize(play['card']))
         return Trick(play_sequence)
