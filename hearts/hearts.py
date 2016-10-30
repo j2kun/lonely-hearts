@@ -57,6 +57,7 @@ class Card(object):
     def dominates(self, other):
         return self.suit == other.suit and self.integer_rank > other.integer_rank
 
+
 class Hand(list):
     def __init__(self, cards):     # cards is a list of cardnames
         if not all(c in CARDS for c in cards):
@@ -192,13 +193,13 @@ class Trick(object):
         self.size = len(self.cards_played)
 
     def winner(self):
-
         winner, winning_card = self.cards_played[0]
 
         for (player, card) in self.cards_played[1:]:
-            if if_dominates(winning_card, card):
+            if card.dominates(winning_card):
                 winner = player
                 winning_card = card
+
         return winner
 
     def leader(self):
