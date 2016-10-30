@@ -34,16 +34,15 @@ def test_card_validate():
 
 
 def test_hand():
-    hand = Hand(['Ah', '7d', '6h', '2s'])
-    assert '7d' in hand
+    hand = Hand([
+        Card('A', 'h'),
+        Card('7', 'd'),
+        Card('6', 'h'),
+        Card('2', 's')
+    ])
+    assert Card('7', 'd') in hand
     assert hand.has_suit('h') == True
     assert hand.has_suit('c') == False
-
-    with pytest.raises(ValueError):
-        Hand(['1h'])
-
-    with pytest.raises(ValueError):
-        Hand(['Xq'])
 
 
 """Trick Class Tests"""
@@ -51,30 +50,30 @@ def test_hand():
 
 def test_trick_winner():
     trick = Trick([
-        (P1, '5h'),
-        (P2, '3h'),
-        (P3, 'Jh'),
-        (P4, 'Qs'),
+        (P1, Card('5', 'h')),
+        (P2, Card('3', 'h')),
+        (P3, Card('J', 'h')),
+        (P4, Card('Q', 's')),
     ])
     assert trick.winner() == P3
 
 
 def test_trick_leader():
     trick = Trick([
-        (P3, '5h'),
-        (P2, '3h'),
-        (P1, 'Jh'),
-        (P4, 'Qs'),
+        (P3, Card('5', 'h')),
+        (P2, Card('3', 'h')),
+        (P1, Card('J', 'h')),
+        (P4, Card('Q', 's')),
     ])
     assert trick.leader() == P3
 
 
 def test_serialize():
     trick = Trick([
-        (Player('Lauren'), '2h'),
-        (Player('Erin'), '8s'),
-        (Player('Jeremy'), '6h'),
-        (Player('Daniel'), 'Qs'),
+        (Player('Lauren'), Card('2', 'h')),
+        (Player('Erin'), Card('8', 's')),
+        (Player('Jeremy'), Card('6', 'h')),
+        (Player('Daniel'), Card('Q', 's')),
     ])
 
     expected_serialized = {
@@ -105,12 +104,12 @@ def test_deal():
 
 
 def test_can_follow_suit():
-    hand1 = Hand(['Td', '5c', '7c', 'Qs', 'As'])
-    hand2 = Hand(['Td', '5c', '7c', 'Kh', 'As'])
+    hand1 = Hand([Card('T', 'd'), Card('5', 'c'), Card('7', 'c'), Card('Q', 's'), Card('A', 's')])
+    hand2 = Hand([Card('T', 'd'), Card('5', 'c'), Card('7', 'c'), Card('K', 'h'), Card('A', 's')])
     trick = Trick([
-        (P1, '5h'),
-        (P2, '3h'),
-        (P3, 'Jh')
+        (P1, Card('5', 'h')),
+        (P2, Card('3', 'h')),
+        (P3, Card('J', 'h'))
     ])
     sample_round.hands[P4] = hand1
     assert sample_round.can_follow_suit(P4, trick) == False
