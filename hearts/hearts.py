@@ -76,6 +76,16 @@ class Hand(list):
     def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
         self.sort(key=lambda card: (card.suit, card.rank_values[card.rank]))
 
+    def serialize(self):
+        return [card.serialize() for card in self]
+
+    @staticmethod
+    def deserialize(serialized):
+        return Hand([Card.deserialize(some_card) for some_card in serialized])
+
+    def __eq__(self, other):
+        return {card.serialize() for card in self} == {card.serialize() for card in other}
+
 
 class Error(Exception):
     pass
@@ -157,7 +167,7 @@ class Round(object):
         try:
             self.is_valid_follow(player, trick, card)
             self.add_to_last_trick(player, card)
-            self.hand[player].remove(card)
+            self.hands[player].remove(card)
         except CardError:  # Player has suit but did not follow
             pass
 
