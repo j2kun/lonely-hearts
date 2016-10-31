@@ -67,14 +67,14 @@ class Hand(list):
             raise ValueError('A hand can only contain values from: {}'.format(CARDS))
         super().__init__(cards)
 
-    def has_suit(self, suit):  # suit is either 'c', 'd', 'h', or 's'
+    def has_suit(self, suit):
         for card in self:
             if card.suit == suit:
                 return True
         return False
 
-    def sorted(self):
-        pass
+    def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
+        self.sort(key=lambda card: (card.suit, card.rank_values[card.rank]))
 
 
 class Error(Exception):
