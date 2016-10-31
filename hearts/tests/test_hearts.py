@@ -128,7 +128,19 @@ def test_is_valid_lead():
 
 
 def test_is_valid_follow():
-    pass
+    fake_trick = Trick([
+        (P1, Card('5', 'h')),
+        (P2, Card('3', 'h')),
+        (P3, Card('J', 'h'))
+    ])
+    fake_hand = Hand([
+        Card('A', 'h'),
+        Card('7', 'd'),
+        Card('6', 'h'),
+        Card('2', 's')
+    ])
+    with pytest.raises(CardError):
+        sample_round.is_valid_follow(P4, fake_trick, fake_hand[1])
 
 
 def test_play_card():
