@@ -119,21 +119,21 @@ class Round(object):
         return hand.has_suit(trick.suit)
 
     def is_valid_lead(self, player, card):
-        if card[1] == 'h' and not self.hearts_broken:
-            if not all(card[1] == 'h' for card in self.hands[player]):
+        if card.suit == 'h' and not self.hearts_broken:
+            if not all(card.suit == 'h' for card in self.hands[player]):
                 raise HeartsError
             else:  # Player has no other available suit to lead with
                 self.hearts_broken = True
         return
 
     def is_valid_follow(self, player, trick, card):
-        if card[1] == trick.suit:
+        if card.suit == trick.suit:
             return
         else:
             if self.can_follow_suit(player, trick):
                 raise CardError
             else:
-                if card[1] == 'h':
+                if card.suit == 'h':
                     self.heartsbroken = True
                 return
 

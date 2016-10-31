@@ -5,6 +5,9 @@ from hearts.hearts import Hand
 from hearts.hearts import Player
 from hearts.hearts import Round
 from hearts.hearts import Trick
+from hearts.hearts import Error
+from hearts.hearts import CardError
+from hearts.hearts import HeartsError
 
 P1 = Player('Lauren')
 P2 = Player('Erin')
@@ -116,6 +119,16 @@ def test_can_follow_suit():
 
     sample_round.hands[P4] = hand2
     assert sample_round.can_follow_suit(P4, trick) == True
+
+
+def test_is_valid_lead():
+    sample_round.hearts_broken = False
+    with pytest.raises(HeartsError):
+        sample_round.is_valid_lead(P1, Card('4', 'h'))
+
+
+def test_is_valid_follow():
+    pass
 
 
 def test_play_card():
