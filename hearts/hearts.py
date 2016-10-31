@@ -102,9 +102,9 @@ class Round(object):
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
         self.tricks = []         # Should all 13 tricks be initialized at the beginning?
-        self.turn = None
+        self.turn = None         # FIXME: implement turn counter
         self.hearts_broken = False
-        self.who_starts = None   # Player with '2c'
+        self.who_starts = None   # FIXME: find the two of clubs
 
         self.deal()
 
@@ -163,7 +163,7 @@ class Round(object):
         last_trick = self.tricks[-1]
 
         # First Hand
-        if True:
+        if True:           # FIXME: Check if card is the two of clubs
             pass
 
         # leading a Trick
@@ -212,7 +212,7 @@ class Trick(object):
 
     def serialize(self):
         '''
-            Return a serialized representation of the trick
+            Return a serialized representation of the trick.
         '''
         return {
             player.username: dict(turn=i, card=card.serialize())
