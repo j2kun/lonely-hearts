@@ -146,8 +146,9 @@ class Round(object):
 
     def lead_the_trick(self, player, card):
         try:
-            # Check if led card is valid
+            self.is_valid_lead(player, card)
             self.make_new_trick(player, card)
+            self.hands[player].remove(card)
         except HeartsError:
             # Player tries to lead with 'h' but hearts are not broken
             pass
@@ -156,6 +157,7 @@ class Round(object):
         try:
             self.is_valid_follow(player, trick, card)
             self.add_to_last_trick(player, card)
+            self.hand[player].remove(card)
         except CardError:  # Player has suit but did not follow
             pass
 
