@@ -5,7 +5,6 @@ from hearts.hearts import Hand
 from hearts.hearts import Player
 from hearts.hearts import Round
 from hearts.hearts import Trick
-from hearts.hearts import Error
 from hearts.hearts import CardError
 from hearts.hearts import HeartsError
 
@@ -44,35 +43,20 @@ def test_hand():
         Card('2', 's')
     ])
     assert Card('7', 'd') in hand
-    assert hand.has_suit('h') == True
-    assert hand.has_suit('c') == False
+    assert hand.has_suit('h')
+    assert not hand.has_suit('c')
 
 
 def test_hand_sort():
-    test = Hand([
-        Card('2', 'd'),
-        Card('T', 's'),
-        Card('2','c'),
-        Card('K','h'),
-        Card('J', 'c'),
-        Card('6','s'),
-        Card('A', 'c')
-    ])
-    expected = Hand([
-        Card('2', 'c'),
-        Card('J', 'c'),
-        Card('A','c'),
-        Card('2','d'),
-        Card('K', 'h'),
-        Card('6','s'),
-        Card('T', 's')
-    ])
+    test = Hand.deserialize(['2d', 'Ts', '2c', 'Kh', 'Jc', '6s', 'Ac'])
     test.hand_sort()
-    assert [card.serialize() for card in test] == [card.serialize() for card in expected]
+
+    expected = Hand.deserialize(['2c', 'Jc', 'Ac', '2d', 'Kh', '6s', 'Ts'])
+    assert test == expected
 
 
 def test_serialize_hand():
-    hand = Hand([Card('2', 'c'), Card('3','h'), Card('4', 's'), Card('Q', 'h')])
+    hand = Hand([Card('2', 'c'), Card('3', 'h'), Card('4', 's'), Card('Q', 'h')])
     assert Hand.deserialize(hand.serialize()) == hand
 
 
@@ -135,18 +119,18 @@ def test_deal():
 
 
 def test_can_follow_suit():
-    hand1 = Hand([Card('T', 'd'), Card('5', 'c'), Card('7', 'c'), Card('Q', 's'), Card('A', 's')])
-    hand2 = Hand([Card('T', 'd'), Card('5', 'c'), Card('7', 'c'), Card('K', 'h'), Card('A', 's')])
+    hand1 = Hand.deserialize(['Td', '5c', '7c', 'Qs', 'As'])
+    hand2 = Hand.deserialize(['Td', '5c', '7c', 'Kh', 'As'])
     trick = Trick([
         (P1, Card('5', 'h')),
         (P2, Card('3', 'h')),
         (P3, Card('J', 'h'))
     ])
     sample_round.hands[P4] = hand1
-    assert sample_round.can_follow_suit(P4, trick) == False
+    assert not sample_round.can_follow_suit(P4, trick)
 
     sample_round.hands[P4] = hand2
-    assert sample_round.can_follow_suit(P4, trick) == True
+    assert sample_round.can_follow_suit(P4, trick)
 
 
 def test_is_valid_lead():
@@ -161,32 +145,20 @@ def test_is_valid_follow():
         (P2, Card('3', 'h')),
         (P3, Card('J', 'h'))
     ])
-    fake_hand = Hand([
-        Card('A', 'h'),
-        Card('7', 'd'),
-        Card('6', 'h'),
-        Card('2', 's')
-    ])
+    fake_hand = Hand.deserialize(['Ah', '7d', '6h', '2s'])
     with pytest.raises(CardError):
         sample_round.is_valid_follow(P4, fake_trick, fake_hand[1])
 
+
 def test_lead_the_trick():
-    fake_hand = Hand([
-        Card('7', 'd'),
-        Card('6', 'h'),
-        Card('A', 'h'),
-        Card('2', 's')
-    ])
+    fake_hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
     sample_round.hands[P1] = fake_hand
     sample_round.lead_the_trick(P1, Card('2', 's'))
     # assert sample_round.tricks[-1] == Trick([(P1, Card('2', 's'))])
 
-    new_hand = Hand([
-        Card('7', 'd'),
-        Card('6', 'h'),
-        Card('A', 'h')
-    ])
+    new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
     assert sample_round.hands[P1] == new_hand
+
 
 def test_play_card():
     pass
