@@ -48,26 +48,11 @@ def test_hand():
 
 
 def test_hand_sort():
-    test = Hand([
-        Card('2', 'd'),
-        Card('T', 's'),
-        Card('2', 'c'),
-        Card('K', 'h'),
-        Card('J', 'c'),
-        Card('6', 's'),
-        Card('A', 'c')
-    ])
-    expected = Hand([
-        Card('2', 'c'),
-        Card('J', 'c'),
-        Card('A', 'c'),
-        Card('2', 'd'),
-        Card('K', 'h'),
-        Card('6', 's'),
-        Card('T', 's')
-    ])
+    test = Hand.deserialize(['2d', 'Ts', '2c', 'Kh', 'Jc', '6s', 'Ac'])
     test.hand_sort()
-    assert [card.serialize() for card in test] == [card.serialize() for card in expected]
+
+    expected = Hand.deserialize(['2c', 'Jc', 'Ac', '2d', 'Kh', '6s', 'Ts'])
+    assert test == expected
 
 
 def test_serialize_hand():
