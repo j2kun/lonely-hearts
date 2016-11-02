@@ -104,6 +104,14 @@ class EarlyDumpError(Error):
     pass
 
 
+class TwoClubsError(Error):
+    pass
+
+
+class TurnError(Error):
+    pass
+
+
 class Round(object):
     def __init__(self, players):
         '''
@@ -147,6 +155,12 @@ class Round(object):
                     self.heartsbroken = True
                 return
 
+    def check_lead_turn(self):
+        pass
+
+    def check_follow_turn(self):
+        pass
+
     def make_new_trick(self, player, card):
         self.tricks.append(Trick([(player, card)]))
 
@@ -175,15 +189,17 @@ class Round(object):
         last_trick = self.tricks[-1]
 
         # First Hand
-        if True:           # FIXME: Check if card is the two of clubs
+        if len(self.tricks) == 0:  # FIXME: Check if card is the two of clubs
             pass
 
         # leading a Trick
-        elif last_trick.size == 4 and player == last_trick.winner():
+        elif last_trick.size == 4:
+            self.check_lead_turn()
             self.lead_the_trick(player, card)
 
         # following a Trick
         else:
+            self.check_follow_turn()
             self.follow_the_trick(player, last_trick, card)
 
     def serialize(self):
