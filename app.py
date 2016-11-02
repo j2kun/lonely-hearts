@@ -17,7 +17,7 @@ if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.envrion.get('SECRET_KEY', 'abc123')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'abc123')
 socketio = SocketIO(app)
 db_client = MongoClient(os.environ.get('DATABASE_URL'))
 
