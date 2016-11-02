@@ -170,18 +170,25 @@ class Round(object):
 
     def lead_the_trick(self, player, card):
         try:
+            self.check_lead_turn()
             self.is_valid_lead(player, card)
             self.make_new_trick(player, card)
             self.hands[player].remove(card)
+        except TurnError:
+            pass
         except HeartsError:
             # Player tries to lead with 'h' but hearts are not broken
             pass
 
-    def follow_the_trick(self, player, trick, card):
+    def follow_the_trick(self, player, card):  # Only applies to the last trick
+        last_trick = self.tricks[-1]
         try:
-            self.is_valid_follow(player, trick, card)
+            self.check_follow_turn()
+            self.is_valid_follow(player, last_trick, card)
             self.add_to_last_trick(player, card)
             self.hands[player].remove(card)
+        except TurnError:
+            pass
         except CardError:  # Player has suit but did not follow
             pass
 
@@ -194,13 +201,11 @@ class Round(object):
 
         # leading a Trick
         elif last_trick.size == 4:
-            self.check_lead_turn()
             self.lead_the_trick(player, card)
 
         # following a Trick
         else:
-            self.check_follow_turn()
-            self.follow_the_trick(player, last_trick, card)
+            self.follow_the_trick(player, card)
 
     def serialize(self):
         return {
