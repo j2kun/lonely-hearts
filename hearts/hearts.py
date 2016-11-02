@@ -119,10 +119,11 @@ class Round(object):
         '''
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
-        self.tricks = []         # Should all 13 tricks be initialized at the beginning?
-        self.turn = None         # FIXME: implement turn counter
+        self.tricks = []          # Should all 13 tricks be initialized at the beginning?
+        self.turn_counter = 0     # turn_counter is an int that is initialized after cards are passed
+                                  # or after a trick is completed.
         self.hearts_broken = False
-        self.who_starts = None   # FIXME: find the two of clubs
+        self.who_starts = None   # who_starts is not initialized until after cards are passed
 
         self.deal()
 
@@ -168,12 +169,18 @@ class Round(object):
         last_trick = self.tricks[-1]
         last_trick.cards_played.append((player, card))
 
+    def start_round(self, player, card):
+        # FIXME Check if player is who_starts
+        # FIXME Check if card is '2c'
+        self.make_new_trick(player, card)
+        self.upkeep(player, card)
+
     def lead_the_trick(self, player, card):
         try:
             self.check_lead_turn()
             self.is_valid_lead(player, card)
             self.make_new_trick(player, card)
-            self.hands[player].remove(card)
+            self.upkeep(player, card)
         except TurnError:
             pass
         except HeartsError:
@@ -186,18 +193,22 @@ class Round(object):
             self.check_follow_turn()
             self.is_valid_follow(player, last_trick, card)
             self.add_to_last_trick(player, card)
-            self.hands[player].remove(card)
+            self.upkeep(player, card)
         except TurnError:
             pass
         except CardError:  # Player has suit but did not follow
             pass
 
+    def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
+        self.hands[player].remove(card)
+        self.turn_counter = (self.turn_counter + 1) % 4
+
     def play_card(self, player, card):
         last_trick = self.tricks[-1]
 
         # First Hand
-        if len(self.tricks) == 0:  # FIXME: Check if card is the two of clubs
-            pass
+        if len(self.tricks) == 0:
+            self.start_round(player, card)
 
         # leading a Trick
         elif last_trick.size == 4:
