@@ -1,10 +1,12 @@
 import os
-
 import dotenv
+
 from flask import Flask
 from flask import render_template
+from flask import request
+from flask.json import jsonify
 from flask_socketio import SocketIO
-from flask_socketio import emit
+# from flask_socketio import emit
 from pymongo import MongoClient
 
 '''
@@ -22,6 +24,7 @@ socketio = SocketIO(app)
 db_client = MongoClient(os.environ.get('DATABASE_URL'))
 
 
+'''
 @socketio.on('chat message', namespace='/chat')
 def handle_chat_message(json):
     print('received message: ' + str(json))
@@ -42,11 +45,20 @@ def handle_chat_connect():
 @socketio.on('disconnect', namespace='/chat')
 def test_disconnect():
     print('Client disconnected')
+'''
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/tables/', methods=['POST'])
+def tables():
+    if request.method == 'POST':
+        # generate a random hash
+        # and make sure it's not in the db already
+        return jsonify(id='blah')
 
 
 if __name__ == '__main__':
