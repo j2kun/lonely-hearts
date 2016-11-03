@@ -110,10 +110,6 @@ class EarlyDumpError(Error):
     pass
 
 
-class TwoClubsError(Error):
-    pass
-
-
 class TurnError(Error):
     pass
 
@@ -126,8 +122,8 @@ class Round(object):
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
         self.tricks = []          # Should all 13 tricks be initialized at the beginning?
-        self.turn_counter = 0     # turn_counter is an int that is initialized after cards are passed
-                                  # or after a trick is completed.
+        self.turn_counter = 0
+        # turn_counter is an int that is initialized after cards are passed or after a trick is completed.
         self.hearts_broken = False
         self.who_starts = None   # who_starts is not initialized until after cards are passed
 
@@ -167,11 +163,11 @@ class Round(object):
                     self.heartsbroken = True
                 return
 
-    def check_lead_turn(self):
-        pass
-
-    def check_follow_turn(self):
-        pass
+    def validate_turn(self, player):
+        if self.players[self.turn_counter] == player:
+            return
+        else:
+            raise TurnError
 
     def make_new_trick(self, player, card):
         self.tricks.append(Trick([(player, card)]))
@@ -200,7 +196,7 @@ class Round(object):
 
     def lead_the_trick(self, player, card):
         try:
-            self.check_lead_turn()
+            self.validate_turn(player)
             self.is_valid_lead(player, card)
             self.make_new_trick(player, card)
             self.upkeep(player, card)
@@ -213,7 +209,7 @@ class Round(object):
     def follow_the_trick(self, player, card):  # Only applies to the last trick
         last_trick = self.tricks[-1]
         try:
-            self.check_follow_turn()
+            self.validate_turn(player)
             self.is_valid_follow(player, last_trick, card)
             self.add_to_last_trick(player, card)
             if len(last_trick) < 4:
