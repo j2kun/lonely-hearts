@@ -80,7 +80,7 @@ class Hand(list):
         return False
 
     def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
-        self.sort(key=lambda card: (card.suit, card.rank_values[card.rank]))
+        self.sort(key=lambda card: (card.suit, Card.rank_values[card.rank]))
 
     def serialize(self):
         return [card.serialize() for card in self]
@@ -133,7 +133,9 @@ class Round(object):
         deck = CARDS
         shuffle(deck)
         for n in range(4):
-            self.hands[self.players[n]] = Hand(deck[13*n:13*(n+1)])
+            start_hand = Hand(deck[13*n:13*(n+1)])
+            start_hand.hand_sort()
+            self.hands[self.players[n]] = start_hand
 
     def two_clubs_player(self):
         for player in self.players:
@@ -160,7 +162,7 @@ class Round(object):
                 raise CardError
             else:
                 if card.suit == 'h':
-                    self.heartsbroken = True
+                    self.hearts_broken = True
                 return
 
     def validate_turn(self, player):
@@ -246,9 +248,10 @@ class Round(object):
     def serialize(self):
         return {
             'players': self.players,
-            'turn': None,   # FIXME: add player turn
+            'turn': self.players[self.turn_counter].username,
             'hands': self.hands,
             'tricks': [trick.serialize() for trick in self.tricks],
+            'hearts': str(self.hearts_broken)
         }
 
 
