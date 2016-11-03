@@ -10,6 +10,12 @@ class Player(object):
     def __init__(self, username):
         self.username = username
 
+    def __eq__(self, other):
+        return self.username == other.username
+
+    def __hash__(self):
+        return hash(self.username)   # FIXME: Is this the best option?
+
 
 class Game(object):
     def __init___(self, players):
@@ -133,6 +139,11 @@ class Round(object):
         for n in range(4):
             self.hands[self.players[n]] = Hand(deck[13*n:13*(n+1)])
 
+    def two_clubs_player(self):
+        for player in self.players:
+            if Card('2', 'c') in self.hands[player]:
+                return player
+
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
         return hand.has_suit(trick.suit)
@@ -170,10 +181,22 @@ class Round(object):
         last_trick.cards_played.append((player, card))
 
     def start_round(self, player, card):
-        # FIXME Check if player is who_starts
-        # FIXME Check if card is '2c'
-        self.make_new_trick(player, card)
-        self.upkeep(player, card)
+        try:
+            if player == self.two_clubs_player():
+                pass
+            else:
+                raise TurnError
+            if card == Card('2', 'c'):
+                pass
+            else:
+                raise CardError
+
+            self.make_new_trick(player, card)
+            self.upkeep(player, card)
+        except TurnError:
+            pass
+        except CardError:
+            pass
 
     def lead_the_trick(self, player, card):
         try:
@@ -193,7 +216,13 @@ class Round(object):
             self.check_follow_turn()
             self.is_valid_follow(player, last_trick, card)
             self.add_to_last_trick(player, card)
-            self.upkeep(player, card)
+            if len(last_trick) < 4:
+                self.upkeep(player, card)
+            else:
+                self.hands[player].remove(card)
+                self.turn_counter = self.players.index(last_trick.winner())
+                # Are you sure last_trick.winner finds the winner of the updated trick?
+
         except TurnError:
             pass
         except CardError:  # Player has suit but did not follow
