@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Clipping example</title>
+<style>
+.card {
+  background: url('cards.png');
+  width: 60px;
+  height: 40px;
+  position: absolute;
+  clip-path: inset(0, 1, 100, 200);
+ /* rect(0px, 60px, 200px, 0px); */
+}
+</style>
+</head>
+
+<body>
+<svg width="0" height="0">
+  <defs>
+    <clipPath id="As">
+      <rect x="1" y="1" width="40" height="60" />
+    </clipPath>
+  </defs>
+</svg>
+<div class="card"></div>
+</body>
+</html>
