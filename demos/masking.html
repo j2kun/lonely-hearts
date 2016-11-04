@@ -6,23 +6,30 @@
 <style>
 .card {
   background: url('cards.png');
-  width: 60px;
-  height: 40px;
+  width: 73px;
+  height: 99px;
   position: absolute;
-  clip-path: inset(0, 1, 100, 200);
- /* rect(0px, 60px, 200px, 0px); */
+}
+
+#Ac {
+  background-position: 0px 0px;
+}
+
+#twoc {
+  background-position: -73px 0px;
+}
+
+#As {
+  background-position: 0px -98px;
 }
 </style>
 </head>
 
 <body>
-<svg width="0" height="0">
-  <defs>
-    <clipPath id="As">
-      <rect x="1" y="1" width="40" height="60" />
-    </clipPath>
-  </defs>
-</svg>
-<div class="card"></div>
+<div class="card" id="Ac" style='left: 1px;'></div>
+<div class="card" id="twoc" style='left: 100px'></div>
+<div class="card" id="As" style='left: 200px'></div>
+
+<script src="jquery.js"></script>
 </body>
 </html>
