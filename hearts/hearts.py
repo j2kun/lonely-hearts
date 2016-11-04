@@ -161,8 +161,12 @@ class Round(object):
             if self.can_follow_suit(player, trick):
                 raise CardError
             else:
-                if card.suit == 'h':
-                    self.hearts_broken = True
+                if len(self.tricks) == 1:
+                    if card.suit == 'h' or card == Card('Q', 's'):
+                        raise EarlyDumpError
+                else:
+                    if card.suit == 'h':
+                        self.hearts_broken = True
                 return
 
     def validate_turn(self, player):
@@ -224,6 +228,8 @@ class Round(object):
         except TurnError:
             pass
         except CardError:  # Player has suit but did not follow
+            pass
+        except EarlyDumpError:
             pass
 
     def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
