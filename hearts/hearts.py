@@ -14,7 +14,7 @@ class Player(object):
         return self.username == other.username
 
     def __hash__(self):
-        return hash(self.username)   # FIXME: Is this the best option?
+        return hash(self.username)
 
 
 class Game(object):
@@ -121,7 +121,7 @@ class Round(object):
         '''
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
-        self.tricks = []          # Should all 13 tricks be initialized at the beginning?
+        self.tricks = []
         self.turn_counter = 0
         # turn_counter is an int that is initialized after cards are passed or after a trick is completed.
         self.hearts_broken = False
@@ -137,6 +137,7 @@ class Round(object):
             start_hand.hand_sort()
             self.hands[self.players[n]] = start_hand
 
+    ''' This function seems unnecessary '''
     def two_clubs_player(self):
         for player in self.players:
             if Card('2', 'c') in self.hands[player]:
@@ -167,7 +168,7 @@ class Round(object):
                 else:
                     if card.suit == 'h':
                         self.hearts_broken = True
-                return
+                    return
 
     def validate_turn(self, player):
         if self.players[self.turn_counter] == player:
@@ -184,15 +185,10 @@ class Round(object):
 
     def start_round(self, player, card):
         try:
-            if player == self.two_clubs_player():
-                pass
-            else:
+            if not Card('2', 'c') in self.hands[player]:
                 raise TurnError
-            if card == Card('2', 'c'):
-                pass
-            else:
+            elif card != Card('2', 'c'):
                 raise CardError
-
             self.make_new_trick(player, card)
             self.upkeep(player, card)
         except TurnError:
@@ -285,7 +281,6 @@ class Trick(object):
             if card.dominates(winning_card):
                 winner = player
                 winning_card = card
-
         return winner
 
     def leader(self):
