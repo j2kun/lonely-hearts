@@ -7,6 +7,7 @@ from hearts.hearts import Round
 from hearts.hearts import Trick
 from hearts.hearts import CardError
 from hearts.hearts import HeartsError
+from hearts.hearts import CARDS
 
 P1 = Player('Lauren')
 P2 = Player('Erin')
@@ -45,7 +46,8 @@ def test_hand():
     assert Card('7', 'd') in hand
     assert hand.has_suit('h')
     assert not hand.has_suit('c')
-
+    with pytest.raises(ValueError):
+        hand = Hand([Card('d', '6')])
 
 def test_hand_sort():
     test = Hand.deserialize(['2d', 'Ts', '2c', 'Kh', 'Jc', '6s', 'Ac'])
@@ -88,20 +90,18 @@ def test_serialize():
         (Player('Lauren'), Card('2', 'h')),
         (Player('Erin'), Card('8', 's')),
         (Player('Jeremy'), Card('6', 'h')),
-        (Player('Daniel'), Card('Q', 's')),
+        (Player('Daniel'), Card('Q', 's'))
     ])
 
     expected_serialized = {
         'Lauren': dict(turn=0, card='2h'),
         'Erin': dict(turn=1, card='8s'),
         'Jeremy': dict(turn=2, card='6h'),
-        'Daniel': dict(turn=3, card='Qs'),
+        'Daniel': dict(turn=3, card='Qs')
     }
-
     assert expected_serialized == trick.serialize()
 
     deserialized = Trick.deserialize(trick.serialize())
-
     for i in range(4):
         assert trick.cards_played[i][0].username == deserialized.cards_played[i][0].username
         assert trick.cards_played[i][1] == deserialized.cards_played[i][1]
@@ -114,8 +114,15 @@ sample_round = Round(PLAYER_LIST)
 
 
 def test_deal():
-    # Check for duplicates and all 52 cards
-    pass
+    cards = Hand(CARDS)
+    dealt = Hand([])
+    for player in PLAYER_LIST:
+        dealt += sample_round.hands[player]
+    cards.hand_sort()
+    dealt.hand_sort()
+    assert len(dealt.serialize()) == 52
+    #Check list equality instead of Hand equality to check for duplicates and all 52 cards
+    assert cards.serialize() == dealt.serialize()
 
 
 def test_can_follow_suit():
