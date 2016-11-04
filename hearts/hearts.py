@@ -210,7 +210,7 @@ class Round(object):
             # FIXME: Add code to do something later. Reraise the Error to be caught by pytest.
             raise
         except HeartsError:
-            # FIXME: Same as aboe
+            # FIXME: Same as above.
             raise
 
     def follow_the_trick(self, player, card):  # Only applies to the last trick
@@ -274,6 +274,9 @@ class Trick(object):
         first_card = self.cards_played[0][1]
         self.suit = first_card.suit
         self.size = len(self.cards_played)
+
+    def __eq__(self, other):
+        return self.cards_played == other.cards_played
 
     def winner(self):
         winner, winning_card = self.cards_played[0]

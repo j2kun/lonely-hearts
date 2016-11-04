@@ -103,9 +103,7 @@ def test_serialize():
     assert expected_serialized == trick.serialize()
 
     deserialized = Trick.deserialize(trick.serialize())
-    for i in range(4):
-        assert trick.cards_played[i][0].username == deserialized.cards_played[i][0].username
-        assert trick.cards_played[i][1] == deserialized.cards_played[i][1]
+    assert deserialized == trick
 
 
 """Round Class Tests"""
@@ -168,8 +166,7 @@ def test_lead_the_trick():
 
     sample_round.turn_counter = 3
     sample_round.lead_the_trick(P4, Card('2', 's'))
-    # assert sample_round.tricks[-1] == Trick([(P1, Card('2', 's'))])
-    # FIXME add Trick equality
+    assert sample_round.tricks[-1] == Trick([(P4, Card('2', 's'))])
 
     new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
     assert sample_round.hands[P4] == new_hand
