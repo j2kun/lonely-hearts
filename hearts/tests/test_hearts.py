@@ -7,6 +7,7 @@ from hearts.hearts import Round
 from hearts.hearts import Trick
 from hearts.hearts import CardError
 from hearts.hearts import HeartsError
+from hearts.hearts import TurnError
 from hearts.hearts import CARDS
 
 P1 = Player('Lauren')
@@ -159,15 +160,31 @@ def test_is_valid_follow():
 
 def test_lead_the_trick():
     fake_hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
-    sample_round.hands[P1] = fake_hand
-    sample_round.lead_the_trick(P1, Card('2', 's'))
+    sample_round.hands[P4] = fake_hand
+
+    sample_round.turn_counter = 1
+    with pytest.raises(TurnError):
+        sample_round.lead_the_trick(P4, Card('2', 's'))
+
+    sample_round.turn_counter = 3
+    sample_round.lead_the_trick(P4, Card('2', 's'))
     # assert sample_round.tricks[-1] == Trick([(P1, Card('2', 's'))])
+    # FIXME add Trick equality
 
     new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
-    assert sample_round.hands[P1] == new_hand
+    assert sample_round.hands[P4] == new_hand
+    assert sample_round.turn_counter == 0
 
 
-def test_play_card():
+def test_follow_the_trick():
+    pass
+
+
+def test_play_first_trick():
+    pass
+
+
+def test_play_trick_sequence():
     pass
 
 

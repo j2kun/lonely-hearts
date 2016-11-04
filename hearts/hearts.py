@@ -207,10 +207,11 @@ class Round(object):
             self.make_new_trick(player, card)
             self.upkeep(player, card)
         except TurnError:
-            pass
+            # FIXME: Add code to do something later. Reraise the Error to be caught by pytest.
+            raise
         except HeartsError:
-            # Player tries to lead with 'h' but hearts are not broken
-            pass
+            # FIXME: Same as aboe
+            raise
 
     def follow_the_trick(self, player, card):  # Only applies to the last trick
         last_trick = self.tricks[-1]
