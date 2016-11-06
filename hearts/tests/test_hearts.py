@@ -51,6 +51,7 @@ def test_hand():
     with pytest.raises(ValueError):
         hand = Hand([Card('d', '6')])
 
+
 def test_hand_sort():
     test = Hand.deserialize(['2d', 'Ts', '2c', 'Kh', 'Jc', '6s', 'Ac'])
     test.hand_sort()
@@ -121,7 +122,7 @@ def test_deal():
     cards.hand_sort()
     dealt.hand_sort()
     assert len(dealt.serialize()) == 52
-    #Check list equality instead of Hand equality to check for duplicates and all 52 cards
+    # Check list equality instead of Hand equality to check for duplicates and all 52 cards
     assert cards.serialize() == dealt.serialize()
 
 
@@ -177,7 +178,7 @@ def test_lead_the_trick():
 
 def test_follow_the_trick():
     '''
-    This test checks for all possible errors when following a trick, including 
+    This test checks for all possible errors when following a trick, including
     playing out of turn, playing invalid cards, and dumping on the first trick.
     '''
     test_round = Round(PLAYER_LIST)
@@ -188,7 +189,7 @@ def test_follow_the_trick():
     ])
     test_round.turn_counter = 2
     test_round.tricks.append(fake_trick)  # Create the first trick.
-    
+
     '''Catch a player out of turn'''
     with pytest.raises(TurnError):
         test_round.follow_the_trick(P1, Card('T', 'c'))
@@ -210,6 +211,16 @@ def test_follow_the_trick():
         test_round.follow_the_trick(P4, Card('3', 'h'))
 
     # FIXME Add a test: when player holds all hearts on first round
+
+
+def test_full_round_no_errors():
+    r = Round()
+    # set hands
+
+    # play a full game
+
+    P1.play_card(Card('A', 'h'))
+    P2.play_card(Card('A', 'h'))
 
 
 def test_play_first_trick():
