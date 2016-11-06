@@ -19,3 +19,16 @@ def hand(cards='Ah,7d,6h,2s'):
 
 def trick(players, cards='5h,3h,Jh,Qs'):
     return Trick([(p, Card.deserialize(c)) for (p, c) in zip(players, cards)])
+
+
+'''
+def play_full_round():
+    # randomize the hand
+    while round_is_not_over:
+        player = get_next_player()
+        for card in player.hand:
+            try:
+                round.play_card(card)
+            except:
+                pass
+'''

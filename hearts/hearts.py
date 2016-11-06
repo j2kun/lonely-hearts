@@ -156,24 +156,23 @@ class Round(object):
         return
 
     def is_valid_follow(self, player, trick, card):
-        if card.suit == trick.suit:
-            return
-        else:
-            if self.can_follow_suit(player, trick):
-                raise CardError
-            elif len(self.tricks) == 1:
-                if card.suit == 'h' or card == Card('Q', 's'):
-                    raise EarlyDumpError
+        '''
+            Return a boolean for whether the player
+            can use the given card to follow the trick
+        '''
+        if self.can_follow_suit(player, trick):
+            return card.suit == trick.suit
+        elif len(self.tricks) == 1:
+            player_hand = self.hands[player]
+            if player_hand.is_only_hearts():
+                return True
             else:
-                if card.suit == 'h':
-                    self.hearts_broken = True
-                return
-
-    def validate_turn(self, player):
-        if self.players[self.turn_counter] == player:
-            return
+                return card.suit != 'h' and card != Card('Q', 's')
         else:
-            raise TurnError
+            return True
+
+    def is_player_turn(self, player):
+        return self.players[self.turn_counter] == player
 
     def make_new_trick(self, player, card):
         self.tricks.append(Trick([(player, card)]))
@@ -183,17 +182,10 @@ class Round(object):
         last_trick.cards_played.append((player, card))
 
     def start_round(self, player, card):
-        try:
-            if not Card('2', 'c') in self.hands[player]:
-                raise TurnError
-            elif card != Card('2', 'c'):
-                raise CardError
-            self.make_new_trick(player, card)
-            self.upkeep(player, card)
-        except TurnError:
-            pass
-        except CardError:
-            pass
+        if card != Card('2', 'c'):
+            raise CardError
+        self.make_new_trick(player, card)
+        self.upkeep(player, card)
 
     def lead_the_trick(self, player, card):
         try:
@@ -210,33 +202,24 @@ class Round(object):
 
     def follow_the_trick(self, player, card):  # Only applies to the last trick
         last_trick = self.tricks[-1]
-        try:
-            self.validate_turn(player)
-            self.is_valid_follow(player, last_trick, card)
+        if self.is_valid_follow(player, last_trick, card):
             self.add_to_last_trick(player, card)
-            if last_trick.size < 4:
-                self.upkeep(player, card)
-            else:
-                self.hands[player].remove(card)
-                self.turn_counter = self.players.index(last_trick.winner())
-                # Are you sure last_trick.winner finds the winner of the updated trick?
-
-        except TurnError:
-            # Reraise for test functions.
-            raise
-        except CardError:
-            # Reraise for test functions.
-            raise
-        except EarlyDumpError:
-            # Reraise for test functions.
-            raise
+            self.upkeep(player, card)
 
     def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
         self.hands[player].remove(card)
-        self.turn_counter = (self.turn_counter + 1) % 4
+
+        last_trick = self.tricks[-1]
+        if last_trick.size < 4:
+            self.turn_counter = (self.turn_counter + 1) % 4
+        else:
+            self.turn_counter = self.players.index(last_trick.winner())
 
     def play_card(self, player, card):
         last_trick = self.tricks[-1]
+
+        if not self.is_player_turn() or card not in self.hands[player]:
+            raise Exception("It's not your turn!")
 
         # First Hand
         if len(self.tricks) == 0:

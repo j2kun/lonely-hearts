@@ -213,6 +213,16 @@ def test_follow_the_trick():
     # FIXME Add a test: when player holds all hearts on first round
 
 
+def test_full_round_no_errors():
+    r = Round()
+    # set hands
+
+    # play a full game
+
+    P1.play_card(Card('A', 'h'))
+    P2.play_card(Card('A', 'h'))
+
+
 def test_play_first_trick():
     pass
 
