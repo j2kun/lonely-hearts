@@ -7,6 +7,7 @@ from hearts.hearts import Round
 from hearts.hearts import Trick
 from hearts.hearts import CardError
 from hearts.hearts import HeartsError
+from hearts.hearts import EarlyDumpError
 from hearts.hearts import TurnError
 from hearts.hearts import CARDS
 
@@ -157,24 +158,58 @@ def test_is_valid_follow():
 
 
 def test_lead_the_trick():
+    test_round = Round(PLAYER_LIST)
     fake_hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
-    sample_round.hands[P4] = fake_hand
+    test_round.hands[P4] = fake_hand
 
-    sample_round.turn_counter = 1
+    test_round.turn_counter = 1
     with pytest.raises(TurnError):
-        sample_round.lead_the_trick(P4, Card('2', 's'))
+        test_round.lead_the_trick(P4, Card('2', 's'))
 
-    sample_round.turn_counter = 3
-    sample_round.lead_the_trick(P4, Card('2', 's'))
-    assert sample_round.tricks[-1] == Trick([(P4, Card('2', 's'))])
+    test_round.turn_counter = 3
+    test_round.lead_the_trick(P4, Card('2', 's'))
+    assert test_round.tricks[-1] == Trick([(P4, Card('2', 's'))])
 
     new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
-    assert sample_round.hands[P4] == new_hand
-    assert sample_round.turn_counter == 0
+    assert test_round.hands[P4] == new_hand
+    assert test_round.turn_counter == 0
 
 
 def test_follow_the_trick():
-    pass
+    '''
+    This test checks for all possible errors when following a trick, including 
+    playing out of turn, playing invalid cards, and dumping on the first trick.
+    '''
+    test_round = Round(PLAYER_LIST)
+    test_hand = Hand([Card('Q', 's'), Card('3', 'h'), Card('T', 'c')])
+    fake_trick = Trick([
+        (P2, Card('2', 'c')),
+        (P3, Card('K', 'c'))
+    ])
+    test_round.turn_counter = 2
+    test_round.tricks.append(fake_trick)  # Create the first trick.
+    
+    '''Catch a player out of turn'''
+    with pytest.raises(TurnError):
+        test_round.follow_the_trick(P1, Card('T', 'c'))
+
+    '''Catch a player playing invalid card'''
+    test_round.turn_counter = 3
+    with pytest.raises(CardError):
+        test_round.hands[P4] = test_hand
+        test_round.follow_the_trick(P4, Card('3', 'h'))
+
+    '''Catch early dumping on the first trick'''
+    assert len(test_round.tricks) == 1
+    test_round.hands[P4] = Hand([Card('Q', 's'), Card('3', 'h'), Card('7', 'd')])
+
+    with pytest.raises(EarlyDumpError):
+        test_round.follow_the_trick(P4, Card('Q', 's'))
+
+    with pytest.raises(EarlyDumpError):
+        test_round.follow_the_trick(P4, Card('3', 'h'))
+
+    # FIXME Add a test: when player holds all hearts on first round
 
 
 def test_play_first_trick():

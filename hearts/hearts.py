@@ -161,14 +161,13 @@ class Round(object):
         else:
             if self.can_follow_suit(player, trick):
                 raise CardError
+            elif len(self.tricks) == 1:
+                if card.suit == 'h' or card == Card('Q', 's'):
+                    raise EarlyDumpError
             else:
-                if len(self.tricks) == 1:
-                    if card.suit == 'h' or card == Card('Q', 's'):
-                        raise EarlyDumpError
-                else:
-                    if card.suit == 'h':
-                        self.hearts_broken = True
-                    return
+                if card.suit == 'h':
+                    self.hearts_broken = True
+                return
 
     def validate_turn(self, player):
         if self.players[self.turn_counter] == player:
@@ -215,7 +214,7 @@ class Round(object):
             self.validate_turn(player)
             self.is_valid_follow(player, last_trick, card)
             self.add_to_last_trick(player, card)
-            if len(last_trick) < 4:
+            if last_trick.size < 4:
                 self.upkeep(player, card)
             else:
                 self.hands[player].remove(card)
@@ -223,11 +222,14 @@ class Round(object):
                 # Are you sure last_trick.winner finds the winner of the updated trick?
 
         except TurnError:
-            pass
-        except CardError:  # Player has suit but did not follow
-            pass
+            # Reraise for test functions.
+            raise
+        except CardError:
+            # Reraise for test functions.
+            raise
         except EarlyDumpError:
-            pass
+            # Reraise for test functions.
+            raise
 
     def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
         self.hands[player].remove(card)
