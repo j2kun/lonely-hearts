@@ -4,19 +4,55 @@
   <meta charset="utf-8">
   <title>Clipping example</title>
 <style>
+.preload * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
 #hand {
-  position: relative;
+  padding: 0;
+  margin: 0;
+  margin-top: 100px;
+  list-style: none;
+  
+  /*
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  -webkit-flex-flow: row wrap;
+  -webkit-justify-content: center;
+  */
+
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
 }
 
 .card {
   background: url('cards.png');
   width: 73px;
   height: 99px;
-  position: absolute;
+  animation: unpeek .4s;
 }
 
 .card:hover {
   cursor:pointer;
+  animation: peek .4s;
+  animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes peek {
+    from   { -webkit-transform: translate(0px, 0px); }
+    to     { -webkit-transform: translate(0px, -10px); }
+}
+
+@-webkit-keyframes unpeek {
+    from   { -webkit-transform: translate(0px, -10px); }
+    to     { -webkit-transform: translate(0px, 0px); }
 }
 
 #cA { background-position: 0px 0px }
@@ -74,24 +110,23 @@
 </style>
 </head>
 
-<body>
-<div id="hand">
-  <div class="card" id="cA" style='left: 0px'></div>
-  <div class="card" id="d7" style='left: 72px'></div>
-  <div class="card" id="hK" style='left: 144px'></div>
-  <div class="card" id="sJ" style='left: 216px'></div>
-</div>
+<body class="preload">
+<ul id="hand">
+  <li class="card" id="cA"></li>
+  <li class="card" id="d7"></li>
+  <li class="card" id="hK"></li>
+  <li class="card" id="hK"></li>
+  <li class="card" id="sJ"></li>
+  <li class="card" id="d7"></li>
+  <li class="card" id="sJ"></li>
+  <li class="card" id="d7"></li>
+</ul>
 
 <script src="jquery.js"></script>
 <script>
-function redraw_hand() {
-  var hand_size = $("#hand > div").length;
-  var browser_view_width = $(window).width();
-  var hand_offset = 0.5 * (browser_view_width - hand_size*72);
-  $("#hand").offset({left:hand_offset, top:50});
-}
-$(window).resize(redraw_hand);
-redraw_hand();
+$(window).load(function() {
+  $("body").removeClass("preload");
+});
 </script>
 </body>
 </html>
