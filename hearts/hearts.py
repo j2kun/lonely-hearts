@@ -131,6 +131,7 @@ class Round(object):
         self.who_starts = None   # who_starts is not initialized until after cards are passed
 
         self.deal()
+        self.set_turn_counter()
 
     def deal(self):
         deck = CARDS
@@ -139,6 +140,11 @@ class Round(object):
             start_hand = Hand(deck[13*n:13*(n+1)])
             start_hand.hand_sort()
             self.hands[self.players[n]] = start_hand
+
+    def set_turn_counter(self):
+        for index in range(4):
+            if Card('2','c') in self.hands[self.players[index]]:
+                self.turn_counter = index
 
     ''' This function seems unnecessary '''
     def two_clubs_player(self):
@@ -186,24 +192,13 @@ class Round(object):
         last_trick = self.tricks[-1]
         last_trick.cards_played.append((player, card))
 
-    def start_round(self, player, card):
-        if card != Card('2', 'c'):
-            raise CardError
-        self.make_new_trick(player, card)
-        self.upkeep(player, card)
-
     def lead_the_trick(self, player, card):
-        try:
-            self.validate_turn(player)
-            self.is_valid_lead(player, card)
+        if self.is_player_turn(player) and self.is_valid_lead(player, card):
             self.make_new_trick(player, card)
             self.upkeep(player, card)
-        except TurnError:
-            # FIXME: Add code to do something later. Reraise the Error to be caught by pytest.
-            raise
-        except HeartsError:
-            # FIXME: Same as above.
-            raise
+        else:
+            pass   # Do something later to deal with out of turn players
+                   # and misplayed cards.
 
     def follow_the_trick(self, player, card):  # Only applies to the last trick
         last_trick = self.tricks[-1]
@@ -213,7 +208,6 @@ class Round(object):
 
     def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
         self.hands[player].remove(card)
-
         last_trick = self.tricks[-1]
         if last_trick.size < 4:
             self.turn_counter = (self.turn_counter + 1) % 4
