@@ -68,7 +68,7 @@ CARDS = [Card.deserialize(c) for c in [
 
 
 class Hand(list):
-    def __init__(self, cards):     # cards is a list of cardnames
+    def __init__(self, cards):     # cards is a list of Card objects
         if not all(c in CARDS for c in cards):
             raise ValueError('A hand can only contain values from: {}'.format(CARDS))
         super().__init__(cards)
@@ -78,6 +78,9 @@ class Hand(list):
             if card.suit == suit:
                 return True
         return False
+
+    def is_only_hearts(self):
+        return all(card.suit == 'h' for card in self)
 
     def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
         self.sort(key=lambda card: (card.suit, Card.rank_values[card.rank]))
@@ -148,12 +151,14 @@ class Round(object):
         return hand.has_suit(trick.suit)
 
     def is_valid_lead(self, player, card):
+        '''
+           Return a boolean for whether the player can use the given card
+           to start the trick.
+        ''' 
         if card.suit == 'h' and not self.hearts_broken:
-            if not all(card.suit == 'h' for card in self.hands[player]):
-                raise HeartsError
-            else:  # Player has no other available suit to lead with
-                self.hearts_broken = True
-        return
+            return self.hands[player].is_only_hearts()
+        else:        
+            return True
 
     def is_valid_follow(self, player, trick, card):
         '''
