@@ -82,6 +82,9 @@ class Hand(list):
     def is_only_hearts(self):
         return all(card.suit == 'h' for card in self)
 
+    def has_only_hearts_and_Qs(self):
+        return all(card.suit == 'h' or card == Card('Q','s') for card in self)
+
     def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
         self.sort(key=lambda card: (card.suit, Card.rank_values[card.rank]))
 
@@ -161,7 +164,9 @@ class Round(object):
            Return a boolean for whether the player can use the given card
            to start the trick.
         '''
-        if card.suit == 'h' and not self.hearts_broken:
+        if len(self.tricks) == 0:
+            return card == Card('2','c')
+        elif card.suit == 'h' and not self.hearts_broken:
             return self.hands[player].is_only_hearts()
         else:        
             return True
@@ -175,10 +180,7 @@ class Round(object):
             return card.suit == trick.suit
         elif len(self.tricks) == 1:
             player_hand = self.hands[player]
-            if player_hand.is_only_hearts():
-                return True
-            else:
-                return card.suit != 'h' and card != Card('Q', 's')
+            return player_hand.is_only_hearts() or player_hand.has_only_hearts_and_Qs()
         else:
             return True
 
