@@ -78,7 +78,7 @@ class Hand(list):
         return all(card.suit == 'h' for card in self)
 
     def has_only_hearts_and_Qs(self):
-        return all(card.suit == 'h' or card == Card('Q','s') for card in self)
+        return all(card.suit == 'h' or card == Card('Q', 's') for card in self)
 
     def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
         self.sort(key=lambda card: (card.suit, Card.rank_values[card.rank]))
@@ -104,7 +104,7 @@ class Round(object):
         self.tricks = []
         self.turn_counter = 0
         self.hearts_broken = False
-        
+
         self.deal()
         self.set_turn_counter()
 
@@ -118,7 +118,7 @@ class Round(object):
 
     def set_turn_counter(self):
         for index in range(4):
-            if Card('2','c') in self.hands[self.players[index]]:
+            if Card('2', 'c') in self.hands[self.players[index]]:
                 self.turn_counter = index
 
     def can_follow_suit(self, player, trick):
@@ -131,10 +131,10 @@ class Round(object):
            to start the trick.
         '''
         if len(self.tricks) == 0:
-            return card == Card('2','c')
+            return card == Card('2', 'c')
         elif card.suit == 'h' and not self.hearts_broken:
             return self.hands[player].is_only_hearts()
-        else:        
+        else:
             return True
 
     def is_valid_follow(self, player, trick, card):
