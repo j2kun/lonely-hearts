@@ -1,11 +1,6 @@
 from random import shuffle
 
 
-def get_player_object(name):
-    # return player object from input name
-    pass
-
-
 class Player(object):
     def __init__(self, username):
         self.username = username
@@ -99,27 +94,6 @@ class Hand(list):
         return {card.serialize() for card in self} == {card.serialize() for card in other}
 
 
-class Error(Exception):
-    pass
-
-
-class CardError(Error):
-    pass
-
-
-class HeartsError(Error):
-    pass
-
-
-class EarlyDumpError(Error):
-    ''' For when a player tries to dump on the first round'''
-    pass
-
-
-class TurnError(Error):
-    pass
-
-
 class Round(object):
     def __init__(self, players):
         '''
@@ -129,10 +103,8 @@ class Round(object):
         self.hands = dict()      # Player -> Hand
         self.tricks = []
         self.turn_counter = 0
-        # turn_counter is an int that is initialized after cards are passed or after a trick is completed.
         self.hearts_broken = False
-        self.who_starts = None   # who_starts is not initialized until after cards are passed
-
+        
         self.deal()
         self.set_turn_counter()
 
@@ -148,12 +120,6 @@ class Round(object):
         for index in range(4):
             if Card('2','c') in self.hands[self.players[index]]:
                 self.turn_counter = index
-
-    ''' This function seems unnecessary '''
-    def two_clubs_player(self):
-        for player in self.players:
-            if Card('2', 'c') in self.hands[player]:
-                return player
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
