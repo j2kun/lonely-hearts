@@ -193,16 +193,15 @@ class Round(object):
         last_trick.cards_played.append((player, card))
 
     def lead_the_trick(self, player, card):
-        if self.is_player_turn(player) and self.is_valid_lead(player, card):
+        if self.is_valid_lead(player, card):
             self.make_new_trick(player, card)
             self.upkeep(player, card)
         else:
-            pass   # Do something later to deal with out of turn players
-                   # and misplayed cards.
+            pass   # Do something later to deal with misplayed cards.
 
     def follow_the_trick(self, player, card):
         last_trick = self.tricks[-1]
-        if self.is_player_turn(player) and self.is_valid_follow(player, last_trick, card):
+        if self.is_valid_follow(player, last_trick, card):
             self.add_to_last_trick(player, card)
             self.upkeep(player, card)
         else:
