@@ -5,10 +5,6 @@ from hearts.hearts import Hand
 from hearts.hearts import Player
 from hearts.hearts import Round
 from hearts.hearts import Trick
-from hearts.hearts import CardError
-from hearts.hearts import HeartsError
-from hearts.hearts import EarlyDumpError
-from hearts.hearts import TurnError
 from hearts.hearts import CARDS
 
 P1 = Player('Lauren')
@@ -51,7 +47,7 @@ def test_hand():
     with pytest.raises(ValueError):
         hand = Hand([Card('d', '6')])
     assert not hand.is_only_hearts()
-    hand = Hand([Card('A','h'), Card('7','h'), Card('2','h')])
+    hand = Hand([Card('A', 'h'), Card('7', 'h'), Card('2', 'h')])
     assert hand.is_only_hearts()
 
 
@@ -146,11 +142,14 @@ def test_can_follow_suit():
 
 def test_is_valid_lead():
     sample_round.hearts_broken = False
-    sample_round.hands[P1] = Hand.deserialize(['4h','Qs','2d'])
+    sample_round.tricks.append(0)
+
+    sample_round.hands[P1] = Hand.deserialize(['4h', 'Qs', '2d'])
     assert not sample_round.is_valid_lead(P1, Card('4', 'h'))
 
-    sample_round.hands[P1] = Hand.deserialize(['4h','Qh','2h'])
-    assert sample_round.is_valid_lead(P1, Card('4','h'))
+    sample_round.hands[P1] = Hand.deserialize(['4h', 'Qh', '2h'])
+    assert sample_round.is_valid_lead(P1, Card('4', 'h'))
+
 
 def test_is_valid_follow():
     fake_trick = Trick([
@@ -159,27 +158,26 @@ def test_is_valid_follow():
         (P3, Card('J', 'h'))
     ])
     fake_hand = Hand.deserialize(['Ah', '7d', '6h', '2s'])
-    assert sample_round.is_valid_follow(P4,fake_trick,fake_hand[0])
-    assert not sample_round.is_valid_follow(P4,fake_trick,fake_hand[1])  
-"""
+    assert sample_round.is_valid_follow(P4, fake_trick, fake_hand[0])
+    assert not sample_round.is_valid_follow(P4, fake_trick, fake_hand[1])
+
+
 def test_lead_the_trick():
     test_round = Round(PLAYER_LIST)
     fake_hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
+    fake_trick = Trick([(P1, Card('2', 'c'))])
     test_round.hands[P4] = fake_hand
-
-    test_round.turn_counter = 1
-    with pytest.raises(TurnError):
-        test_round.lead_the_trick(P4, Card('2', 's'))
-
     test_round.turn_counter = 3
+    test_round.tricks.append(fake_trick)
+
     test_round.lead_the_trick(P4, Card('2', 's'))
     assert test_round.tricks[-1] == Trick([(P4, Card('2', 's'))])
-
     new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
     assert test_round.hands[P4] == new_hand
     assert test_round.turn_counter == 0
 
 
+"""
 def test_follow_the_trick():
     '''
     This test checks for all possible errors when following a trick, including
