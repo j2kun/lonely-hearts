@@ -160,7 +160,7 @@ class Round(object):
         '''
            Return a boolean for whether the player can use the given card
            to start the trick.
-        ''' 
+        '''
         if card.suit == 'h' and not self.hearts_broken:
             return self.hands[player].is_only_hearts()
         else:        
@@ -200,11 +200,13 @@ class Round(object):
             pass   # Do something later to deal with out of turn players
                    # and misplayed cards.
 
-    def follow_the_trick(self, player, card):  # Only applies to the last trick
+    def follow_the_trick(self, player, card):
         last_trick = self.tricks[-1]
-        if self.is_valid_follow(player, last_trick, card):
+        if self.is_player_turn(player) and self.is_valid_follow(player, last_trick, card):
             self.add_to_last_trick(player, card)
             self.upkeep(player, card)
+        else:
+            pass  # Do something later to deal with misplayed card.
 
     def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
         self.hands[player].remove(card)
@@ -215,22 +217,13 @@ class Round(object):
             self.turn_counter = self.players.index(last_trick.winner())
 
     def play_card(self, player, card):
-        last_trick = self.tricks[-1]
-
-        if not self.is_player_turn() or card not in self.hands[player]:
-            raise Exception("It's not your turn!")
-
-        # First Hand
-        if len(self.tricks) == 0:
-            self.start_round(player, card)
-
-        # leading a Trick
-        elif last_trick.size == 4:
-            self.lead_the_trick(player, card)
-
-        # following a Trick
+        if self.is_player_turn(player):
+            if len(self.tricks) == 0 or len(self.tricks[-1]) == 4:
+                self.lead_the_trick(player, card)
+            else:
+                self.follow_the_trick(player, card)
         else:
-            self.follow_the_trick(player, card)
+            pass   # Warn the player "It's not your turn!"
 
     def serialize(self):
         return {
