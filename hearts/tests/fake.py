@@ -6,7 +6,7 @@ from hearts.hearts import Trick
 
 
 def players(names='Lauren,Erin,Jeremy,Daniel'):
-    return [Player(x) for x in players.split(',')]
+    return [Player(x) for x in names.split(',')]
 
 
 def new_round(players):
