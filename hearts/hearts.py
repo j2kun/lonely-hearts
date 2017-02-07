@@ -171,7 +171,7 @@ class Round(object):
             self.make_new_trick(player, card)
             self.upkeep(player, card)
         else:
-            pass   # Do something later to deal with misplayed cards.
+            raise ValueError('Invalid lead: {}'.format(card))
 
     def follow_the_trick(self, player, card):
         last_trick = self.tricks[-1]
@@ -179,7 +179,7 @@ class Round(object):
             self.add_to_last_trick(player, card)
             self.upkeep(player, card)
         else:
-            pass  # Do something later to deal with misplayed card.
+            raise ValueError('Invalid play: {}'.format(card))
 
     def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
         self.hands[player].remove(card)
@@ -196,7 +196,7 @@ class Round(object):
             else:
                 self.follow_the_trick(player, card)
         else:
-            pass   # Warn the player "It's not your turn!"
+            raise ValueError("Invalid play: it's not your turn")
 
     def serialize(self):
         return {
@@ -231,6 +231,7 @@ class Trick(object):
             if card.dominates(winning_card):
                 winner = player
                 winning_card = card
+
         return winner
 
     def leader(self):
