@@ -155,7 +155,7 @@ class Round(object):
             return card.suit == trick.suit
         elif len(self.tricks) == 1:
             player_hand = self.hands[player]
-            if card.is_worth_points() == True:
+            if card.is_worth_points():
                 return player_hand.has_only_hearts_and_Qs()
             else:
                 return True
