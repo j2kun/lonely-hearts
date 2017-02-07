@@ -33,6 +33,9 @@ class Card(object):
         if self.suit not in ['h', 's', 'c', 'd']:
             raise ValueError('Invalid suit {}'.format(self.suit))
 
+    def is_worth_points(self):
+        return self.suit == 'h' or self == Card('Q', 's')
+
     @staticmethod
     def deserialize(serialized):
         rank, suit = serialized[0], serialized[1]
@@ -84,7 +87,7 @@ class Hand(list):
         return all(card.suit == 'h' for card in self)
 
     def has_only_hearts_and_Qs(self):
-        return all(card.suit == 'h' or card == Card('Q', 's') for card in self)
+        return all(card.is_worth_points() for card in self)
 
     def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
         self.sort(key=lambda card: (card.suit, Card.rank_values[card.rank]))
@@ -152,7 +155,10 @@ class Round(object):
             return card.suit == trick.suit
         elif len(self.tricks) == 1:
             player_hand = self.hands[player]
-            return player_hand.is_only_hearts() or player_hand.has_only_hearts_and_Qs()
+            if card.is_worth_points() == True:
+                return player_hand.has_only_hearts_and_Qs()
+            else:
+                return True
         else:
             return True
 
