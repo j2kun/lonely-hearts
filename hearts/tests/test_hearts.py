@@ -177,6 +177,19 @@ def test_lead_the_trick():
     assert test_round.turn_counter == 0
 
 
+def test_invalid_follow_on_first_trick():
+    round1 = Round(PLAYER_LIST)
+    hand = Hand.deserialize(['2d', '6h', 'Ah', 'Qs'])
+    counter = round1.turn_counter
+    first_player = round1.players[counter]
+    round1.play_card(first_player, Card('2', 'c'))
+
+    assert round1.turn_counter == (counter + 1) % 4
+    next_player = round1.players[round1.turn_counter]
+    round1.hands[next_player] = hand
+    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))
+    assert not round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
+
 """
 def test_follow_the_trick():
     '''
