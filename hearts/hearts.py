@@ -53,6 +53,12 @@ class Card(object):
     def __eq__(self, other):
         return self.rank == other.rank and self.suit == other.suit
 
+    def __repr__(self):
+        return self.serialize()
+
+    def __str__(self):
+        return self.serialize()
+
 
 CARDS = [Card.deserialize(c) for c in [
     '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', 'Th', 'Jh', 'Qh', 'Kh', 'Ah',
@@ -109,7 +115,7 @@ class Round(object):
         self.set_turn_counter()
 
     def deal(self):
-        deck = CARDS
+        deck = CARDS.copy()
         shuffle(deck)
         for n in range(4):
             start_hand = Hand(deck[13*n:13*(n+1)])
