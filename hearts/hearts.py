@@ -1,14 +1,15 @@
 from random import shuffle
 
 
-def get_player_object(name):
-    # return player object from input name
-    pass
-
-
 class Player(object):
     def __init__(self, username):
         self.username = username
+
+    def __eq__(self, other):
+        return self.username == other.username
+
+    def __hash__(self):
+        return hash(self.username)
 
 
 class Game(object):
@@ -32,6 +33,9 @@ class Card(object):
         if self.suit not in ['h', 's', 'c', 'd']:
             raise ValueError('Invalid suit {}'.format(self.suit))
 
+    def is_worth_points(self):
+        return self.suit == 'h' or self == Card('Q', 's')
+
     @staticmethod
     def deserialize(serialized):
         rank, suit = serialized[0], serialized[1]
@@ -52,6 +56,12 @@ class Card(object):
     def __eq__(self, other):
         return self.rank == other.rank and self.suit == other.suit
 
+    def __repr__(self):
+        return self.serialize()
+
+    def __str__(self):
+        return self.serialize()
+
 
 CARDS = [Card.deserialize(c) for c in [
     '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', 'Th', 'Jh', 'Qh', 'Kh', 'Ah',
@@ -62,7 +72,7 @@ CARDS = [Card.deserialize(c) for c in [
 
 
 class Hand(list):
-    def __init__(self, cards):     # cards is a list of cardnames
+    def __init__(self, cards):     # cards is a list of Card objects
         if not all(c in CARDS for c in cards):
             raise ValueError('A hand can only contain values from: {}'.format(CARDS))
         super().__init__(cards)
@@ -73,8 +83,14 @@ class Hand(list):
                 return True
         return False
 
+    def is_only_hearts(self):
+        return all(card.suit == 'h' for card in self)
+
+    def has_only_hearts_and_Qs(self):
+        return all(card.is_worth_points() for card in self)
+
     def hand_sort(self):  # Sort the hand by suit alphabetically, then by rank.
-        self.sort(key=lambda card: (card.suit, card.rank_values[card.rank]))
+        self.sort(key=lambda card: (card.suit, Card.rank_values[card.rank]))
 
     def serialize(self):
         return [card.serialize() for card in self]
@@ -87,23 +103,6 @@ class Hand(list):
         return {card.serialize() for card in self} == {card.serialize() for card in other}
 
 
-class Error(Exception):
-    pass
-
-
-class CardError(Error):
-    pass
-
-
-class HeartsError(Error):
-    pass
-
-
-class EarlyDumpError(Error):
-    ''' For when a player tries to dump on the first round'''
-    pass
-
-
 class Round(object):
     def __init__(self, players):
         '''
@@ -111,41 +110,60 @@ class Round(object):
         '''
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
-        self.tricks = []         # Should all 13 tricks be initialized at the beginning?
-        self.turn = None         # FIXME: implement turn counter
+        self.tricks = []
+        self.turn_counter = 0
         self.hearts_broken = False
-        self.who_starts = None   # FIXME: find the two of clubs
 
         self.deal()
+        self.set_turn_counter()
 
     def deal(self):
-        deck = CARDS
+        deck = CARDS.copy()
         shuffle(deck)
         for n in range(4):
-            self.hands[self.players[n]] = Hand(deck[13*n:13*(n+1)])
+            start_hand = Hand(deck[13*n:13*(n+1)])
+            start_hand.hand_sort()
+            self.hands[self.players[n]] = start_hand
+
+    def set_turn_counter(self):
+        for index in range(4):
+            if Card('2', 'c') in self.hands[self.players[index]]:
+                self.turn_counter = index
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
         return hand.has_suit(trick.suit)
 
     def is_valid_lead(self, player, card):
-        if card.suit == 'h' and not self.hearts_broken:
-            if not all(card.suit == 'h' for card in self.hands[player]):
-                raise HeartsError
-            else:  # Player has no other available suit to lead with
-                self.hearts_broken = True
-        return
+        '''
+           Return a boolean for whether the player can use the given card
+           to start the trick.
+        '''
+        if len(self.tricks) == 0:
+            return card == Card('2', 'c')
+        elif card.suit == 'h' and not self.hearts_broken:
+            return self.hands[player].is_only_hearts()
+        else:
+            return True
 
     def is_valid_follow(self, player, trick, card):
-        if card.suit == trick.suit:
-            return
-        else:
-            if self.can_follow_suit(player, trick):
-                raise CardError
+        '''
+            Return a boolean for whether the player
+            can use the given card to follow the trick
+        '''
+        if self.can_follow_suit(player, trick):
+            return card.suit == trick.suit
+        elif len(self.tricks) == 1:
+            player_hand = self.hands[player]
+            if card.is_worth_points():
+                return player_hand.has_only_hearts_and_Qs()
             else:
-                if card.suit == 'h':
-                    self.heartsbroken = True
-                return
+                return True
+        else:
+            return True
+
+    def is_player_turn(self, player):
+        return self.players[self.turn_counter] == player
 
     def make_new_trick(self, player, card):
         self.tricks.append(Trick([(player, card)]))
@@ -155,43 +173,44 @@ class Round(object):
         last_trick.cards_played.append((player, card))
 
     def lead_the_trick(self, player, card):
-        try:
-            self.is_valid_lead(player, card)
+        if self.is_valid_lead(player, card):
             self.make_new_trick(player, card)
-            self.hands[player].remove(card)
-        except HeartsError:
-            # Player tries to lead with 'h' but hearts are not broken
-            pass
+            self.upkeep(player, card)
+        else:
+            raise ValueError('Invalid lead: {}'.format(card))
 
-    def follow_the_trick(self, player, trick, card):
-        try:
-            self.is_valid_follow(player, trick, card)
+    def follow_the_trick(self, player, card):
+        last_trick = self.tricks[-1]
+        if self.is_valid_follow(player, last_trick, card):
             self.add_to_last_trick(player, card)
-            self.hands[player].remove(card)
-        except CardError:  # Player has suit but did not follow
-            pass
+            self.upkeep(player, card)
+        else:
+            raise ValueError('Invalid play: {}'.format(card))
+
+    def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
+        self.hands[player].remove(card)
+        last_trick = self.tricks[-1]
+        if last_trick.size < 4:
+            self.turn_counter = (self.turn_counter + 1) % 4
+        else:
+            self.turn_counter = self.players.index(last_trick.winner())
 
     def play_card(self, player, card):
-        last_trick = self.tricks[-1]
-
-        # First Hand
-        if True:           # FIXME: Check if card is the two of clubs
-            pass
-
-        # leading a Trick
-        elif last_trick.size == 4 and player == last_trick.winner():
-            self.lead_the_trick(player, card)
-
-        # following a Trick
+        if self.is_player_turn(player):
+            if len(self.tricks) == 0 or len(self.tricks[-1]) == 4:
+                self.lead_the_trick(player, card)
+            else:
+                self.follow_the_trick(player, card)
         else:
-            self.follow_the_trick(player, last_trick, card)
+            raise ValueError("Invalid play: it's not your turn")
 
     def serialize(self):
         return {
             'players': self.players,
-            'turn': None,   # FIXME: add player turn
+            'turn': self.players[self.turn_counter].username,
             'hands': self.hands,
             'tricks': [trick.serialize() for trick in self.tricks],
+            'hearts': str(self.hearts_broken)
         }
 
 
@@ -207,6 +226,9 @@ class Trick(object):
         first_card = self.cards_played[0][1]
         self.suit = first_card.suit
         self.size = len(self.cards_played)
+
+    def __eq__(self, other):
+        return self.cards_played == other.cards_played
 
     def winner(self):
         winner, winning_card = self.cards_played[0]
