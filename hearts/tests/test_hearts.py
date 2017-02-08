@@ -163,18 +163,19 @@ def test_is_valid_follow():
 
 
 def test_lead_the_trick():
-    test_round = Round(PLAYER_LIST)
-    fake_hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
-    fake_trick = Trick([(P1, Card('2', 'c'))])
-    test_round.hands[P4] = fake_hand
-    test_round.turn_counter = 3
-    test_round.tricks.append(fake_trick)
+    round1 = Round(PLAYER_LIST)
+    hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
+    trick = Trick([(P1, Card('2', 'c'))])
+    round1.hands[P4] = hand
+    round1.turn_counter = 3
+    round1.tricks.append(trick)
 
-    test_round.lead_the_trick(P4, Card('2', 's'))
-    assert test_round.tricks[-1] == Trick([(P4, Card('2', 's'))])
+    round1.lead_the_trick(P4, Card('2', 's'))
+    assert round1.tricks[-1] == Trick([(P4, Card('2', 's'))])
     new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
-    assert test_round.hands[P4] == new_hand
-    assert test_round.turn_counter == 0
+    assert round1.hands[P4] == new_hand
+    assert round1.turn_counter == 0
+    assert round1.hearts_broken is False
 
 
 def test_invalid_follow_on_first_trick():
@@ -189,6 +190,7 @@ def test_invalid_follow_on_first_trick():
     round1.hands[next_player] = hand
     assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))
     assert not round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
+
 
 """
 def test_follow_the_trick():
