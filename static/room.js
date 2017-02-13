@@ -7,18 +7,44 @@ function apiCard(displayCard) {
     return displayCard[1] + displayCard[0];
 }
 
+var state = {
+    passing: true,
+    chosenCards: []
+};
 
-$(window).load(function() {
-  $("body").removeClass("preload");
-  // var socket = io.connect('http://127.0.0.1:5000/chat');
+function chooseOrUnchooseCard(card) {
+    var foundIndex = $.inArray(card, state.chosenCards);
+    if (foundIndex > -1) {
+        state.chosenCards.splice(foundIndex, 1);
+        return true;
+    } else if (state.chosenCards.length < 3) {
+        state.chosenCards.push(card);
+        return true;
+    } else {
+        return false;
+    }
+}
 
-  $('.card').click(function(event) {
-    var card = apiCard(this.id);
-    console.log('played ' + card);
-    // socket.emit('chat message', $('#m').val());
-  });
+function setup() {
+    $("body").removeClass("preload");
+    // var socket = io.connect('http://127.0.0.1:5000/chat');
 
-  //socket.on('chat message', function(msg){
-  //  $('#messages').append($('<li>').text(msg));
-  //});
-});
+    $('#hand .card').click(function(event) {
+        var card = apiCard(this.id);
+        console.log('clicked ' + card);
+        if (state.passing) {
+            if (chooseOrUnchooseCard(card)) {
+                $(this).toggleClass('chosen_to_pass');
+            }
+        }
+        
+        // socket.emit('chat message', $('#m').val());
+    });
+
+    //socket.on('chat message', function(msg){
+    //    $('#messages').append($('<li>').text(msg));
+    //});
+}
+
+
+$(window).load(setup);
