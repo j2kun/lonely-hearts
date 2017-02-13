@@ -19,6 +19,63 @@
   width: 100%;
 }
 
+#trick {
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  margin: auto;
+  width: 500px;
+  height: 297px;
+  width: 219px;
+}
+
+.trick_top {
+  position: absolute;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.trick_left {
+  position: absolute;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.trick_bottom {
+  position: absolute;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 198px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.trick_right {
+  position: absolute;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 147px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
 #cards_list {
   padding: 0;
   margin: 0;
@@ -31,12 +88,18 @@
 
 .card {
   background: url("{{url_for('static', filename='cards.png')}}");
-  width: 73px;
+  background-repeat: no-repeat;
+  width: 72px;
   height: 99px;
   animation: unpeek .4s;
 }
 
-.card:hover {
+.chosen_to_pass {
+  outline: 3px solid #009922;
+  outline-offset: -2px;
+}
+
+li.card:hover {
   cursor:pointer;
   animation: peek .4s;
   animation-fill-mode: forwards;
@@ -110,18 +173,19 @@
 
 <body class="preload">
 <div id="trick">
-
+  <div class="card trick_left" id="h2"></div>
+  <div class="card trick_top" id="h3"></div>
+  <div class="card trick_right" id="h7"></div>
+  <div class="card trick_bottom" id="d9"></div>
 </div>
 <div id="hand">
 <ul id="cards_list">
   <li class="card" id="cA"></li>
   <li class="card" id="d7"></li>
   <li class="card" id="hK"></li>
-  <li class="card" id="hK"></li>
   <li class="card" id="sJ"></li>
-  <li class="card" id="d7"></li>
-  <li class="card" id="sJ"></li>
-  <li class="card" id="d7"></li>
+  <li class="card" id="c7"></li>
+  <li class="card chosen_to_pass" id="s9"></li>
 </ul>
 </div>
 
