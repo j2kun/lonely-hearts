@@ -97,12 +97,14 @@
 .chosen_to_pass {
   outline: 3px solid #009922;
   outline-offset: -2px;
+  z-index: 1;
 }
 
 li.card:hover {
   cursor:pointer;
   animation: peek .4s;
   animation-fill-mode: forwards;
+  z-index: 2;
 }
 
 @-webkit-keyframes peek {
@@ -185,7 +187,7 @@ li.card:hover {
   <li class="card" id="hK"></li>
   <li class="card" id="sJ"></li>
   <li class="card" id="c7"></li>
-  <li class="card chosen_to_pass" id="s9"></li>
+  <li class="card" id="s9"></li>
 </ul>
 </div>
 
