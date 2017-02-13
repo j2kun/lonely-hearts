@@ -1,27 +1,44 @@
 <!doctype html>
 <html>
 <head>
-  <title>Socket.IO chat</title>
+  <title>Lonely Hearts Club</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font: 13px Helvetica, Arial; }
-    form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-    form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-    form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-    #messages { list-style-type: none; margin: 0; padding: 0; }
-    #messages li { padding: 5px 10px; }
-    #messages li:nth-child(odd) { background: #eee; }
   </style>
 </head>
 <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+    <p id="table_link"></p>
+    <form id="create_table" action="">
+      <button>Create new table</button>
     </form>
 
-<script src="{{url_for('static', filename='assets/vendor/socket.io.min.js')}}"></script>
-<script src="{{url_for('static', filename='assets/vendor/jquery.js')}}"></script>
+<script src="{{url_for('static', filename='socket.io.min.js')}}"></script>
+<script src="{{url_for('static', filename='jquery.js')}}"></script>
 
+<script>
+function request_new_table() {
+  if(this.status == 200) {
+    var table_json = JSON.parse(this.responseText);
+    var table_url = 'http://127.0.0.1:5000/tables/' + table_json['id'];
+    $(table_link).html('<a href=' + table_url + '>' + table_url + '</a>');
+    console.log(this.status);
+    console.log(this.responseText);
+  } else {
+    // something went wrong
+    console.log(this.status);
+    console.log(this.responseText);
+  }
+}
+
+$('form').submit(function(){
+  var client = new XMLHttpRequest();
+  client.onload = request_new_table;
+  client.open("POST", "http://127.0.0.1:5000/tables/", false);
+  client.send();
+  return false;
+});
+</script>
+<!--
 <script>
   var socket = io.connect('http://127.0.0.1:5000/chat');
 
@@ -35,6 +52,7 @@
     $('#messages').append($('<li>').text(msg));
   });
 </script>
+-->
 
 </body>
 </html>
