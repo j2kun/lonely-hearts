@@ -36,34 +36,29 @@ Then create the local data directory for the database.
 mkdir -p data/db
 ```
 
-### Getting new changes
+### Setting up .env
 
-To get new changes to the repository (usually you do this every time you start
-working) run
-
-```
-git pull
-```
-
-If your git starts outputting strange messages and you want to reset it (at the
-cost of losing any local changes) run
+Configuration variables are read from a file called `.env` in the base
+directory of the project. This repository includes a `env.template` file to
+serve as a guide. **Do not** check in your `.env` to the repository (make sure
+it is in the `.gitignore` file), since in general it contains secret keys that
+are not public.
 
 ```
-git reset --hard origin/master
+cp env.template .env
+vim .env  # edit to set configuration variables for your environment
 ```
 
-### Fixing problems
-
-To delete and recreate your virtual envrionment, run the following
-from the base directory of the project.
+For example, if you're developing on Cloud9, you'd need to set
 
 ```
-deactivate
-rm -rf venv
-virtualenv -p python3.5 venv
-source venv/bin/activate
-pip install -r requirements.txt
+HOST=0.0.0.0
+PORT=8080
 ```
+
+These configuration variable are loaded into the environment using the `dotenv`
+package in `settings.py`.
+
 
 ## Testing
 
@@ -87,3 +82,16 @@ python app.py
 ```
 
 and browse to `http://127.0.0.1:5000/`.
+
+### Fixing problems
+
+To delete and recreate your virtual envrionment, run the following
+from the base directory of the project.
+
+```
+deactivate
+rm -rf venv
+virtualenv -p python3.5 venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
