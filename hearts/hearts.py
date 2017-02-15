@@ -204,7 +204,7 @@ class Round(object):
 
     def play_card(self, player, card):
         if self.is_player_turn(player):
-            if len(self.tricks) == 0 or len(self.tricks[-1]) == 4:
+            if len(self.tricks) == 0 or self.tricks[-1].size == 4:
                 self.lead_the_trick(player, card)
             else:
                 self.follow_the_trick(player, card)
