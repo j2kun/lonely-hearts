@@ -7,6 +7,11 @@ from hearts.hearts import Round
 from hearts.hearts import Trick
 from hearts.hearts import CARDS
 
+from hearts.tests.fake import players
+from hearts.tests.fake import new_round
+from hearts.tests.fake import hand
+from hearts.tests.fake import trick
+
 P1 = Player('Lauren')
 P2 = Player('Erin')
 P3 = Player('Jeremy')
@@ -198,6 +203,24 @@ def test_invalid_follow_on_first_trick():
     assert not round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
 
 
+def test_breaking_hearts_on_first_trick():
+    test_players = players(names='Jerem,Daniel,Erin,Lauren')
+    round1 = new_round(test_players)
+    counter = round1.turn_counter
+    first_player = round1.players[counter]
+    round1.play_card(first_player, Card('2', 'c'))
+
+    next_player = round1.players[round1.turn_counter]
+    round1.hands[next_player] = hand(cards='5h,Jd')
+    with pytest.raises(ValueError):
+        round1.play_card(next_player, Card('5', 'h'))
+    round1.play_card(next_player, Card('J', 'd'))
+    assert round1.hearts_broken is False
+
+    next_player = round1.players[round1.turn_counter]
+    round1.hands[next_player] = hand(cards='9h,Qs')
+    round1.play_card(next_player, Card('9', 'h'))
+    assert round1.hearts_broken is True
 """
 def test_follow_the_trick():
     '''
