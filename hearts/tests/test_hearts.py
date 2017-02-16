@@ -180,13 +180,6 @@ def test_lead_the_trick():
     new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
     assert round1.hands[P4] == new_hand
     assert round1.turn_counter == 0
-    assert round1.hearts_broken is False
-
-    # Leading the trick with only hearts in hand
-    hand = Hand.deserialize(['2h', 'Jh', 'Ah'])
-    round1.hands[P1] = hand
-    round1.lead_the_trick(P1, Card('J', 'h'))
-    assert round1.hearts_broken is True
 
 
 def test_invalid_follow_on_first_trick():
@@ -222,7 +215,7 @@ def test_breaking_hearts_on_first_trick():
     assert round1.hearts_broken is True
 
 
-def test_breaking_hearts_2nd_trick():
+def test_breaking_hearts_on_2nd_trick():
     test_players = players(names='Jeremy,Daniel,Erin,Lauren')
     round1 = new_round(test_players)
     first_trick = trick(test_players, cards='6c,3c,4c,5c')
