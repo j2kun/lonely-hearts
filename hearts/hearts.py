@@ -187,8 +187,15 @@ class Round(object):
         else:
             raise ValueError('Invalid play: {}'.format(card))
 
-    def upkeep(self, player, card):   # Removes a played card from a hand and moves turn_counter.
+    def upkeep(self, player, card):
+        '''
+        Removes a played card from a hand, updates the turn counter,
+        and updates when hearts get broken.
+        '''
         self.hands[player].remove(card)
+        if self.hearts_broken is False and card.suit == 'h':
+            self.hearts_broken = True
+
         last_trick = self.tricks[-1]
         if last_trick.size < 4:
             self.turn_counter = (self.turn_counter + 1) % 4
@@ -197,7 +204,7 @@ class Round(object):
 
     def play_card(self, player, card):
         if self.is_player_turn(player):
-            if len(self.tricks) == 0 or len(self.tricks[-1]) == 4:
+            if len(self.tricks) == 0 or self.tricks[-1].size == 4:
                 self.lead_the_trick(player, card)
             else:
                 self.follow_the_trick(player, card)
