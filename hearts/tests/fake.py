@@ -18,8 +18,7 @@ def hand(cards='Ah,7d,6h,2s'):
 
 
 def trick(players, cards='5h,3h,Jh,Qs'):
-    return Trick([(p, Card.deserialize(c)) for (p, c) in zip(players, cards)])
-
+    return Trick([(p, Card.deserialize(c)) for (p, c) in zip(players, cards.split(','))])
 
 '''
 def play_full_round():
