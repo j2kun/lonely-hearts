@@ -204,10 +204,9 @@ def test_invalid_follow_on_first_trick():
 
 
 def test_breaking_hearts_on_first_trick():
-    test_players = players(names='Jerem,Daniel,Erin,Lauren')
+    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
     round1 = new_round(test_players)
-    counter = round1.turn_counter
-    first_player = round1.players[counter]
+    first_player = round1.players[round1.turn_counter]
     round1.play_card(first_player, Card('2', 'c'))
 
     next_player = round1.players[round1.turn_counter]
@@ -221,6 +220,35 @@ def test_breaking_hearts_on_first_trick():
     round1.hands[next_player] = hand(cards='9h,Qs')
     round1.play_card(next_player, Card('9', 'h'))
     assert round1.hearts_broken is True
+
+
+def test_breaking_hearts_2nd_trick():
+    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
+    round1 = new_round(test_players)
+    first_trick = trick(test_players, cards='6c,3c,4c,5c')
+    round1.tricks.append(first_trick)
+    next_player = round1.players[round1.turn_counter]
+
+    # Break hearts in 2nd trick by leading
+    round1.hands[next_player] = hand(cards='2h,3h,4h')
+    assert round1.hearts_broken is False
+    round1.play_card(next_player, Card('2', 'h'))
+    assert round1.hearts_broken is True
+
+    # Reset the 2nd trick
+    round1.hearts_broken = False
+    del round1.tricks[-1]
+
+    next_player = round1.players[round1.turn_counter]
+    round1.hands[next_player] = hand(cards='As,Ad')
+    round1.play_card(next_player, Card('A', 's'))
+    next_player = round1.players[round1.turn_counter]
+    round1.hands[next_player] = hand(cards='Ad,Ah')
+    assert round1.hearts_broken is False
+    round1.play_card(next_player, Card('A', 'h'))
+    assert round1.hearts_broken is True
+
+
 """
 def test_follow_the_trick():
     '''
