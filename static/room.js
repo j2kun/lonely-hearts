@@ -9,7 +9,6 @@ function apiCard(displayCard) {
 
 // Will remove dummy data once we pull state from the API
 var state = {
-    passing: true,
     hand: ['2h', '5s', '6c', 'Jc', 'Kd', 'As'],
     trick: [],
     players: ['Jeremy', 'Erin', 'Daniel', 'Lauren'],
@@ -43,9 +42,17 @@ function displayHand(hand) {
 function handCardClick(event) {
     var card = apiCard(this.id);
     console.log('clicked ' + card);
-    if (state.passing) {
+    if (state.mode === 'passing') {
         if (chooseOrUnchooseCard(card)) {
             $(this).toggleClass('chosen_to_pass');
+        }
+    } else if (state.mode === 'play') {
+        var success = true; // playCard(card);  // call the API
+        if (success) {
+            var index = state.hand.indexOf(card);
+            state.hand.splice(index, 1);
+            state.trick.push(card);
+            render(state);
         }
     }
     // socket.emit('chat message', $('#m').val());
