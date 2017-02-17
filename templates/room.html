@@ -91,7 +91,6 @@
   background-repeat: no-repeat;
   width: 72px;
   height: 99px;
-  animation: unpeek .4s;
 }
 
 .chosen_to_pass {
@@ -100,10 +99,13 @@
   z-index: 1;
 }
 
-li.card:hover {
-  cursor:pointer;
-  animation: peek .4s;
-  animation-fill-mode: forwards;
+#hand .card {
+  transition: transform 0.2s ease;
+}
+
+#hand .card:hover {
+  cursor: pointer;
+  transform: translateY(-10px);
   z-index: 2;
 }
 
