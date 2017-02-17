@@ -7,11 +7,14 @@ function apiCard(displayCard) {
     return displayCard[1] + displayCard[0];
 }
 
+// Will remove dummy data once we pull state from the API
 var state = {
     passing: true,
-    hand: [],
+    hand: ['2h', '5s', '6c', 'Jc', 'Kd', 'As'],
     trick: [],
-    players: [],
+    players: ['Jeremy', 'Erin', 'Daniel', 'Lauren'],
+    turn: 'Jeremy',
+    mode: 'play'  // or 'passing'
     chosenCards: []
 };
 
