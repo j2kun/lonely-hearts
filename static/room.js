@@ -9,6 +9,9 @@ function apiCard(displayCard) {
 
 var state = {
     passing: true,
+    hand: [],
+    trick: [],
+    players: [],
     chosenCards: []
 };
 
@@ -23,6 +26,10 @@ function chooseOrUnchooseCard(card) {
     } else {
         return false;
     }
+}
+
+function displayHand(hand) {
+    $('#hand .card').
 }
 
 function setup() {
