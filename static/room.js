@@ -32,11 +32,11 @@ function chooseOrUnchooseCard(card) {
 }
 
 function displayHand(hand) {
-    var hand_to_render = '';
+    var handToRender = '';
     for (var i = 0; i < hand.length; i++) {
-        hand_to_render += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
+        handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
     }
-    $('#hand #cards_list').html(hand_to_render);
+    $('#hand #cards_list').html(handToRender);
     $('#hand .card').click(handCardClick);
 }
 
@@ -52,13 +52,13 @@ function handCardClick(event) {
 }
 
 function displayTrick(trick) {
-    var trick_to_render = '';
-    var ordered_positions = ['trick_bottom', 'trick_left', 'trick_top', 'trick_right'];
+    var trickToRender = '';
+    var orderedPositions = ['trick_bottom', 'trick_left', 'trick_top', 'trick_right'];
     for (var i = 0; i < trick.length; i++) {
-        trick_to_render += ('<div class="card ' + orderded_positions[i] + 
-                           '" id="' + displayCard(trick[i]) + '"></li>');
+        trickToRender += ('<div class="card ' + orderedPositions[i] + 
+                           '" id="' + displayCard(trick[i]) + '"></div>');
     }
-    $('#trick').html(trick_to_render);
+    $('#trick').html(trickToRender);
 }
 
 function render(state) {
