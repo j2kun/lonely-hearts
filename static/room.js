@@ -14,7 +14,7 @@ var state = {
     trick: [],
     players: ['Jeremy', 'Erin', 'Daniel', 'Lauren'],
     turn: 'Jeremy',
-    mode: 'play'  // or 'passing'
+    mode: 'play',  // or 'passing'
     chosenCards: []
 };
 
