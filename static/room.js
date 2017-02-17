@@ -51,15 +51,28 @@ function handCardClick(event) {
     // socket.emit('chat message', $('#m').val());
 }
 
+function displayTrick(trick) {
+    var trick_to_render = '';
+    var ordered_positions = ['trick_bottom', 'trick_left', 'trick_top', 'trick_right'];
+    for (var i = 0; i < trick.length; i++) {
+        trick_to_render += ('<div class="card ' + orderded_positions[i] + 
+                           '" id="' + displayCard(trick[i]) + '"></li>');
+    }
+    $('#trick').html(trick_to_render);
+}
+
+function render(state) {
+    displayHand(state.hand);
+    displayTrick(state.trick);
+}
+
 function setup() {
     $("body").removeClass("preload");
     // var socket = io.connect('http://127.0.0.1:5000/chat');
-
-    $('#hand .card').click(handCardClick);
-
     //socket.on('chat message', function(msg){
     //    $('#messages').append($('<li>').text(msg));
     //});
+    render(state);
 }
 
 
