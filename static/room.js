@@ -29,24 +29,30 @@ function chooseOrUnchooseCard(card) {
 }
 
 function displayHand(hand) {
-    $('#hand .card').
+    var hand_to_render = '';
+    for (var i = 0; i < hand.length; i++) {
+        hand_to_render += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
+    }
+    $('#hand #cards_list').html(hand_to_render);
+    $('#hand .card').click(handCardClick);
+}
+
+function handCardClick(event) {
+    var card = apiCard(this.id);
+    console.log('clicked ' + card);
+    if (state.passing) {
+        if (chooseOrUnchooseCard(card)) {
+            $(this).toggleClass('chosen_to_pass');
+        }
+    }
+    // socket.emit('chat message', $('#m').val());
 }
 
 function setup() {
     $("body").removeClass("preload");
     // var socket = io.connect('http://127.0.0.1:5000/chat');
 
-    $('#hand .card').click(function(event) {
-        var card = apiCard(this.id);
-        console.log('clicked ' + card);
-        if (state.passing) {
-            if (chooseOrUnchooseCard(card)) {
-                $(this).toggleClass('chosen_to_pass');
-            }
-        }
-        
-        // socket.emit('chat message', $('#m').val());
-    });
+    $('#hand .card').click(handCardClick);
 
     //socket.on('chat message', function(msg){
     //    $('#messages').append($('<li>').text(msg));
