@@ -72,6 +72,14 @@ def test_serialize_hand():
 """Trick Class Tests"""
 
 
+def test_trick_length():
+    trick = Trick([(P1, Card('2', 'c'))])
+    assert len(trick) == 1
+    trick.cards_played.append((P2, Card('A', 'c')))
+    trick.cards_played.append((P3, Card('Q', 'c')))
+    assert len(trick) == 3
+
+
 def test_trick_winner():
     trick = Trick([
         (P1, Card('5', 'h')),

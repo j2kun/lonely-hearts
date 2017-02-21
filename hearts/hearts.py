@@ -197,14 +197,14 @@ class Round(object):
             self.hearts_broken = True
 
         last_trick = self.tricks[-1]
-        if last_trick.size < 4:
+        if len(last_trick) < 4:
             self.turn_counter = (self.turn_counter + 1) % 4
         else:
             self.turn_counter = self.players.index(last_trick.winner())
 
     def play_card(self, player, card):
         if self.is_player_turn(player):
-            if len(self.tricks) == 0 or self.tricks[-1].size == 4:
+            if len(self.tricks) == 0 or len(self.tricks[-1]) == 4:
                 self.lead_the_trick(player, card)
             else:
                 self.follow_the_trick(player, card)
@@ -232,7 +232,9 @@ class Trick(object):
         self.cards_played = cards_played
         first_card = self.cards_played[0][1]
         self.suit = first_card.suit
-        self.size = len(self.cards_played)
+
+    def __len__(self):
+        return len(self.cards_played)
 
     def __eq__(self, other):
         return self.cards_played == other.cards_played
@@ -244,7 +246,6 @@ class Trick(object):
             if card.dominates(winning_card):
                 winner = player
                 winning_card = card
-
         return winner
 
     def leader(self):
