@@ -1,5 +1,6 @@
-# Hearts
-[![travis-badge](https://travis-ci.org/j2kun/lonely-hearts.svg?branch=master)](https://travis-ci.org/j2kun/lonely-hearts)
+# Hearts 
+
+[![travis-badge](https://travis-ci.org/j2kun/lonely-hearts.svg?branch=master)](https://travis-ci.org/j2kun/lonely-hearts) [![Coverage Status](https://coveralls.io/repos/github/j2kun/lonely-hearts/badge.svg)](https://coveralls.io/github/j2kun/lonely-hearts)
 
 ## First time project setup
 
