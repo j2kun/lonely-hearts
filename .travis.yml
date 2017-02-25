@@ -11,3 +11,6 @@ script: py.test
 # after tests, report test coverage to coveralls
 after_success:
   - coveralls
+
+notifications:
+  email: false
