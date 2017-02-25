@@ -1,5 +1,3 @@
-import pytest
-
 from hearts.hearts import Card
 from hearts.hearts import Player
 from hearts.hearts import Trick
@@ -8,26 +6,6 @@ P1 = Player('Lauren')
 P2 = Player('Erin')
 P3 = Player('Jeremy')
 P4 = Player('Daniel')
-
-""" Card class tests """
-
-
-def test_card_serialize():
-    card = Card('A', 'h')
-    assert 'Ah' == card.serialize()
-    assert card == Card.deserialize('Ah')
-
-
-def test_card_validate():
-    with pytest.raises(ValueError):
-        Card.deserialize('Ch')
-    with pytest.raises(ValueError):
-        Card.deserialize('Q4')
-    with pytest.raises(ValueError):
-        Card.deserialize('2t')
-
-
-"""Trick Class Tests"""
 
 
 def test_trick_length():
