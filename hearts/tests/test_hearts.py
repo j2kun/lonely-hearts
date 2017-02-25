@@ -223,24 +223,26 @@ def test_breaking_hearts_on_first_trick():
     assert round1.hearts_broken is True
 
 
-def test_breaking_hearts_on_2nd_trick():
+def test_breaking_hearts_on_2nd_trick_by_leading():
     test_players = players(names='Jeremy,Daniel,Erin,Lauren')
     round1 = new_round(test_players)
     first_trick = trick(test_players, cards='6c,3c,4c,5c')
     round1.tricks.append(first_trick)
     next_player = round1.players[round1.turn_counter]
 
-    # Break hearts in 2nd trick by leading
     round1.hands[next_player] = hand(cards='2h,3h,4h')
     assert round1.hearts_broken is False
     round1.play_card(next_player, Card('2', 'h'))
     assert round1.hearts_broken is True
 
-    # Reset the 2nd trick
-    round1.hearts_broken = False
-    del round1.tricks[-1]
 
+def test_breaking_hearts_on_2nd_trick_by_following():
+    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
+    round1 = new_round(test_players)
+    first_trick = trick(test_players, cards='6c,3c,4c,5c')
+    round1.tricks.append(first_trick)
     next_player = round1.players[round1.turn_counter]
+
     round1.hands[next_player] = hand(cards='As,Ad')
     round1.play_card(next_player, Card('A', 's'))
     next_player = round1.players[round1.turn_counter]
