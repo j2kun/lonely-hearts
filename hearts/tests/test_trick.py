@@ -1,0 +1,56 @@
+from hearts.hearts import Card
+from hearts.hearts import Player
+from hearts.hearts import Trick
+
+P1 = Player('Lauren')
+P2 = Player('Erin')
+P3 = Player('Jeremy')
+P4 = Player('Daniel')
+
+
+def test_trick_length():
+    trick = Trick([(P1, Card('2', 'c'))])
+    assert len(trick) == 1
+    trick.cards_played.append((P2, Card('A', 'c')))
+    trick.cards_played.append((P3, Card('Q', 'c')))
+    assert len(trick) == 3
+
+
+def test_trick_winner():
+    trick = Trick([
+        (P1, Card('5', 'h')),
+        (P2, Card('3', 'h')),
+        (P3, Card('J', 'h')),
+        (P4, Card('Q', 's')),
+    ])
+    assert trick.winner() == P3
+
+
+def test_trick_leader():
+    trick = Trick([
+        (P3, Card('5', 'h')),
+        (P2, Card('3', 'h')),
+        (P1, Card('J', 'h')),
+        (P4, Card('Q', 's')),
+    ])
+    assert trick.leader() == P3
+
+
+def test_serialize():
+    trick = Trick([
+        (Player('Lauren'), Card('2', 'h')),
+        (Player('Erin'), Card('8', 's')),
+        (Player('Jeremy'), Card('6', 'h')),
+        (Player('Daniel'), Card('Q', 's'))
+    ])
+
+    expected_serialized = {
+        'Lauren': dict(turn=0, card='2h'),
+        'Erin': dict(turn=1, card='8s'),
+        'Jeremy': dict(turn=2, card='6h'),
+        'Daniel': dict(turn=3, card='Qs')
+    }
+    assert expected_serialized == trick.serialize()
+
+    deserialized = Trick.deserialize(trick.serialize())
+    assert deserialized == trick

@@ -117,6 +117,10 @@ class Round(object):
         self.deal()
         self.set_turn_counter()
 
+    @property
+    def next_player(self):
+        return self.players[self.turn_counter]
+
     def deal(self):
         deck = CARDS.copy()
         shuffle(deck)
