@@ -9,8 +9,8 @@ def players(names='Lauren,Erin,Jeremy,Daniel'):
     return [Player(x) for x in names.split(',')]
 
 
-def new_round(players):
-    return Round(players=players)
+def new_round(players=None):
+    return Round(players=players), players
 
 
 def hand(cards='Ah,7d,6h,2s'):

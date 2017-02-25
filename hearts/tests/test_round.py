@@ -7,7 +7,6 @@ from hearts.hearts import Round
 from hearts.hearts import Trick
 from hearts.hearts import CARDS
 
-from hearts.tests.fake import players
 from hearts.tests.fake import new_round
 from hearts.tests.fake import hand
 from hearts.tests.fake import trick
@@ -99,30 +98,27 @@ def test_invalid_follow_on_first_trick():
 
 
 def test_breaking_hearts_on_first_trick():
-    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
-    round1 = new_round(test_players)
-    first_player = round1.players[round1.turn_counter]
-    round1.play_card(first_player, Card('2', 'c'))
+    round1, _ = new_round()
+    round1.play_card(round1.next_player, Card('2', 'c'))
 
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
     round1.hands[next_player] = hand(cards='5h,Jd')
     with pytest.raises(ValueError):
         round1.play_card(next_player, Card('5', 'h'))
     round1.play_card(next_player, Card('J', 'd'))
     assert round1.hearts_broken is False
 
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
     round1.hands[next_player] = hand(cards='9h,Qs')
     round1.play_card(next_player, Card('9', 'h'))
     assert round1.hearts_broken is True
 
 
 def test_breaking_hearts_on_2nd_trick_by_leading():
-    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
-    round1 = new_round(test_players)
-    first_trick = trick(test_players, cards='6c,3c,4c,5c')
+    round1, players = new_round()
+    first_trick = trick(players, cards='6c,3c,4c,5c')
     round1.tricks.append(first_trick)
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
 
     round1.hands[next_player] = hand(cards='2h,3h,4h')
     assert round1.hearts_broken is False
@@ -131,15 +127,14 @@ def test_breaking_hearts_on_2nd_trick_by_leading():
 
 
 def test_breaking_hearts_on_2nd_trick_by_following():
-    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
-    round1 = new_round(test_players)
-    first_trick = trick(test_players, cards='6c,3c,4c,5c')
+    round1, players = new_round()
+    first_trick = trick(players, cards='6c,3c,4c,5c')
     round1.tricks.append(first_trick)
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
 
     round1.hands[next_player] = hand(cards='As,Ad')
     round1.play_card(next_player, Card('A', 's'))
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
     round1.hands[next_player] = hand(cards='Ad,Ah')
     assert round1.hearts_broken is False
     round1.play_card(next_player, Card('A', 'h'))
@@ -147,26 +142,24 @@ def test_breaking_hearts_on_2nd_trick_by_following():
 
 
 def test_follow_the_trick_with_wrong_suit():
-    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
-    round1 = new_round(test_players)
-    first_trick = trick(test_players[1:3], cards='2c,3c')
+    round1, players = new_round()
+    first_trick = trick(players[1:3], cards='2c,3c')
     round1.turn_counter = 3
     round1.tricks.append(first_trick)
 
     with pytest.raises(ValueError):
         next_hand = hand(cards='4c,9d,4h')
-        next_player = round1.players[round1.turn_counter]
+        next_player = round1.next_player
         round1.hands[next_player] = next_hand
         round1.follow_the_trick(next_player, Card('9', 'd'))
 
 
 def test_follow_the_trick_with_first_trick_dumping():
-    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
-    round1 = new_round(test_players)
-    first_trick = trick(test_players[1:3], cards='2c,3c')
+    round1, players = new_round()
+    first_trick = trick(players[1:3], cards='2c,3c')
     round1.turn_counter = 3
     round1.tricks.append(first_trick)
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
     round1.hands[next_player] = hand('Ad,Th,Jh,Qs')
 
     with pytest.raises(ValueError):
@@ -179,21 +172,20 @@ def test_follow_the_trick_upkeep_on_an_incomplete_trick():
     '''After a played card, test for the last trick being updated,
     the turn counter moved, and the last player's hand updated'''
 
-    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
-    round1 = new_round(test_players)
-    first_trick = trick(test_players[1:3], cards='2c,3c')
+    round1, players = new_round()
+    first_trick = trick(players[1:3], cards='2c,3c')
     round1.turn_counter = 3
     round1.tricks.append(first_trick)
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
     round1.hands[next_player] = hand('Ad,Th,Jh,Qs')
     round1.follow_the_trick(next_player, Card('A', 'd'))
 
-    updated_trick = trick(test_players[1:], cards='2c,3c,Ad')
+    updated_trick = trick(players[1:], cards='2c,3c,Ad')
     assert round1.tricks[-1] == updated_trick
     assert round1.turn_counter == 0
     previous_player = round1.players[round1.turn_counter-1]
-    updated_hand = hand('Th,Jh,Qs')
-    assert round1.hands[previous_player] == updated_hand
+    assert previous_player == next_player
+    assert round1.hands[previous_player] == hand('Th,Jh,Qs')
 
 
 def test_follow_the_trick_upkeep_on_a_completed_trick():
@@ -202,26 +194,22 @@ def test_follow_the_trick_upkeep_on_a_completed_trick():
     the turn counter moved to the trick's winner,
     and the last player's hand updated.
     '''
-    test_players = players(names='Jeremy,Daniel,Erin,Lauren')
-    round1 = new_round(test_players)
-    first_trick = trick(test_players[1:3], cards='2c,3c')
+    round1, players = new_round()
+    first_trick = trick(players[1:3], cards='2c,3c')
     round1.turn_counter = 3
     round1.tricks.append(first_trick)
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
     round1.hands[next_player] = hand('Ad,Th,Jh,Qs')
     round1.follow_the_trick(next_player, Card('A', 'd'))
-    next_player = round1.players[round1.turn_counter]
+    next_player = round1.next_player
     round1.hands[next_player] = hand(cards='2d,3d,4h')
     round1.follow_the_trick(next_player, Card('2', 'd'))
 
-    players_in_order = test_players[1:] + test_players[:1]
+    players_in_order = players[1:] + players[:1]
     updated_trick = trick(players_in_order, cards='2c,3c,Ad,2d')
     assert round1.tricks[-1] == updated_trick
     assert round1.turn_counter == 2     # position of trick winner
-    previous_counter = 0
-    previous_player = round1.players[previous_counter]
-    updated_hand = hand(cards='3d,4h')
-    assert round1.hands[previous_player] == updated_hand
+    assert round1.hands[round1.players[0]] == hand(cards='3d,4h')
 
 '''
 def test_full_round_no_errors():
