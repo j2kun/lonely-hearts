@@ -221,9 +221,9 @@ class Round(object):
         else:
             points = 0
             for data in trick.cards_played:
-               if data[1].suit == 'h':
+                if data[1].suit == 'h':
                     points += 1
-               elif data[1] == Card('Q', 's'):
+                elif data[1] == Card('Q', 's'):
                     points += 13
             return points
 
