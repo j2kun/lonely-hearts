@@ -242,6 +242,59 @@ def test_play_card_out_of_turn():
     next_trick = trick([next_player], '2d')
     assert round1.tricks[-1] == next_trick
 
+
+def test_trick_points():
+    round1, players = new_round()
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+    trick1 = trick([p0, p1, p2, p3], '2c,3s,4d,5c')
+    assert round1.trick_points(trick1) == 0
+
+    trick2 = trick([p1, p2, p3, p0], '3c,Qs,4c,Ah')
+    assert round1.trick_points(trick2) == 14
+    assert trick2.winner() == p3
+
+
+def test_current_scores_no_points():
+    round1, players = new_round()
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+    test_scores = {player: 0 for player in players}
+    assert round1.current_scores() == test_scores
+
+    trick1 = trick([p0, p1, p2, p3], '2c,Ac,Kc,As')
+    trick2 = trick([p1, p2, p3, p0], 'Ad,Qd,Qc,Ks')
+    round1.tricks.append(trick1)
+    round1.tricks.append(trick2)
+    assert round1.current_scores() == test_scores
+
+
+def test_current_scores_with_points():
+    round1, players = new_round()
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    trick1 = trick([p0, p1, p2, p3], '2c,Ac,Kc,As')
+    round1.tricks.append(trick1)
+    assert round1.current_scores() == {p0: 0, p1: 0, p2: 0, p3: 0}
+
+    trick2 = trick([p1, p2, p3, p0], 'Kd,Qd,Ad,2h')
+    round1.tricks.append(trick2)
+    assert round1.current_scores() == {p0: 0, p1: 0, p2: 0, p3: 1}
+
+    trick3 = trick([p3, p0, p1, p2], '2d,Qs,4d,3d')
+    round1.tricks.append(trick3)
+    assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 1}
+
+    trick4 = trick([p1, p2, p3, p0], '2h,4h,5h,3s')
+    round1.tricks.append(trick4)
+    assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 4}
 '''
 def test_full_round_no_errors():
     r = Round()
