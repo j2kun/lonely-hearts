@@ -211,6 +211,37 @@ def test_follow_the_trick_upkeep_on_a_completed_trick():
     assert round1.turn_counter == 2     # position of trick winner
     assert round1.hands[round1.players[0]] == hand(cards='3d,4h')
 
+
+def test_play_card_out_of_turn():
+    round1, players = new_round()
+    wrong_player = players[(round1.turn_counter + 1) % 4]
+    with pytest.raises(ValueError):
+        round1.play_card(wrong_player, Card('K', 'c'))
+
+    first_trick = trick(players[:4], cards='2c,3c,Ac')
+    round1.turn_counter = 3
+    round1.tricks.append(first_trick)
+    next_player = round1.next_player
+
+    wrong_player = players[(round1.turn_counter + 1) % 4]
+    with pytest.raises(ValueError):
+        round1.play_card(wrong_player, Card('K', 'c'))
+
+    round1.hands[next_player] = hand('Kc,Th')
+    round1.play_card(next_player, Card('K', 'c'))
+    first_trick = trick(players[:], cards='2c,3c,Ac,Kc')
+    assert round1.tricks[-1] == first_trick
+
+    wrong_player = round1.players[0]
+    with pytest.raises(ValueError):
+        round1.play_card(wrong_player, Card('2', 'd'))
+
+    next_player = round1.next_player
+    round1.hands[next_player] = hand('2d,2h')
+    round1.play_card(next_player, Card('2', 'd'))
+    next_trick = trick([next_player], '2d')
+    assert round1.tricks[-1] == next_trick
+
 '''
 def test_full_round_no_errors():
     r = Round()
