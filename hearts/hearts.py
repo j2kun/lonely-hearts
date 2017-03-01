@@ -215,17 +215,6 @@ class Round(object):
         else:
             raise ValueError("Invalid play: it's not your turn")
 
-    def trick_points(self, trick):
-        if len(trick) < 4:
-            return 0
-        else:
-            points = 0
-            for data in trick.cards_played:
-                if data[1].suit == 'h':
-                    points += 1
-                elif data[1] == Card('Q', 's'):
-                    points += 13
-            return points
 
     def current_scores(self):
         '''
@@ -234,7 +223,7 @@ class Round(object):
         '''
         scores = {player: 0 for player in self.players}
         for trick in self.tricks:
-            scores[trick.winner()] += self.trick_points(trick)
+            scores[trick.winner()] += trick.points()
         return scores
 
     def shot_the_moon(self):
@@ -277,6 +266,21 @@ class Trick(object):
 
     def __eq__(self, other):
         return self.cards_played == other.cards_played
+
+    def points(self):
+        '''
+        Returns the total number of points in the trick if it is complete. Assumes basic Hearts rules.
+        '''
+        if len(self) < 4:
+            return 0
+        else:
+            points = 0
+            for data in self.cards_played:
+                if data[1].suit == 'h':
+                    points += 1
+                elif data[1] == Card('Q', 's'):
+                    points += 13
+            return points
 
     def winner(self):
         winner, winning_card = self.cards_played[0]
