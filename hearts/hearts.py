@@ -215,7 +215,6 @@ class Round(object):
         else:
             raise ValueError("Invalid play: it's not your turn")
 
-
     def current_scores(self):
         '''
         Returns {player: int}.  Calculates the current number of points
@@ -229,10 +228,16 @@ class Round(object):
     def shot_the_moon(self):
         '''
         Returns {player: Bool}.  Bool is True if and only if player's
-        score is 26 (based on the standard Hearts rules.)
+        score is 26 (based on the standard Hearts rules).  Function can
+        be called at any time during the round.
         '''
         d = {player: False for player in self.players}
-        pass
+        scores = self.current_scores()
+        for player in self.players:
+            if scores[player] == 26:
+                d[player] = True
+                return d
+        return d
 
     def final_scores(self):
         scores = self.current_scores()
