@@ -31,6 +31,9 @@ def test_trick_points():
     assert trick2.points() == 14
     assert trick2.winner() == p3
 
+    trick3 = trick([p2, p3, p0], '2h,3h,4s')
+    assert trick3.points() == 0
+
 
 def test_trick_winner():
     trick = Trick([
