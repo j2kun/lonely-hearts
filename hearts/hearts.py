@@ -239,10 +239,18 @@ class Round(object):
                 return d
         return d
 
-    def final_scores(self):
+    def final_scores(self):     # FIXME:  test_final_scores_shot_the_moon() fails. 
         scores = self.current_scores()
-        if len(self.tricks) == 13 & len(self.tricks[-1] == 4):
-            pass
+        shoot_successes = self.shot_the_moon()
+        if all(shoot_successes.values()) is False:
+            return scores
+        else:
+            for (player, attempt) in shoot_successes.items():
+                if attempt is True:
+                    scores[player] = scores[player] - 26
+                if attempt is False:
+                    scores[player] = scores[player] + 26
+            return scores
 
     def serialize(self):
         return {

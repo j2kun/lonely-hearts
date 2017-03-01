@@ -309,7 +309,7 @@ def test_shot_the_moon():          # Way too much typing here. Will fix later.
     trick13 = trick([p1, p2, p3, p0], '2c,3c,4c,5c')
 
     trick_list = [trick1, trick2, trick3, trick4, trick5, trick6,
-                trick7, trick8, trick9, trick10, trick11, trick12, trick13]
+                  trick7, trick8, trick9, trick10, trick11, trick12, trick13]
     for my_trick in trick_list:
         round1.tricks.append(my_trick)
 
