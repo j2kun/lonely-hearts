@@ -314,6 +314,77 @@ def test_shot_the_moon():          # Way too much typing here. Will fix later.
         round1.tricks.append(my_trick)
 
     assert round1.shot_the_moon() == {p0: False, p1: True, p2: False, p3: False}
+
+
+def test_final_scores_shot_the_moon():          # Way too much typing here. Will fix later.
+    round1, players = new_round()
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    # p1 loses tricks without points
+    trick1 = trick([p0, p1, p2, p3], '2c,3c,4c,5c')
+    trick2 = trick([p0, p1, p2, p3], '2c,3c,4c,5c')
+    # p1 wins every trick it follows
+    trick3 = trick([p0, p1, p2, p3], '2c,Ac,2h,3c')
+    trick4 = trick([p0, p1, p2, p3], '2c,Ac,3h,3c')
+    trick5 = trick([p0, p1, p2, p3], '2c,Ac,3c,4h')
+    trick6 = trick([p0, p1, p2, p3], '2c,Ac,3c,5h')
+    trick7 = trick([p0, p1, p2, p3], '2c,Ac,3c,6h')
+    trick8 = trick([p0, p1, p2, p3], '2c,Ac,3c,7h')
+    trick9 = trick([p0, p1, p2, p3], '8h,Jh,9h,Th')
+    # p1 wins by leading the trick
+    trick10 = trick([p1, p2, p3, p0], 'Kh,Qh,3c,3c')
+    trick11 = trick([p1, p2, p3, p0], 'Ah,3c,3c,3c')
+    trick12 = trick([p1, p2, p3, p0], 'Qs,2s,3s,4s')
+    # garbage tricks
+    trick13 = trick([p1, p2, p3, p0], '2c,3c,4c,5c')
+
+    trick_list = [trick1, trick2, trick3, trick4, trick5, trick6,
+                  trick7, trick8, trick9, trick10, trick11, trick12, trick13]
+    for my_trick in trick_list:
+        round1.tricks.append(my_trick)
+    assert round1.current_scores() == {p0: 0, p1: 26, p2: 0, p3: 0}
+    assert round1.shot_the_moon() == {p0: False, p1: True, p2: False, p3: False}
+    assert round1.final_scores() == {p0: 26, p1: 0, p2: 26, p3: 26}
+
+
+def test_final_scores_without_shooting_the_moon():          # Way too much typing here. Will fix later.
+    round1, players = new_round()
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    # p1 loses tricks without points
+    trick1 = trick([p0, p1, p2, p3], '2c,3c,4c,5c')
+    trick2 = trick([p0, p1, p2, p3], '2c,3c,4c,5c')
+    # p1 wins every trick it follows
+    trick3 = trick([p0, p1, p2, p3], '2c,Ac,2h,3c')
+    trick4 = trick([p0, p1, p2, p3], '2c,Ac,3h,3c')
+    trick5 = trick([p0, p1, p2, p3], '2c,Ac,3c,4h')
+    trick6 = trick([p0, p1, p2, p3], '2c,Ac,3c,5h')
+    trick7 = trick([p0, p1, p2, p3], '2c,Ac,3c,6h')
+    trick8 = trick([p0, p1, p2, p3], '2c,Ac,3c,7h')
+    trick9 = trick([p0, p1, p2, p3], '8h,Jh,9h,Th')
+    # p1 wins by leading the trick
+    trick10 = trick([p1, p2, p3, p0], 'Kh,Qh,3c,3c')
+    trick11 = trick([p1, p2, p3, p0], 'Ah,3c,3c,3c')
+    # p3 takes the queen of spades
+    trick12 = trick([p1, p2, p3, p0], 'Qs,2s,Ks,4s')
+    # garbage tricks
+    trick13 = trick([p1, p2, p3, p0], '2c,3c,4c,5c')
+
+    trick_list = [trick1, trick2, trick3, trick4, trick5, trick6,
+                  trick7, trick8, trick9, trick10, trick11, trick12, trick13]
+    for my_trick in trick_list:
+        round1.tricks.append(my_trick)
+
+    assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
+    assert round1.shot_the_moon() == {p0: False, p1: False, p2: False, p3: False}
+    assert round1.final_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
+
 '''
 def test_full_round_no_errors():
     r = Round()
