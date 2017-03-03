@@ -245,18 +245,12 @@ def test_play_card_out_of_turn():
 
 def test_current_scores_no_points():
     round1, players = new_round()
-    p0 = players[0]
-    p1 = players[1]
-    p2 = players[2]
-    p3 = players[3]
-    test_scores = {player: 0 for player in players}
-    assert round1.current_scores() == test_scores
+    assert round1.current_scores() == {player: 0 for player in players}
 
-    trick1 = trick([p0, p1, p2, p3], '2c,Ac,Kc,As')
-    trick2 = trick([p1, p2, p3, p0], 'Ad,Qd,Qc,Ks')
-    round1.tricks.append(trick1)
-    round1.tricks.append(trick2)
-    assert round1.current_scores() == test_scores
+    test_plays = [(0, '2c,Ac,Kc,As'),
+                  (1, 'Ad,Qd,Qc,Ks')]
+    round2, players = new_round(None, *test_plays)
+    assert round2.current_scores() == {player: 0 for player in players}
 
 
 def test_current_scores_with_points():
@@ -284,36 +278,25 @@ def test_current_scores_with_points():
 
 
 def test_shot_the_moon():          # Way too much typing here. Will fix later.
-    round1, players = new_round()
-    p0 = players[0]
-    p1 = players[1]
-    p2 = players[2]
-    p3 = players[3]
+    trick_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
+                   (0, '2c,3c,4c,5c'),
+                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
+                   (0, '2c,Ac,3h,3c'),
+                   (0, '2c,Ac,3c,4h'),
+                   (0, '2c,Ac,3c,5h'),
+                   (0, '2c,Ac,3c,6h'),
+                   (0, '2c,Ac,3c,7h'),
+                   (0, '8h,Jh,9h,Th'),
+                   (1, 'Kh,Qh,3c,3c'),   # p1 wins by leading the trick
+                   (1, 'Ah,3c,3c,3c'),
+                   (1, 'Qs,2s,3s,4s'),
+                   (1, '2c,3c,4c,5c')]   # irrelevant trick
 
-    # p1 loses tricks without points
-    trick1 = trick([p0, p1, p2, p3], '2c,3c,4c,5c')
-    trick2 = trick([p0, p1, p2, p3], '2c,3c,4c,5c')
-    # p1 wins every trick it follows
-    trick3 = trick([p0, p1, p2, p3], '2c,Ac,2h,3c')
-    trick4 = trick([p0, p1, p2, p3], '2c,Ac,3h,3c')
-    trick5 = trick([p0, p1, p2, p3], '2c,Ac,3c,4h')
-    trick6 = trick([p0, p1, p2, p3], '2c,Ac,3c,5h')
-    trick7 = trick([p0, p1, p2, p3], '2c,Ac,3c,6h')
-    trick8 = trick([p0, p1, p2, p3], '2c,Ac,3c,7h')
-    trick9 = trick([p0, p1, p2, p3], '8h,Jh,9h,Th')
-    # p1 wins by leading the trick
-    trick10 = trick([p1, p2, p3, p0], 'Kh,Qh,3c,3c')
-    trick11 = trick([p1, p2, p3, p0], 'Ah,3c,3c,3c')
-    trick12 = trick([p1, p2, p3, p0], 'Qs,2s,3s,4s')
-    # garbage tricks
-    trick13 = trick([p1, p2, p3, p0], '2c,3c,4c,5c')
-
-    trick_list = [trick1, trick2, trick3, trick4, trick5, trick6,
-                  trick7, trick8, trick9, trick10, trick11, trick12, trick13]
-    for my_trick in trick_list:
-        round1.tricks.append(my_trick)
-
-    assert round1.shot_the_moon() == {p0: False, p1: True, p2: False, p3: False}
+    round1, players = new_round(None, *trick_plays)
+    assert round1.shot_the_moon() == {players[0]: False,
+                                      players[1]: True,
+                                      players[2]: False,
+                                      players[3]: False}
 
 
 def test_final_scores_shot_the_moon():          # Way too much typing here. Will fix later.
