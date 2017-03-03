@@ -242,15 +242,12 @@ class Round(object):
     def final_scores(self):
         scores = self.current_scores()
         shoot_successes = self.shot_the_moon()
-        if all(shoot_successes.values()) is False:
-            return scores
-        else:
-            for (player, attempt) in shoot_successes.items():
-                if attempt is True:
-                    scores[player] = scores[player] - 26
-                if attempt is False:
-                    scores[player] = scores[player] + 26
-            return scores
+
+        if any(shoot_successes.values()):
+            for (player, shoot_success) in shoot_successes.items():
+                scores[player] = 0 if shoot_success else 26
+
+        return scores
 
     def serialize(self):
         return {
