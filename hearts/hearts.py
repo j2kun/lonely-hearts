@@ -231,13 +231,7 @@ class Round(object):
         score is 26 (based on the standard Hearts rules).  Function can
         be called at any time during the round.
         '''
-        d = {player: False for player in self.players}
-        scores = self.current_scores()
-        for player in self.players:
-            if scores[player] == 26:
-                d[player] = True
-                return d
-        return d
+        return {player: score == 26 for (player, score) in self.current_scores().items()}
 
     def final_scores(self):
         scores = self.current_scores()
