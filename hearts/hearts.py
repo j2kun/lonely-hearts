@@ -239,7 +239,7 @@ class Round(object):
                 return d
         return d
 
-    def final_scores(self):     # FIXME:  test_final_scores_shot_the_moon() fails. 
+    def final_scores(self):
         scores = self.current_scores()
         shoot_successes = self.shot_the_moon()
         if all(shoot_successes.values()) is False:
