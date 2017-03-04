@@ -9,7 +9,10 @@ def players(names='Lauren,Erin,Jeremy,Daniel'):
     return [Player(x) for x in names.split(',')]
 
 
-def new_round(players_list=None, trick_plays=None):   # trick_plays is in the form: [(leader_position, trick_string)]
+def new_round(players_list=None, trick_plays=None):
+    '''
+    trick_plays is in the form: [(leader_position, trick_string)]
+    '''
     if not players_list:
         the_players = players()
     test_round = Round(the_players)
@@ -20,6 +23,10 @@ def new_round(players_list=None, trick_plays=None):   # trick_plays is in the fo
             test_round.tricks.append(trick(ordered_players, trick_string))
 
     return test_round, the_players
+
+
+def cards(cards='Ah,7d,6h,2s'):
+    return [Card.deserialize(c) for c in cards.split(',')]
 
 
 def hand(cards='Ah,7d,6h,2s'):
