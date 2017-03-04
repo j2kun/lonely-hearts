@@ -9,13 +9,11 @@ def players(names='Lauren,Erin,Jeremy,Daniel'):
     return [Player(x) for x in names.split(',')]
 
 
-def new_round(players_list=None, trick_plays=None):
-    '''
-    trick_plays is in the form: [(leader_position, trick_string)]
-    '''
+def new_round(players_list=None, trick_plays=None, pass_to='left'):
+    # trick_plays is in the form: [(leader_position, trick_string)]
     if not players_list:
         the_players = players()
-    test_round = Round(the_players)
+    test_round = Round(the_players, pass_to)
 
     if trick_plays:
         for leader_position, trick_string in trick_plays:

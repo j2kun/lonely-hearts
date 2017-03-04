@@ -10,6 +10,7 @@ from hearts.hearts import CARDS
 from hearts.tests.fake import new_round
 from hearts.tests.fake import hand
 from hearts.tests.fake import trick
+from hearts.tests.fake import cards
 
 P1 = Player('Lauren')
 P2 = Player('Erin')
@@ -353,7 +354,6 @@ def test_final_scores_without_shooting_the_moon():          # Way too much typin
 
 
 def test_pass_cards_left():
-
     round1, players = new_round(pass_to='left')
     p0 = players[0]
     p1 = players[1]
@@ -371,16 +371,60 @@ def test_pass_cards_left():
                   p3: cards('Tc,Qc,Ks')}
     round1.pass_cards(selections)
     assert Card('K', 'c') not in round1.hands[p0]
+    assert Card('K', 'c') in round1.hands[p3]
+
+    assert round1.hands[p0] == hand('2c,3d,Jd,Kd,As')
+    assert round1.hands[p1] == hand('3c,4c,Th,Qh,Kh')
+    assert round1.hands[p2] == hand('4c,Tc,Qc,Ac,Ks')
 
 
-def test_pass_cards_right(pass_to='right'):
-    round1, players = new_round()
-    pass
+def test_pass_cards_right():
+    round1, players = new_round(pass_to='right')
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    round1.hands[p0] = hand('2c,Kc,3d,7h,Qs')
+    round1.hands[p1] = hand('3c,4c,Jd,Kd,As')
+    round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
+    round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
+
+    selections = {p0: cards('Kc,7h,Qs'),
+                  p1: cards('Jd,Kd,As'),
+                  p2: cards('Th,Qh,Kh'),
+                  p3: cards('Tc,Qc,Ks')}
+
+    round1.pass_cards(selections)
+    assert Card('K', 'c') not in round1.hands[p0]
+    assert Card('K', 'c') in round1.hands[p1]
+
+    assert round1.hands[p0] == hand('2c,Tc,Qc,3d,Ks')
+    assert round1.hands[p1] == hand('3c,4c,Kc,7h,Qs')
+    assert round1.hands[p2] == hand('4c,Ac,Jd,Kd,As')
+    assert round1.hands[p3] == hand('Th,Jh,Qh,Kh,Ah')
 
 
 def test_pass_cards_across():
     round1, players = new_round(pass_to='across')
-    pass
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    round1.hands[p0] = hand('2c,Kc,3d,7h,Qs')
+    round1.hands[p1] = hand('3c,4c,Jd,Kd,As')
+    round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
+    round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
+
+    selections = {p0: cards('Kc,7h,Qs'),
+                  p1: cards('Jd,Kd,As'),
+                  p2: cards('Th,Qh,Kh'),
+                  p3: cards('Tc,Qc,Ks')}
+
+    round1.pass_cards(selections)
+    assert Card('K', 'c') not in round1.hands[p0]
+    assert Card('K', 'c') in round1.hands[p2]
 
 
 def test_full_round_no_errors():
