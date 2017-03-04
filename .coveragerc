@@ -5,3 +5,4 @@ omit =
     *__init__*
     settings.py
     app.py
+    conftest.py
