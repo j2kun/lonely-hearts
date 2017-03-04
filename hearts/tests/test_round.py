@@ -351,25 +351,14 @@ def test_final_scores_without_shooting_the_moon():          # Way too much typin
     assert round1.shot_the_moon() == {p0: False, p1: False, p2: False, p3: False}
     assert round1.final_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
 
-'''
+
 def test_full_round_no_errors():
-    r = Round()
-    # set hands
-
-    # play a full game
-
-    P1.play_card(Card('A', 'h'))
-    P2.play_card(Card('A', 'h'))
-
-
-def test_play_first_trick():
-    pass
-
-
-def test_play_trick_sequence():
-    pass
-
-
-def test_serialize_Round():
-    pass
-'''
+    round1, players = new_round()
+    while len(round1.tricks) < 13:
+        current_player = round1.next_player
+        for card in round1.hands[current_player]:
+            try:
+                round1.play_card(current_player, card)
+                break
+            except ValueError:
+                pass
