@@ -215,6 +215,34 @@ class Round(object):
         else:
             raise ValueError("Invalid play: it's not your turn")
 
+    def current_scores(self):
+        '''
+        Returns {player: int}.  Calculates the current number of points
+        for all tricks completed so far. Assumes the basic Hearts rules.
+        '''
+        scores = {player: 0 for player in self.players}
+        for trick in self.tricks:
+            scores[trick.winner()] += trick.points()
+        return scores
+
+    def shot_the_moon(self):
+        '''
+        Returns {player: Bool}.  Bool is True if and only if player's
+        score is 26 (based on the standard Hearts rules).  Function can
+        be called at any time during the round.
+        '''
+        return {player: score == 26 for (player, score) in self.current_scores().items()}
+
+    def final_scores(self):
+        scores = self.current_scores()
+        shoot_successes = self.shot_the_moon()
+
+        if any(shoot_successes.values()):
+            for (player, shoot_success) in shoot_successes.items():
+                scores[player] = 0 if shoot_success else 26
+
+        return scores
+
     def serialize(self):
         return {
             'players': self.players,
@@ -242,6 +270,21 @@ class Trick(object):
 
     def __eq__(self, other):
         return self.cards_played == other.cards_played
+
+    def points(self):
+        '''
+        Returns the total number of points in the trick if it is complete. Assumes basic Hearts rules.
+        '''
+        if len(self) < 4:
+            return 0
+        else:
+            points = 0
+            for data in self.cards_played:
+                if data[1].suit == 'h':
+                    points += 1
+                elif data[1] == Card('Q', 's'):
+                    points += 13
+            return points
 
     def winner(self):
         winner, winning_card = self.cards_played[0]
