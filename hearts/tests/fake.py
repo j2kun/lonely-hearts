@@ -9,14 +9,15 @@ def players(names='Lauren,Erin,Jeremy,Daniel'):
     return [Player(x) for x in names.split(',')]
 
 
-def new_round(players_list=None, *trick_plays):   # trick_plays should be in the form: [(leader_position, trick_string)]
+def new_round(players_list=None, trick_plays=None):   # trick_plays should be in the form: [(leader_position, trick_string)]
     if not players_list:
         the_players = players()
     test_round = Round(the_players)
 
-    for leader_position, trick_string in trick_plays:
-        ordered_players = the_players[leader_position:] + the_players[:leader_position]
-        test_round.tricks.append(trick(ordered_players, trick_string))
+    if trick_plays:
+        for leader_position, trick_string in trick_plays:
+            ordered_players = the_players[leader_position:] + the_players[:leader_position]
+            test_round.tricks.append(trick(ordered_players, trick_string))
 
     return test_round, the_players
 

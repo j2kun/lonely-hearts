@@ -249,7 +249,7 @@ def test_current_scores_no_points():
 
     test_plays = [(0, '2c,Ac,Kc,As'),
                   (1, 'Ad,Qd,Qc,Ks')]
-    round2, players = new_round(None, *test_plays)
+    round2, players = new_round(None, test_plays)
     assert round2.current_scores() == {player: 0 for player in players}
 
 
@@ -292,7 +292,7 @@ def test_shot_the_moon():          # Way too much typing here. Will fix later.
                    (1, 'Qs,2s,3s,4s'),
                    (1, '2c,3c,4c,5c')]   # irrelevant trick
 
-    round1, players = new_round(None, *trick_plays)
+    round1, players = new_round(None, trick_plays)
     assert round1.shot_the_moon() == {players[0]: False,
                                       players[1]: True,
                                       players[2]: False,
