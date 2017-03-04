@@ -150,7 +150,7 @@ class Round(object):
             for passer, cards in card_selections.items():
                 shift = passing_shift[self.pass_to]
                 passer_position = self.players.index(passer)
-                receiver = self.players[passer_position + shift]
+                receiver = self.players[(passer_position + shift) % 4]
 
                 self.hands[receiver] += card_selections[passer]
                 self.hands[receiver].hand_sort()
