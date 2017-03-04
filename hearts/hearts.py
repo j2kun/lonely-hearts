@@ -140,22 +140,19 @@ class Round(object):
                 self.turn_counter = index
 
     def pass_cards(self, card_selections):     # {player:[Card]} --> None
-        if len(card_selections) == 4 and all(len(chosen) == 3 for chosen in card_selections.values()):
-            passing_shift = {'left': -1, 'right': 1, 'across': 2}
+        passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
-            for passer, cards in card_selections.items():
-                for card in cards:
-                    self.hands[passer].remove(card)
+        for passer, cards in card_selections.items():
+            for card in cards:
+                self.hands[passer].remove(card)
 
-            for passer, cards in card_selections.items():
-                shift = passing_shift[self.pass_to]
-                passer_position = self.players.index(passer)
-                receiver = self.players[(passer_position + shift) % 4]
+        for passer, cards in card_selections.items():
+            shift = passing_shift[self.pass_to]
+            passer_position = self.players.index(passer)
+            receiver = self.players[(passer_position + shift) % 4]
 
-                self.hands[receiver] += card_selections[passer]
-                self.hands[receiver].hand_sort()
-        else:
-            raise ValueError
+            self.hands[receiver] += card_selections[passer]
+            self.hands[receiver].hand_sort()
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
