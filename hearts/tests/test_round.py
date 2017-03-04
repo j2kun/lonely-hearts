@@ -249,7 +249,7 @@ def test_current_scores_no_points():
 
     test_plays = [(0, '2c,Ac,Kc,As'),
                   (1, 'Ad,Qd,Qc,Ks')]
-    round2, players = new_round(None, test_plays)
+    round2, players = new_round(trick_plays=test_plays)
     assert round2.current_scores() == {player: 0 for player in players}
 
 
@@ -278,21 +278,21 @@ def test_current_scores_with_points():
 
 
 def test_shot_the_moon():          # Way too much typing here. Will fix later.
-    trick_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
-                   (0, '2c,3c,4c,5c'),
-                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
-                   (0, '2c,Ac,3h,3c'),
-                   (0, '2c,Ac,3c,4h'),
-                   (0, '2c,Ac,3c,5h'),
-                   (0, '2c,Ac,3c,6h'),
-                   (0, '2c,Ac,3c,7h'),
-                   (0, '8h,Jh,9h,Th'),
-                   (1, 'Kh,Qh,3c,3c'),   # p1 wins by leading the trick
-                   (1, 'Ah,3c,3c,3c'),
-                   (1, 'Qs,2s,3s,4s'),
-                   (1, '2c,3c,4c,5c')]   # irrelevant trick
+    test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),   # p1 wins by leading the trick
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,3s,4s'),
+                  (1, '2c,3c,4c,5c')]   # irrelevant trick
 
-    round1, players = new_round(None, trick_plays)
+    round1, players = new_round(trick_plays=test_plays)
     assert round1.shot_the_moon() == {players[0]: False,
                                       players[1]: True,
                                       players[2]: False,
@@ -301,21 +301,21 @@ def test_shot_the_moon():          # Way too much typing here. Will fix later.
 
 def test_final_scores_shot_the_moon():          # Way too much typing here. Will fix later.
 
-    trick_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
-                   (0, '2c,3c,4c,5c'),
-                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
-                   (0, '2c,Ac,3h,3c'),
-                   (0, '2c,Ac,3c,4h'),
-                   (0, '2c,Ac,3c,5h'),
-                   (0, '2c,Ac,3c,6h'),
-                   (0, '2c,Ac,3c,7h'),
-                   (0, '8h,Jh,9h,Th'),
-                   (1, 'Kh,Qh,3c,3c'),   # p1 wins by leading the trick
-                   (1, 'Ah,3c,3c,3c'),
-                   (1, 'Qs,2s,3s,4s'),
-                   (1, '2c,3c,4c,5c')]   # irrelevant trick
+    test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),   # p1 wins by leading the trick
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,3s,4s'),
+                  (1, '2c,3c,4c,5c')]   # irrelevant trick
 
-    round1, players = new_round(None, trick_plays)
+    round1, players = new_round(trick_plays=test_plays)
     p0 = players[0]
     p1 = players[1]
     p2 = players[2]
@@ -327,21 +327,21 @@ def test_final_scores_shot_the_moon():          # Way too much typing here. Will
 
 
 def test_final_scores_without_shooting_the_moon():          # Way too much typing here. Will fix later.
-    trick_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
-                   (0, '2c,3c,4c,5c'),
-                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
-                   (0, '2c,Ac,3h,3c'),
-                   (0, '2c,Ac,3c,4h'),
-                   (0, '2c,Ac,3c,5h'),
-                   (0, '2c,Ac,3c,6h'),
-                   (0, '2c,Ac,3c,7h'),
-                   (0, '8h,Jh,9h,Th'),
-                   (1, 'Kh,Qh,3c,3c'),   # p1 wins by leading the trick
-                   (1, 'Ah,3c,3c,3c'),
-                   (1, 'Qs,2s,As,4s'),   # p3 takes the queen of spades
-                   (1, '2c,3c,4c,5c')]   # irrelevant trick
+    test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),   # p1 wins by leading the trick
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,As,4s'),   # p3 takes the queen of spades
+                  (1, '2c,3c,4c,5c')]   # irrelevant trick
 
-    round1, players = new_round(None, trick_plays)
+    round1, players = new_round(trick_plays=test_plays)
     p0 = players[0]
     p1 = players[1]
     p2 = players[2]
