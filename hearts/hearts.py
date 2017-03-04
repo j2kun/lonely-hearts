@@ -13,8 +13,11 @@ class Player(object):
 
 
 class Game(object):
-    def __init___(self, players):
-        pass
+    def __init___(self, players, points_to_win=100):
+        self.points_to_win = points_to_win
+        self.players = players
+        self.round_counter = 1
+        shuffle(self.players)
 
 
 class Card(object):
@@ -104,12 +107,14 @@ class Hand(list):
 
 
 class Round(object):
-    def __init__(self, players):
+    def __init__(self, players, pass_to='left'):
         '''
-            A Round object tracks the state of a given round.
+        A Round object tracks the state of a given round.
+        pass_to is either 'left', 'right', 'across', or 'keep'.
         '''
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
+        self.pass_to = pass_to
         self.tricks = []
         self.turn_counter = 0
         self.hearts_broken = False
@@ -133,6 +138,24 @@ class Round(object):
         for index in range(4):
             if Card('2', 'c') in self.hands[self.players[index]]:
                 self.turn_counter = index
+
+    def pass_cards(self, card_selections):     # {player:[Card]} --> None
+        if len(card_selections) == 4 and all(len(chosen) == 3 for chosen in card_selections.values()):
+            passing_shift = {'left': -1, 'right': 1, 'across': 2}
+
+            for passer, cards in card_selections.items():
+                for card in cards:
+                    self.hands[passer].remove(card)
+
+            for passer, cards in card_selections.items():
+                shift = passing_shift[self.pass_to]
+                passer_position = self.players.index(passer)
+                receiver = self.players[passer_position + shift]
+
+                self.hands[receiver] += card_selections[passer]
+                self.hands[receiver].hand_sort()
+        else:
+            raise ValueError
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
