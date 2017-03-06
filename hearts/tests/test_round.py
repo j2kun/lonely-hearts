@@ -287,7 +287,7 @@ def test_current_scores_with_points():
     assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 4}
 
 
-def test_shot_the_moon():          # Way too much typing here. Will fix later.
+def test_shot_the_moon():
     test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
                   (0, '2c,3c,4c,5c'),
                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
@@ -309,7 +309,7 @@ def test_shot_the_moon():          # Way too much typing here. Will fix later.
                                       players[3]: False}
 
 
-def test_final_scores_shot_the_moon():          # Way too much typing here. Will fix later.
+def test_final_scores_shot_the_moon():
 
     test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
                   (0, '2c,3c,4c,5c'),
@@ -336,7 +336,7 @@ def test_final_scores_shot_the_moon():          # Way too much typing here. Will
     assert round1.final_scores() == {p0: 26, p1: 0, p2: 26, p3: 26}
 
 
-def test_final_scores_without_shooting_the_moon():          # Way too much typing here. Will fix later.
+def test_final_scores_without_shooting_the_moon():
     test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
                   (0, '2c,3c,4c,5c'),
                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
@@ -385,6 +385,7 @@ def test_pass_cards_left():
     assert round1.hands[p0] == hand('2c,3d,Jd,Kd,As')
     assert round1.hands[p1] == hand('3c,4c,Th,Qh,Kh')
     assert round1.hands[p2] == hand('4c,Tc,Qc,Ac,Ks')
+    assert round1.hands[p3] == hand('Kc,7h,Jh,Ah,Qs')
 
 
 def test_pass_cards_right():
@@ -434,6 +435,10 @@ def test_pass_cards_across():
     round1.pass_cards(selections)
     assert Card('K', 'c') not in round1.hands[p0]
     assert Card('K', 'c') in round1.hands[p2]
+    assert round1.hands[p0] == hand('2c,3d,Th,Qh,Kh')
+    assert round1.hands[p2] == hand('4c,Kc,Ac,7h,Qs')
+    assert round1.hands[p1] == hand('3c,4c,Tc,Qc,Ks')
+    assert round1.hands[p3] == hand('Jd,Kd,Jh,Ah,As')
 
 
 def test_full_round_no_errors():
