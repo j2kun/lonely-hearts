@@ -144,19 +144,22 @@ class Round(object):
         return len(cards) == 3 and all(card in self.hands[player] for card in cards)
 
     def pass_cards(self, card_selections):     # {player:[Card]} --> None
-        passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
-        for passer, cards in card_selections.items():
-            for card in cards:
-                self.hands[passer].remove(card)
+        if all(self.is_valid_pass_for_player(player, cards) for (player, cards) in card_selections.items()):
+            passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
-        for passer, cards in card_selections.items():
-            shift = passing_shift[self.pass_to]
-            passer_position = self.players.index(passer)
-            receiver = self.players[(passer_position + shift) % 4]
+            for passer, cards in card_selections.items():
+                for card in cards:
+                    self.hands[passer].remove(card)
+            for passer, cards in card_selections.items():
+                shift = passing_shift[self.pass_to]
+                passer_position = self.players.index(passer)
+                receiver = self.players[(passer_position + shift) % 4]
 
-            self.hands[receiver] += card_selections[passer]
-            self.hands[receiver].hand_sort()
+                self.hands[receiver] += card_selections[passer]
+                self.hands[receiver].hand_sort()
+        else:
+            raise ValueError
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
