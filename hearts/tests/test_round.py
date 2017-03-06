@@ -10,6 +10,7 @@ from hearts.hearts import CARDS
 from hearts.tests.fake import new_round
 from hearts.tests.fake import hand
 from hearts.tests.fake import trick
+from hearts.tests.fake import cards
 
 P1 = Player('Lauren')
 P2 = Player('Erin')
@@ -29,6 +30,22 @@ def test_deal():
     assert len(dealt.serialize()) == 52
     # Check list equality instead of Hand equality to check for duplicates and all 52 cards
     assert cards.serialize() == dealt.serialize()
+
+
+def test_is_valid_pass_for_player():
+    round1, players = new_round()
+    round1.hands[players[0]] = hand('4c,Qc,5d,Ad,Kh,Qs')
+    selection = cards('Qc,Ad,Qs')
+    assert round1.is_valid_pass_for_player(players[0], selection) is True
+    invalid_selection = cards('Qs,Ks,As')
+    assert round1.is_valid_pass_for_player(players[0], invalid_selection) is False
+
+
+def test_is_valid_pass_for_player_not_enough_cards():
+    round1, players = new_round()
+    round1.hands[players[0]] = hand('4c,Qc,5d,Ad')
+    selection = cards('Qc,Ad')
+    assert round1.is_valid_pass_for_player(players[0], selection) is False
 
 
 def test_can_follow_suit():
@@ -277,7 +294,7 @@ def test_current_scores_with_points():
     assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 4}
 
 
-def test_shot_the_moon():          # Way too much typing here. Will fix later.
+def test_shot_the_moon():
     test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
                   (0, '2c,3c,4c,5c'),
                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
@@ -299,7 +316,7 @@ def test_shot_the_moon():          # Way too much typing here. Will fix later.
                                       players[3]: False}
 
 
-def test_final_scores_shot_the_moon():          # Way too much typing here. Will fix later.
+def test_final_scores_shot_the_moon():
 
     test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
                   (0, '2c,3c,4c,5c'),
@@ -326,7 +343,7 @@ def test_final_scores_shot_the_moon():          # Way too much typing here. Will
     assert round1.final_scores() == {p0: 26, p1: 0, p2: 26, p3: 26}
 
 
-def test_final_scores_without_shooting_the_moon():          # Way too much typing here. Will fix later.
+def test_final_scores_without_shooting_the_moon():
     test_plays = [(0, '2c,3c,4c,5c'),   # p1 loses tricks without points
                   (0, '2c,3c,4c,5c'),
                   (0, '2c,Ac,2h,3c'),   # p1 wins every trick it follows
@@ -350,6 +367,85 @@ def test_final_scores_without_shooting_the_moon():          # Way too much typin
     assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
     assert round1.shot_the_moon() == {p0: False, p1: False, p2: False, p3: False}
     assert round1.final_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
+
+
+def test_pass_cards_left():
+    round1, players = new_round(pass_to='left')
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    round1.hands[p0] = hand('2c,Kc,3d,7h,Qs')
+    round1.hands[p1] = hand('3c,4c,Jd,Kd,As')
+    round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
+    round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
+
+    selections = {p0: cards('Kc,7h,Qs'),
+                  p1: cards('Jd,Kd,As'),
+                  p2: cards('Th,Qh,Kh'),
+                  p3: cards('Tc,Qc,Ks')}
+    round1.pass_cards(selections)
+    assert Card('K', 'c') not in round1.hands[p0]
+    assert Card('K', 'c') in round1.hands[p3]
+
+    assert round1.hands[p0] == hand('2c,3d,Jd,Kd,As')
+    assert round1.hands[p1] == hand('3c,4c,Th,Qh,Kh')
+    assert round1.hands[p2] == hand('4c,Tc,Qc,Ac,Ks')
+    assert round1.hands[p3] == hand('Kc,7h,Jh,Ah,Qs')
+
+
+def test_pass_cards_right():
+    round1, players = new_round(pass_to='right')
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    round1.hands[p0] = hand('2c,Kc,3d,7h,Qs')
+    round1.hands[p1] = hand('3c,4c,Jd,Kd,As')
+    round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
+    round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
+
+    selections = {p0: cards('Kc,7h,Qs'),
+                  p1: cards('Jd,Kd,As'),
+                  p2: cards('Th,Qh,Kh'),
+                  p3: cards('Tc,Qc,Ks')}
+
+    round1.pass_cards(selections)
+    assert Card('K', 'c') not in round1.hands[p0]
+    assert Card('K', 'c') in round1.hands[p1]
+
+    assert round1.hands[p0] == hand('2c,Tc,Qc,3d,Ks')
+    assert round1.hands[p1] == hand('3c,4c,Kc,7h,Qs')
+    assert round1.hands[p2] == hand('4c,Ac,Jd,Kd,As')
+    assert round1.hands[p3] == hand('Th,Jh,Qh,Kh,Ah')
+
+
+def test_pass_cards_across():
+    round1, players = new_round(pass_to='across')
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    round1.hands[p0] = hand('2c,Kc,3d,7h,Qs')
+    round1.hands[p1] = hand('3c,4c,Jd,Kd,As')
+    round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
+    round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
+
+    selections = {p0: cards('Kc,7h,Qs'),
+                  p1: cards('Jd,Kd,As'),
+                  p2: cards('Th,Qh,Kh'),
+                  p3: cards('Tc,Qc,Ks')}
+
+    round1.pass_cards(selections)
+    assert Card('K', 'c') not in round1.hands[p0]
+    assert Card('K', 'c') in round1.hands[p2]
+    assert round1.hands[p0] == hand('2c,3d,Th,Qh,Kh')
+    assert round1.hands[p2] == hand('4c,Kc,Ac,7h,Qs')
+    assert round1.hands[p1] == hand('3c,4c,Tc,Qc,Ks')
+    assert round1.hands[p3] == hand('Jd,Kd,Jh,Ah,As')
 
 
 def test_full_round_no_errors():
