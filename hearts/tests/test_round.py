@@ -41,6 +41,13 @@ def test_is_valid_pass_for_player():
     assert round1.is_valid_pass_for_player(players[0], invalid_selection) is False
 
 
+def test_is_valid_pass_for_player_not_enough_cards():
+    round1, players = new_round()
+    round1.hands[players[0]] = hand('4c,Qc,5d,Ad')
+    selection = cards('Qc,Ad')
+    assert round1.is_valid_pass_for_player(players[0], selection) is False
+
+
 def test_can_follow_suit():
     hand1 = Hand.deserialize(['Td', '5c', '7c', 'Qs', 'As'])
     hand2 = Hand.deserialize(['Td', '5c', '7c', 'Kh', 'As'])
