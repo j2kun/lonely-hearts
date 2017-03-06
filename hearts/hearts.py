@@ -139,6 +139,10 @@ class Round(object):
             if Card('2', 'c') in self.hands[self.players[index]]:
                 self.turn_counter = index
 
+    def is_valid_pass_for_player(self, player, cards):
+        # [Card] --> Bool
+        return len(cards) == 3 and all(card in self.hands[player] for card in cards)
+
     def pass_cards(self, card_selections):     # {player:[Card]} --> None
         passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
