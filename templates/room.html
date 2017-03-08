@@ -3,194 +3,39 @@
 <head>
   <meta charset="utf-8">
   <title>Room ID_HERE</title>
-<style>
-
-.preload * {
-  -webkit-transition: none !important;
-  -moz-transition: none !important;
-  -ms-transition: none !important;
-  -o-transition: none !important;
-  transition: none !important;
-}
-
-#hand {
-  position: absolute;
-  bottom: 30px;
-  width: 100%;
-}
-
-#trick {
-  position: absolute;
-  top:0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  margin: auto;
-  width: 500px;
-  height: 297px;
-  width: 219px;
-}
-
-.trick_top {
-  position: absolute;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 0px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.trick_left {
-  position: absolute;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 0px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.trick_bottom {
-  position: absolute;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 198px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.trick_right {
-  position: absolute;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 147px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-#cards_list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-}
-
-.card {
-  background: url("{{url_for('static', filename='cards.png')}}");
-  background-repeat: no-repeat;
-  width: 72px;
-  height: 99px;
-}
-
-.chosen_to_pass {
-  outline: 3px solid #009922;
-  outline-offset: -2px;
-  z-index: 1;
-}
-
-#hand .card {
-  transition: transform 0.2s ease;
-}
-
-#hand .card:hover {
-  cursor: pointer;
-  transform: translateY(-10px);
-  z-index: 2;
-}
-
-@-webkit-keyframes peek {
-    from   { -webkit-transform: translate(0px, 0px); }
-    to     { -webkit-transform: translate(0px, -10px); }
-}
-
-@-webkit-keyframes unpeek {
-    from   { -webkit-transform: translate(0px, -10px); }
-    to     { -webkit-transform: translate(0px, 0px); }
-}
-
-#cA { background-position: 0px 0px }
-#c2 { background-position: -73px 0px }
-#c3 { background-position: -146px 0px }
-#c4 { background-position: -219px 0px }
-#c5 { background-position: -292px 0px }
-#c6 { background-position: -365px 0px }
-#c7 { background-position: -438px 0px }
-#c8 { background-position: -511px 0px }
-#c9 { background-position: -584px 0px }
-#cT { background-position: -657px 0px }
-#cJ { background-position: -730px 0px }
-#cQ { background-position: -803px 0px }
-#cK { background-position: -876px 0px }
-#sA { background-position: 0px -98px }
-#s2 { background-position: -73px -98px }
-#s3 { background-position: -146px -98px }
-#s4 { background-position: -219px -98px }
-#s5 { background-position: -292px -98px }
-#s6 { background-position: -365px -98px }
-#s7 { background-position: -438px -98px }
-#s8 { background-position: -511px -98px }
-#s9 { background-position: -584px -98px }
-#sT { background-position: -657px -98px }
-#sJ { background-position: -730px -98px }
-#sQ { background-position: -803px -98px }
-#sK { background-position: -876px -98px }
-#hA { background-position: 0px -196px }
-#h2 { background-position: -73px -196px }
-#h3 { background-position: -146px -196px }
-#h4 { background-position: -219px -196px }
-#h5 { background-position: -292px -196px }
-#h6 { background-position: -365px -196px }
-#h7 { background-position: -438px -196px }
-#h8 { background-position: -511px -196px }
-#h9 { background-position: -584px -196px }
-#hT { background-position: -657px -196px }
-#hJ { background-position: -730px -196px }
-#hQ { background-position: -803px -196px }
-#hK { background-position: -876px -196px }
-#dA { background-position: 0px -294px }
-#d2 { background-position: -73px -294px }
-#d3 { background-position: -146px -294px }
-#d4 { background-position: -219px -294px }
-#d5 { background-position: -292px -294px }
-#d6 { background-position: -365px -294px }
-#d7 { background-position: -438px -294px }
-#d8 { background-position: -511px -294px }
-#d9 { background-position: -584px -294px }
-#dT { background-position: -657px -294px }
-#dJ { background-position: -730px -294px }
-#dQ { background-position: -803px -294px }
-#dK { background-position: -876px -294px }
-
-</style>
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='room.css')}}">
 </head>
 
 <body class="preload">
-<div id="trick">
-  <div class="card trick_left" id="h2"></div>
-  <div class="card trick_top" id="h3"></div>
-  <div class="card trick_right" id="h7"></div>
-  <div class="card trick_bottom" id="d9"></div>
-</div>
-<div id="hand">
-<ul id="cards_list">
-  <li class="card" id="cA"></li>
-  <li class="card" id="d7"></li>
-  <li class="card" id="hK"></li>
-  <li class="card" id="sJ"></li>
-  <li class="card" id="c7"></li>
-  <li class="card" id="s9"></li>
-</ul>
+<div id="room">
+  <div id="trick" class="center">
+    <div class="card left" id="h2"></div>
+    <div class="card top" id="h3"></div>
+    <div class="card right" id="h7"></div>
+    <div class="card bottom" id="d9"></div>
+  </div>
+  <div id="hand">
+    <ul id="cards_list">
+      <li class="card" id="cA"></li>
+      <li class="card" id="d7"></li>
+      <li class="card" id="hK"></li>
+      <li class="card" id="sJ"></li>
+      <li class="card" id="c7"></li>
+      <li class="card" id="s9"></li>
+    </ul>
+  </div>
+  <div class="opponent left">
+    <div class="card_back"></div>
+    <div class="name"></div>
+  </div>
+  <div class="opponent top">
+    <div class="card_back"></div>
+    <div class="name"></div>
+  </div>
+  <div class="opponent right">
+    <div class="card_back"></div>
+    <div class="name"></div>
+  </div>
 </div>
 
 <script src="{{url_for('static', filename='socket.io.min.js')}}"></script>
