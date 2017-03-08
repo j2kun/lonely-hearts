@@ -1,16 +1,19 @@
 language: python
 python:
-  - "3.5"
+ - "3.5"
 
 # command to install dependencies
 install: "pip install -r requirements.txt"
+
+services:
+  - mongodb
 
 # command to run tests
 script: py.test
 
 # after tests, report test coverage to coveralls
 after_success:
-  - coveralls
+ - coveralls
 
 notifications:
   email: false
