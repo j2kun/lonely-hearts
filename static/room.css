@@ -1,9 +1,62 @@
+html, body {
+  height: 100%;
+  position: relative;
+}
+
+#room {
+  position: relative;
+  height: 100%;
+}
+
 .preload * {
   -webkit-transition: none !important;
   -moz-transition: none !important;
   -ms-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
+}
+
+.center {
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.right {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  right: 0%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);
+}
+
+.left {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);
+}
+
+.bottom {
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  bottom: 0%;
+  -ms-transform: translate(-50%, 0%);
+  transform: translate(-50%, 0%);
+}
+
+.top {
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  top: 0%;
+  -ms-transform: translate(-50%, 0%);
+  transform: translate(-50%, 0%);
 }
 
 #hand {
@@ -14,56 +67,8 @@
 
 #trick {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
   height: 297px;
   width: 219px;
-}
-
-.trick_top {
-  position: absolute;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 0px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.trick_left {
-  position: absolute;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 0px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.trick_bottom {
-  position: absolute;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 198px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.trick_right {
-  position: absolute;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 147px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
 }
 
 #cards_list {

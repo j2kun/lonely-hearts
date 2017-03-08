@@ -60,7 +60,7 @@ function handCardClick(event) {
 
 function displayTrick(trick) {
     var trickToRender = '';
-    var orderedPositions = ['trick_bottom', 'trick_left', 'trick_top', 'trick_right'];
+    var orderedPositions = ['bottom', 'left', 'top', 'right'];
     for (var i = 0; i < trick.length; i++) {
         trickToRender += ('<div class="card ' + orderedPositions[i] + 
                            '" id="' + displayCard(trick[i]) + '"></div>');
