@@ -11,6 +11,7 @@ function apiCard(displayCard) {
 var state = {
     hand: ['2h', '5s', '6c', 'Jc', 'Kd', 'As'],
     trick: [],
+    me: 'Jeremy',
     players: ['Jeremy', 'Erin', 'Daniel', 'Lauren'],
     turn: 'Jeremy',
     mode: 'play',  // or 'passing'
@@ -27,6 +28,22 @@ function chooseOrUnchooseCard(card) {
         return true;
     } else {
         return false;
+    }
+}
+
+function displayOpponent(position, name) {
+    var class_name = '.opponent.' + position;
+    $(class_name + ' .name').text(name);
+}
+
+function displayOpponents(player, all_players) {
+    var ordered_players = all_players.slice(all_players.indexOf(player), all_players.length)
+                          .concat(all_players.slice(0, all_players.indexOf(player)));
+    var opponents = ordered_players.slice(1, ordered_players.length);
+    var positions = ['left', 'top', 'right'];
+
+    for (var i = 0; i < positions.length; i++) {
+        displayOpponent(positions[i], opponents[i]);
     }
 }
 
@@ -71,6 +88,7 @@ function displayTrick(trick) {
 function render(state) {
     displayHand(state.hand);
     displayTrick(state.trick);
+    displayOpponents(state.me, state.players);
 }
 
 function setup() {
