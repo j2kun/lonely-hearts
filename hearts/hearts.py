@@ -1,5 +1,8 @@
 from random import shuffle
 
+from api import errors
+from api import strings
+
 
 class Player(object):
     def __init__(self, username):
