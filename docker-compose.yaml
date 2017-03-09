@@ -9,3 +9,4 @@ web:
     - db
 db:
   image: mongo:3.4.2
+  env_file: .env
