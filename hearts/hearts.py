@@ -27,11 +27,11 @@ class Game(object):
         new_round = Round(self.players, pass_direction[self.round_number % 4])
         self.rounds.append(new_round)
 
-    def update_scores(self):
+    def scores(self):
         pass
 
     def is_over(self):
-        pass
+        return any(score >= self.max_points for score in self.scores.values())
 
 
 class Card(object):
@@ -283,6 +283,9 @@ class Round(object):
                 scores[player] = 0 if shoot_success else 26
 
         return scores
+
+    def is_over(self):
+        return len(self.tricks) == 13 and len(self.tricks[-1] == 4)
 
     def serialize(self):
         return {
