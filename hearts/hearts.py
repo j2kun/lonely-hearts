@@ -14,10 +14,22 @@ class Player(object):
 
 class Game(object):
     def __init___(self, players, points_to_win=100):
-        self.points_to_win = points_to_win
+        self.max_points = points_to_win
         self.players = players
-        self.round_counter = 1
+        self.rounds = []
+        self.round_number = 1
+        self.scores = {player: 0 for player in self.players}
+
         shuffle(self.players)
+
+    def create_round(self):
+        pass
+
+    def update_scores(self):
+        pass
+
+    def is_over(self):
+        pass
 
 
 class Card(object):
