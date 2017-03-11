@@ -23,7 +23,9 @@ class Game(object):
         shuffle(self.players)
 
     def create_round(self):
-        pass
+        pass_direction = {0: 'keep', 1: 'left', 2: 'right', 3: 'across'}
+        new_round = Round(self.players, pass_direction[self.round_number % 4])
+        self.rounds.append(new_round)
 
     def update_scores(self):
         pass
