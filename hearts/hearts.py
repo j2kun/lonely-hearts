@@ -18,7 +18,8 @@ class Game(object):
         self.players = players
         self.rounds = []
         self.round_number = 1
-        self.scores = {player: 0 for player in self.players}
+        # self.scores is a dictionary: {round_number : {player:score}}
+        self.scores = {1: {player: 0 for player in self.players}}
 
         shuffle(self.players)
 
@@ -27,6 +28,7 @@ class Game(object):
         new_round = Round(self.players, pass_direction[self.round_number % 4])
         self.rounds.append(new_round)
 
+    @property
     def scores(self):
         pass
 
