@@ -31,18 +31,18 @@ class Game(object):
         # Returns a dict of the form {round_number: {Player: score}}
         scores = {1: {player: 0 for player in self.players}}
         for index, the_round in self.rounds.enumerate():
-	    round_number = index + 1
+            round_number = index + 1
             if the_round.is_over:
-	        scores[round_number] = the_round.final_scores()
+                scores[round_number] = the_round.final_scores()
         return scores
 
     @property
     def total_scores(self):
         # Game --> {Player: int}
         totals = {player: 0 for player in self.players}
-	for round_score in self.scores.values():
+        for round_score in self.scores.values():
             for player, player_score in round_score.items():
-	        totals[player] += player_score
+                totals[player] += player_score
         return totals
 
     def is_over(self):
