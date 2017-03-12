@@ -55,7 +55,8 @@ class Game(object):
             'rounds': [the_round.serialize() for the_round in self.rounds],
             'round_number': self.round_number,
             'scores': self.scores,
-            'total_scores': self.total_scores
+            'total_scores': self.total_scores,
+            'is_over': str(self.is_over())
         }
 
 
@@ -315,10 +316,14 @@ class Round(object):
     def serialize(self):
         return {
             'players': self.players,
+            'direction': self.pass_to,
             'turn': self.players[self.turn_counter].username,
-            'hands': self.hands,
+            'hands': [hand.serialize() for hand in self.hands],
             'tricks': [trick.serialize() for trick in self.tricks],
-            'hearts': str(self.hearts_broken)
+            'hearts': str(self.hearts_broken),
+            'current_scores': self.current_scores(),
+            'final_scores': (self.final_scores() if self.is_over() else 'None'),
+            'is_over': str(self.is_over())
         }
 
 
