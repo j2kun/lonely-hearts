@@ -30,7 +30,7 @@ class Game(object):
     def scores(self):
         # Returns a dict of the form {round_number: {Player: score}}
         scores = {1: {player: 0 for player in self.players}}
-        for index, the_round in self.rounds.enumerate():
+        for index, the_round in enumerate(self.rounds):
             round_number = index + 1
             if the_round.is_over:
                 scores[round_number] = the_round.final_scores()
@@ -47,6 +47,16 @@ class Game(object):
 
     def is_over(self):
         return any(score >= self.max_points for score in self.total_scores.values())
+
+    def serialize(self):
+        return {
+            'players': self.players,
+            'max_points': self.max_points,
+            'rounds': [the_round.serialize() for the_round in self.rounds],
+            'round_number': self.round_number,
+            'scores': self.scores,
+            'total_scores': self.total_scores
+        }
 
 
 class Card(object):
