@@ -265,7 +265,7 @@ def test_current_scores_no_points():
     assert round1.current_scores() == {player: 0 for player in players}
 
     test_plays = [(0, '2c,Ac,Kc,As'),
-                  (1, 'Ad,Qd,Qc,Ks')]
+                  (1, 'Ad,Qd,Ah')]   # incomplete trick has no points
     round2, players = new_round(trick_plays=test_plays)
     assert round2.current_scores() == {player: 0 for player in players}
 
@@ -340,6 +340,7 @@ def test_final_scores_shot_the_moon():
 
     assert round1.current_scores() == {p0: 0, p1: 26, p2: 0, p3: 0}
     assert round1.shot_the_moon() == {p0: False, p1: True, p2: False, p3: False}
+    assert round1.is_over()
     assert round1.final_scores() == {p0: 26, p1: 0, p2: 26, p3: 26}
 
 
@@ -366,6 +367,7 @@ def test_final_scores_without_shooting_the_moon():
 
     assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
     assert round1.shot_the_moon() == {p0: False, p1: False, p2: False, p3: False}
+    assert round1.is_over()
     assert round1.final_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
 
 

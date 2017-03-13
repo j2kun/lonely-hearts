@@ -301,14 +301,16 @@ class Round(object):
         return {player: score == 26 for (player, score) in self.current_scores().items()}
 
     def final_scores(self):
-        scores = self.current_scores()
-        shoot_successes = self.shot_the_moon()
+        if self.is_over:
+            scores = self.current_scores()
+            shoot_successes = self.shot_the_moon()
 
-        if any(shoot_successes.values()):
-            for (player, shoot_success) in shoot_successes.items():
-                scores[player] = 0 if shoot_success else 26
-
-        return scores
+            if any(shoot_successes.values()):
+                for (player, shoot_success) in shoot_successes.items():
+                    scores[player] = 0 if shoot_success else 26
+            return scores
+        else:
+            return None
 
     def is_over(self):
         return len(self.tricks) == 13 and len(self.tricks[-1]) == 4
