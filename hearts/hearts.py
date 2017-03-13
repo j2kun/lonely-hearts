@@ -13,7 +13,7 @@ class Player(object):
 
 
 class Game(object):
-    def __init___(self, players, points_to_win=100):
+    def __init__(self, players, points_to_win=100):
         self.max_points = points_to_win
         self.players = players
         self.rounds = []
