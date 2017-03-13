@@ -7,6 +7,20 @@ web:
     - .:/app
   links:
     - db
+  container_name: web
+
 db:
   image: mongo:3.4.2
   env_file: .env
+  container_name: db
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes_from:
+    - web
+  links:
+    - web:web
+  container_name: nginx
