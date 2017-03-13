@@ -448,6 +448,45 @@ def test_pass_cards_across():
     assert round1.hands[p3] == hand('Jd,Kd,Jh,Ah,As')
 
 
+def test_is_over():
+    test_plays = [(0, '2c,Ac,Kc,As'),
+                  (1, 'Ad,Qd,Qc,Ks')]
+    round1, players = new_round(trick_plays=test_plays)
+    assert not round1.is_over()
+
+    test_plays = [(0, '2c,3c,4c,5c'),
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,As,4s'),
+                  (1, '2c,3c')]        # Last trick is incomplete.
+    round2, players = new_round(trick_plays=test_plays)
+    assert not round2.is_over()
+
+    test_plays = [(0, '2c,3c,4c,5c'),
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,As,4s'),
+                  (1, '2c,3c,4c,5c')]  # Last trick is complete.
+    round3, players = new_round(trick_plays=test_plays)
+    assert round3.is_over()
+
+
 def test_full_round_no_errors():
     round1, players = new_round()
     while len(round1.tricks) < 13:

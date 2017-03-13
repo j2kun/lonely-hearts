@@ -311,7 +311,7 @@ class Round(object):
         return scores
 
     def is_over(self):
-        return len(self.tricks) == 13 and len(self.tricks[-1] == 4)
+        return len(self.tricks) == 13 and len(self.tricks[-1]) == 4
 
     def serialize(self):
         return {
