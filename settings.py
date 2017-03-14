@@ -15,4 +15,5 @@ HOST = os.environ.get('HOST', '0.0.0.0')
 PORT = int(os.environ.get('PORT', 5000))
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_NAME = os.environ.get('DATABASE_NAME', 'hearts')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'abc123')

@@ -9,7 +9,7 @@ import settings
 app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.SECRET_KEY
 socketio = SocketIO(app)
-db_client = MongoClient(settings.DATABASE_URL)
+db_client = MongoClient(settings.DATABASE_URL)[settings.DATABASE_NAME]
 
 
 @socketio.on('chat message', namespace='/chat')
