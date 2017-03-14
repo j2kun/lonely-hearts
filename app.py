@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import render_template
+from flask import request
 from flask_socketio import SocketIO
 from flask_socketio import emit
 from pymongo import MongoClient
@@ -36,7 +37,26 @@ def test_disconnect():
 
 @app.route('/')
 def index():
-    return render_template('room.html')
+    return render_template('index.html')
+
+
+@app.route('/rooms/', methods=['POST'])
+def rooms():
+    if request.method == 'POST':
+        # create a new room
+        room_data = {'id': 17}  # get actual id
+        result = db_client.rooms.insert(room_data)
+        # branch on result
+        if result:
+            return {'url': '/rooms/%d' % room_data['id']}
+
+
+@app.route('/rooms/<room_id>/', methods=['GET'])
+def room(room_id):
+    if request.method == 'GET':
+        # verify room id is valid
+        # render result
+        return render_template('room.html', room_data=room_id)
 
 
 if __name__ == '__main__':
