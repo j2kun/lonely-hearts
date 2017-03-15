@@ -19,5 +19,3 @@ def test_create_round():
 
 def test_is_over():
     pass
-
-
