@@ -1,8 +1,8 @@
-from pymongo import MongoClient
 import pytest
 import socketio
 
 import settings
+settings.DATABASE_NAME = 'test'
 
 
 @pytest.fixture(scope="session")
@@ -20,6 +20,5 @@ def socket(request):
 
 @pytest.fixture(scope="module")
 def db(request):
-    test_db_name = 'test'
-    db_client = MongoClient(settings.DATABASE_URL)
-    return db_client[test_db_name]
+    from app import db_client
+    return db_client
