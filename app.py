@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import jsonify
 from flask import render_template
 from flask import request
 from flask_socketio import SocketIO
@@ -48,7 +49,10 @@ def rooms():
         result = db_client.rooms.insert(room_data)
         # branch on result
         if result:
-            return {'url': '/rooms/%d' % room_data['id']}
+            return jsonify({
+                'url': '/rooms/%d/' % room_data['id'],
+                'room_id': room_data['id'],
+            })
 
 
 @app.route('/rooms/<room_id>/', methods=['GET'])
