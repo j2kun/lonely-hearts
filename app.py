@@ -44,22 +44,20 @@ def index():
 @app.route('/rooms/', methods=['POST'])
 def rooms():
     if request.method == 'POST':
-        # create a new room
-        room_data = {'id': 17}  # get actual id
-        result = db_client.rooms.insert(room_data)
-        # branch on result
-        if result:
+        room_id = db_client.rooms.insert({})
+        if room_id:
             return jsonify({
-                'url': '/rooms/%d/' % room_data['id'],
-                'room_id': room_data['id'],
+                'url': '/rooms/%s/' % room_id,
+                'id': str(room_id),
             })
 
 
 @app.route('/rooms/<room_id>/', methods=['GET'])
 def room(room_id):
     if request.method == 'GET':
-        # verify room id is valid
-        # render result
+        result = db_client.rooms.find_one({'_id': room_id})
+        if not result:
+            render_template('index.html')
         return render_template('room.html', room_data=room_id)
 
 
