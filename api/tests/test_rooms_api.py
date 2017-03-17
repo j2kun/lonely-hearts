@@ -9,3 +9,7 @@ def test_create_room(api, db):
     room_id = ObjectId(response['id'])
     cursor = db.rooms.find({"_id": room_id})
     assert cursor.count() == 1
+
+    response = api.get(response['url'])
+    assert response.status_code == 200
+    assert response.content_type.startswith('text/html')
