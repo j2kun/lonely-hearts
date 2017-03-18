@@ -13,11 +13,11 @@
 <script>
   $('form').submit(function(){
     $.ajax({
-        url: 'http://192.168.99.100/rooms/',
+        url: 'http://0.0.0.0:5000/rooms/',
         type: 'POST',
     }).done(function(data){
         console.log(data.url);
-        window.location = data.url;
+        window.location.href = data.url;
     });
   });
 </script>
