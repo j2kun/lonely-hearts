@@ -15,6 +15,7 @@ Config = namedtuple('Config', ['name', 'default', 'converter'])
 
 CONFIGS = [
     Config('HOST', '0.0.0.0', str),
+    Config('PORT', 5000, int),
     Config('DATABASE_URL', 'http://127.0.0.1:27017', str),
     Config('DATABASE_NAME', 'hearts', str),
     Config('SECRET_KEY', 'tyhbjhgvk5r788uo3h1jnk', str),
