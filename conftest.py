@@ -1,8 +1,9 @@
+import os
+
 import pytest
 import socketio
 
-import settings
-settings.DATABASE_NAME = 'test'
+os.environ['DATABASE_NAME'] = 'test'
 
 
 @pytest.fixture(scope="session")
