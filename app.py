@@ -58,7 +58,7 @@ def room(room_id):
         result = db_client.rooms.find_one({'_id': room_id})
         if not result:
             render_template('index.html')
-        return render_template('room.html', room_data=room_id)
+        return render_template('room.html', room_id=room_id)
 
 
 if __name__ == '__main__':
