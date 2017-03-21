@@ -9,9 +9,9 @@ from pymongo import MongoClient
 import settings
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = settings.SECRET_KEY
+settings.configure(app)
 socketio = SocketIO(app)
-db_client = MongoClient(settings.DATABASE_URL)[settings.DATABASE_NAME]
+db_client = MongoClient(app.config['DATABASE_URL'])[app.config['DATABASE_NAME']]
 
 
 @socketio.on('chat message', namespace='/chat')
@@ -58,8 +58,9 @@ def room(room_id):
         result = db_client.rooms.find_one({'_id': room_id})
         if not result:
             render_template('index.html')
-        return render_template('room.html', room_data=room_id)
+        return render_template('room.html', room_id=room_id)
 
 
 if __name__ == '__main__':
-    app.run(host=settings.HOST, port=settings.PORT)
+    # reminder: don't use this in production, instead use WSGI
+    app.run(host=app.config['HOST'])

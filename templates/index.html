@@ -11,9 +11,11 @@
 <script src="{{url_for('static', filename='jquery.js')}}"></script>
 
 <script>
+  var base_url = "http://{{ config['HOST'] }}:{{ config['PORT'] }}";
+  console.log(base_url);
   $('form').submit(function(){
     $.ajax({
-        url: 'http://0.0.0.0:5000/rooms/',
+        url: base_url + '/rooms/',
         type: 'POST',
     }).done(function(data){
         console.log(data.url);
