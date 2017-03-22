@@ -40,6 +40,12 @@
 
 <script src="{{url_for('static', filename='socket.io.min.js')}}"></script>
 <script src="{{url_for('static', filename='jquery.js')}}"></script>
+<script src="{{url_for('static', filename='socket_api.js')}}"></script>
+
+<script>
+api.join_room( {{ room_id }} );
+</script>
+
 <script src="{{url_for('static', filename='room.js')}}"></script>
 
 </body>

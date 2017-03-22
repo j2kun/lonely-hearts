@@ -2,8 +2,11 @@ from flask import Flask
 from flask import jsonify
 from flask import render_template
 from flask import request
+from flask import session
 from flask_socketio import SocketIO
 from flask_socketio import emit
+from flask_socketio import join_room
+from flask_socketio import leave_room
 from pymongo import MongoClient
 
 import settings
@@ -14,26 +17,36 @@ socketio = SocketIO(app)
 db_client = MongoClient(app.config['DATABASE_URL'])[app.config['DATABASE_NAME']]
 
 
-@socketio.on('chat message', namespace='/chat')
-def handle_chat_message(json):
-    print('received message: ' + str(json))
-    emit('chat message', str(json), broadcast=True)
+def chat(message, room):
+    emit('chat', message, room=room)
 
 
-@socketio.on('connect')  # global namespace
-def handle_connect():
-    print('Client connected')
+@socketio.on('chat')
+def on_chat(message):
+    print('received message: ' + str(message))
+    if 'room' in session:
+        chat(message, session['room'])
+    else:
+        print('No room stored on session')
 
 
-@socketio.on('connect', namespace='/chat')
-def handle_chat_connect():
-    print('Client connected to chat namespace')
-    emit('chat message', 'welcome!')
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    print('join {}'.format((username, room)))
+    join_room(room)
+    session['room'] = room
+    emit(username + ' has entered the room.', room=room)
 
 
-@socketio.on('disconnect', namespace='/chat')
-def test_disconnect():
-    print('Client disconnected')
+@socketio.on('leave')
+def on_leave(data):
+    username = data['username']
+    room = data['room']
+    print('leave {}'.format((username, room)))
+    leave_room(room)
+    emit(username + ' has left the room.', room=room)
 
 
 @app.route('/')
