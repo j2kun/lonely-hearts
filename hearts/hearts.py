@@ -30,10 +30,9 @@ class Game(object):
     def scores(self):
         # Returns a dict of the form {round_number: {Player: score}}
         scores = {1: {player: 0 for player in self.players}}
-        for index, the_round in enumerate(self.rounds):
-            round_number = index + 1
-            if the_round.is_over:
-                scores[round_number] = the_round.final_scores()
+        for index, the_round in enumerate(self.rounds, start=1):
+            if the_round.is_over():
+                scores[index] = the_round.final_scores()
         return scores
 
     @property

@@ -23,9 +23,9 @@ def new_round(players_list=None, trick_plays=None, pass_to='left'):
     return test_round, the_players
 
 
-def new_game(players_list=None):
+def new_game(players_list=None, points_to_win=100):
     the_players = players() if not players_list else players_list
-    my_game = Game(the_players)
+    my_game = Game(the_players, points_to_win)
     seated_players = my_game.players
     return my_game, seated_players
 
