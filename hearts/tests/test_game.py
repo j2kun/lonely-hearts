@@ -5,7 +5,6 @@ from hearts.tests.fake import new_round
 def test_create_round():
     game1, players = new_game()
     assert game1.round_number == 1
-    game1.create_round()
     assert len(game1.rounds) == 1
     assert game1.rounds[-1].pass_to == 'left'
     game1.round_number = 8
@@ -29,7 +28,7 @@ def test_is_over():
                   (1, 'Qs,2s,3s,4s'),
                   (1, '2c,3c,4c,5c')]
     round1, players = new_round(players, test_plays)
-    test_game.rounds.append(round1)
+    test_game.rounds[0] = round1
     assert test_game.is_over() is False
 
     test_plays = [(0, '2c,3c,4c,5c'),  # players[1] takes 13 points, players[3] takes 13 pts

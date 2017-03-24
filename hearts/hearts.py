@@ -20,6 +20,7 @@ class Game(object):
         self.round_number = 1
 
         shuffle(self.players)
+        self.create_round()
 
     def create_round(self):
         pass_direction = {0: 'keep', 1: 'left', 2: 'right', 3: 'across'}
@@ -48,8 +49,9 @@ class Game(object):
         return any(score >= self.max_points for score in self.total_scores.values())
 
     def upkeep(self):
-        if self.rounds[-1].is_over():
+        if self.rounds[-1].is_over() and not self.is_over():
             self.round_number += 1
+            self.create_round()
 
     def serialize(self):
         return {
