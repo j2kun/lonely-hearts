@@ -47,6 +47,10 @@ class Game(object):
     def is_over(self):
         return any(score >= self.max_points for score in self.total_scores.values())
 
+    def upkeep(self):
+        if self.rounds[-1].is_over():
+            self.round_number += 1
+
     def serialize(self):
         return {
             'players': self.players,
