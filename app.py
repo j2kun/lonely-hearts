@@ -3,22 +3,19 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 from flask import session
-from flask_socketio import SocketIO
-from flask_socketio import emit
-from flask_socketio import join_room
-from flask_socketio import leave_room
 from pymongo import MongoClient
+import flask_socketio as io
 
 import settings
 
 app = Flask(__name__)
 settings.configure(app)
-socketio = SocketIO(app)
+socketio = io.SocketIO(app)
 db_client = MongoClient(app.config['DATABASE_URL'])[app.config['DATABASE_NAME']]
 
 
 def chat(message, room):
-    emit('chat', message, room=room)
+    io.emit('chat', message, room=room)
 
 
 @socketio.on('chat')
@@ -27,6 +24,7 @@ def on_chat(message):
     if 'room' in session:
         chat(message, session['room'])
     else:
+        # chat to a global chat room?
         print('No room stored on session')
 
 
@@ -35,9 +33,9 @@ def on_join(data):
     username = data['username']
     room = data['room']
     print('join {}'.format((username, room)))
-    join_room(room)
+    io.join_room(room)
     session['room'] = room
-    emit(username + ' has entered the room.', room=room)
+    io.emit(username + ' has entered the room.', room=room)
 
 
 @socketio.on('leave')
@@ -45,8 +43,8 @@ def on_leave(data):
     username = data['username']
     room = data['room']
     print('leave {}'.format((username, room)))
-    leave_room(room)
-    emit(username + ' has left the room.', room=room)
+    io.leave_room(room)
+    io.emit(username + ' has left the room.', room=room)
 
 
 @app.route('/')
@@ -75,5 +73,4 @@ def room(room_id):
 
 
 if __name__ == '__main__':
-    # reminder: don't use this in production, instead use WSGI
-    app.run(host=app.config['HOST'])
+    socketio.run(app)

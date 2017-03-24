@@ -93,10 +93,6 @@ function render(state) {
 
 function setup() {
     $("body").removeClass("preload");
-    // var socket = io.connect('http://127.0.0.1:5000/chat');
-    //socket.on('chat message', function(msg){
-    //    $('#messages').append($('<li>').text(msg));
-    //});
     render(state);
 }
 

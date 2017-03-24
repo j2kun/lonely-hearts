@@ -43,7 +43,9 @@
 <script src="{{url_for('static', filename='socket_api.js')}}"></script>
 
 <script>
-api.join_room( {{ room_id }} );
+var client = new RoomSocket("{{ api_url }}");
+client.join_room("{{ room_id }}");
+client.chat("I'm saaillling aawaayy");
 </script>
 
 <script src="{{url_for('static', filename='room.js')}}"></script>
