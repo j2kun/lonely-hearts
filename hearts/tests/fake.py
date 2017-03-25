@@ -12,7 +12,7 @@ def players(names='Lauren,Erin,Jeremy,Daniel'):
 
 def new_round(players_list=None, trick_plays=None, pass_to='left'):
     # trick_plays is in the form: [(leader_position, trick_string)]
-    the_players = players() if not players_list else players_list
+    the_players = players_list or players()
     test_round = Round(the_players, pass_to)
 
     if trick_plays:
@@ -24,7 +24,7 @@ def new_round(players_list=None, trick_plays=None, pass_to='left'):
 
 
 def new_game(players_list=None, points_to_win=100):
-    the_players = players() if not players_list else players_list
+    the_players = players_list or players()
     my_game = Game(the_players, points_to_win)
     seated_players = my_game.players
     return my_game, seated_players
