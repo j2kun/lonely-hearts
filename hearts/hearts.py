@@ -98,6 +98,7 @@ class Game(object):
         deserialized.round_number = serialized['round_number']
         return deserialized
 
+
 class Card(object):
     rank_values = {
         '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
@@ -377,13 +378,15 @@ class Round(object):
         return the_round
 
     def __eq__(self, other):
-        return (self.players == other.players and
-                self.pass_to == other.pass_to and
-                self.turn_counter == other.turn_counter and
-                self.hearts_broken == other.hearts_broken and
-                self.hands.items() == other.hands.items()
-              # and self.tricks == other.tricks
-               )
+        return (
+            self.players == other.players and
+            self.pass_to == other.pass_to and
+            self.turn_counter == other.turn_counter and
+            self.hearts_broken == other.hearts_broken and
+            self.hands.items() == other.hands.items() and
+            self.tricks == other.tricks
+        )
+
 
 class Trick(object):
     def __init__(self, cards_played):
@@ -442,10 +445,10 @@ class Trick(object):
 
     @staticmethod
     def deserialize(trick_data):
-        # trick_data is a dictionary with keys('player name')
-        # and values( dict{ 'turn': int, 'card': 'cardname'} )
+        # trick_data is a dictionary with keys--'player name'
+        # and values--dict{'turn': int, 'card': string}
 
-        play_sequence = [0, 0, 0, 0]
+        play_sequence = [None] * len(trick_data)
         for username, play in trick_data.items():
             play_sequence[play['turn']] = (Player(username), Card.deserialize(play['card']))
         return Trick(play_sequence)
