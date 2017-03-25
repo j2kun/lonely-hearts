@@ -29,18 +29,21 @@ class Game(object):
 
     @property
     def scores(self):
-        # Returns a dict of the form {round_number: {Player: score}}
-        scores = {1: {player: 0 for player in self.players}}
-        for index, the_round in enumerate(self.rounds, start=1):
+        # Returns a list of the form: [{Player: score}]
+        # self.rounds is assumed to be not empty after a Game object is initialized.
+        scores = []
+        for the_round in self.rounds:
             if the_round.is_over():
-                scores[index] = the_round.final_scores()
+                scores.append(the_round.final_scores())
+            else:
+                scores.append({player: 0 for player in self.players})
         return scores
 
     @property
     def total_scores(self):
         # Game --> {Player: int}
         totals = {player: 0 for player in self.players}
-        for round_score in self.scores.values():
+        for round_score in self.scores:
             for player, player_score in round_score.items():
                 totals[player] += player_score
         return totals

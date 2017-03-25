@@ -52,8 +52,8 @@ def test_is_over():
     p2 = players[2]
     p3 = players[3]
 
-    assert test_game.scores == {1: {p0: 26, p1:  0, p2: 26, p3: 26},
-                                2: {p0:  0, p1: 13, p2:  0, p3: 13}}
+    assert test_game.scores == [{p0: 26, p1:  0, p2: 26, p3: 26},
+                                {p0:  0, p1: 13, p2:  0, p3: 13}]
     assert test_game.total_scores == {p0: 26,
                                       p1: 13,
                                       p2: 26,
