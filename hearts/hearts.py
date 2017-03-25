@@ -53,6 +53,29 @@ class Game(object):
             self.round_number += 1
             self.create_round()
 
+    def rankings(self):
+        '''
+        Returns a dictionary {Player: int} which ranks players based on
+        total scores when the Game is over.
+        Follows "standard competition ranking ("1224" ranking)".
+        '''
+        rankings = {}
+        scores = sorted(self.total_scores.items(), key=lambda x: x[1])
+
+        previous_score = -1   # Store the previous score and rank in the calculation here.
+        previous_rank = -1    # Actual scores and ranks are assumed to be greater than -1.
+
+        for i in range(len(scores)):
+            (player, score) = scores[i]
+            if score > previous_score:
+                rankings[player] = i + 1
+                previous_rank = i + 1
+            else:
+                rankings[player] = previous_rank
+            previous_score = score
+
+        return rankings            
+
     def serialize(self):
         return {
             'players': self.players,
