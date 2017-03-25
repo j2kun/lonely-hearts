@@ -355,10 +355,10 @@ class Round(object):
 
     def serialize(self):
         return {
-            'players': self.players,
+            'players': [player.username for player in self.players],
             'direction': self.pass_to,
-            'turn': self.players[self.turn_counter].username,
-            'hands': [hand.serialize() for hand in self.hands],
+            'turn': self.turn_counter,
+            'hands': {player.username: hand.serialize() for player, hand in self.hands.items()},
             'tricks': [trick.serialize() for trick in self.tricks],
             'hearts': self.hearts_broken,
             'current_scores': self.current_scores(),
@@ -368,11 +368,22 @@ class Round(object):
 
     @staticmethod
     def deserialize(serialized):
-        the_round = Round(serialized['players'], pass_to=serialized['direction'])
-        the_round.hands = [Hand.deserialize(hand) for hand in serialized['hands']]
+        player_list = [Player(username) for username in serialized['players']]
+        the_round = Round(player_list, pass_to=serialized['direction'])
+        the_round.turn_counter = serialized['turn']
+        the_round.hands = {Player(username): Hand.deserialize(hand) for (username, hand) in serialized['hands'].items()}
         the_round.tricks = [Trick.deserialize(trick) for trick in serialized['tricks']]
-        the_rounds.hearts_broken = serialized['hearts']
+        the_round.hearts_broken = serialized['hearts']
+        return the_round
 
+    def __eq__(self, other):
+        return (self.players == other.players and
+                self.pass_to == other.pass_to and
+                self.turn_counter == other.turn_counter and
+                self.hearts_broken == other.hearts_broken and
+                self.hands.items() == other.hands.items()
+              # and self.tricks == other.tricks
+               )
 
 class Trick(object):
     def __init__(self, cards_played):
