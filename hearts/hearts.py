@@ -74,7 +74,7 @@ class Game(object):
                 rankings[player] = previous_rank
             previous_score = score
 
-        return rankings            
+        return rankings
 
     def serialize(self):
         return {
