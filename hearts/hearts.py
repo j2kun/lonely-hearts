@@ -87,9 +87,16 @@ class Game(object):
             'round_number': self.round_number,
             'scores': self.scores,
             'total_scores': self.total_scores,
-            'is_over': str(self.is_over())
+            'is_over': self.is_over()
         }
 
+    @staticmethod
+    def deserialize(serialized):
+        deserialized = Game(serialized['players'], serialized['max_points'])
+        deserialized.players = serialized['players']  # set players in correct seated order
+        deserialized.rounds = [Round.deserialize(the_round) for the_round in serialized['rounds']]
+        deserialized.round_number = serialized['round_number']
+        return deserialized
 
 class Card(object):
     rank_values = {
@@ -353,11 +360,18 @@ class Round(object):
             'turn': self.players[self.turn_counter].username,
             'hands': [hand.serialize() for hand in self.hands],
             'tricks': [trick.serialize() for trick in self.tricks],
-            'hearts': str(self.hearts_broken),
+            'hearts': self.hearts_broken,
             'current_scores': self.current_scores(),
-            'final_scores': (self.final_scores() if self.is_over() else 'None'),
-            'is_over': str(self.is_over())
+            'final_scores': self.final_scores(),
+            'is_over': self.is_over()
         }
+
+    @staticmethod
+    def deserialize(serialized):
+        the_round = Round(serialized['players'], pass_to=serialized['direction'])
+        the_round.hands = [Hand.deserialize(hand) for hand in serialized['hands']]
+        the_round.tricks = [Trick.deserialize(trick) for trick in serialized['tricks']]
+        the_rounds.hearts_broken = serialized['hearts']
 
 
 class Trick(object):
