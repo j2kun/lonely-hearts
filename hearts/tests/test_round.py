@@ -499,3 +499,34 @@ def test_full_round_no_errors():
                 break
             except ValueError:
                 pass
+
+
+def test_deserialize_round():
+    test_plays = [(0, '2c,3c,4c,5c'),  # players[1] has 10 hearts
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh')]        # players[3]'s turn is next
+
+    test_round, players = new_round(trick_plays=test_plays, pass_to='across')
+
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    test_hands = {p0: hand('2d,3d,4d,5d'),
+                  p1: hand('2s,3s,4s'),
+                  p2: hand('5s,6s,7s'),
+                  p3: hand('8s,9s,Ts,Js')}
+
+    test_round.hands = test_hands
+    test_round.turn_counter = 3
+    test_round.hearts_broken = True
+
+    assert test_round == Round.deserialize(test_round.serialize())
