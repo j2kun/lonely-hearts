@@ -17,13 +17,13 @@ class Game(object):
         self.max_points = points_to_win
         self.players = players
         self.rounds = []
-        self.round_number = 1
+        self.round_number = 0
 
         shuffle(self.players)
         self.create_round()
 
     def create_round(self):
-        pass_direction = {0: 'keep', 1: 'left', 2: 'right', 3: 'across'}
+        pass_direction = ['left', 'right', 'across', 'keep']
         new_round = Round(self.players, pass_direction[self.round_number % 4])
         self.rounds.append(new_round)
 

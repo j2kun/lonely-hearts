@@ -4,10 +4,10 @@ from hearts.tests.fake import new_round
 
 def test_create_round():
     game1, players = new_game()
-    assert game1.round_number == 1
+    assert game1.round_number == 0
     assert len(game1.rounds) == 1
     assert game1.rounds[-1].pass_to == 'left'
-    game1.round_number = 8
+    game1.round_number = 7
     game1.create_round()
     assert game1.rounds[-1].pass_to == 'keep'
 
