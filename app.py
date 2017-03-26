@@ -2,38 +2,49 @@ from flask import Flask
 from flask import jsonify
 from flask import render_template
 from flask import request
-from flask_socketio import SocketIO
-from flask_socketio import emit
+from flask import session
 from pymongo import MongoClient
+import flask_socketio as io
 
 import settings
 
 app = Flask(__name__)
 settings.configure(app)
-socketio = SocketIO(app)
+socketio = io.SocketIO(app)
 db_client = MongoClient(app.config['DATABASE_URL'])[app.config['DATABASE_NAME']]
 
 
-@socketio.on('chat message', namespace='/chat')
-def handle_chat_message(json):
-    print('received message: ' + str(json))
-    emit('chat message', str(json), broadcast=True)
+def chat(message, room):
+    io.emit('chat', message, room=room)
 
 
-@socketio.on('connect')  # global namespace
-def handle_connect():
-    print('Client connected')
+@socketio.on('chat')
+def on_chat(message):
+    print('received message: ' + str(message))
+    if 'room' in session:
+        chat(message, session['room'])
+    else:
+        # chat to a global chat room?
+        print('No room stored on session')
 
 
-@socketio.on('connect', namespace='/chat')
-def handle_chat_connect():
-    print('Client connected to chat namespace')
-    emit('chat message', 'welcome!')
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    print('join {}'.format((username, room)))
+    io.join_room(room)
+    session['room'] = room
+    io.emit(username + ' has entered the room.', room=room)
 
 
-@socketio.on('disconnect', namespace='/chat')
-def test_disconnect():
-    print('Client disconnected')
+@socketio.on('leave')
+def on_leave(data):
+    username = data['username']
+    room = data['room']
+    print('leave {}'.format((username, room)))
+    io.leave_room(room)
+    io.emit(username + ' has left the room.', room=room)
 
 
 @app.route('/')
@@ -62,5 +73,4 @@ def room(room_id):
 
 
 if __name__ == '__main__':
-    # reminder: don't use this in production, instead use WSGI
-    app.run(host=app.config['HOST'])
+    socketio.run(app, host='0.0.0.0', port=5000)
