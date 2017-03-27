@@ -22,6 +22,14 @@ class Game(object):
         shuffle(self.players)
         self.create_round()
 
+    def __eq__(self, other):
+        return (
+            self.players == other.players and
+            self.max_points == other.max_points and
+            self.rounds == other.rounds and
+            self.round_number == other.round_number
+        )
+
     def create_round(self):
         pass_direction = ['left', 'right', 'across', 'keep']
         new_round = Round(self.players, pass_direction[self.round_number % 4])
