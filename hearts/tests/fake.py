@@ -2,6 +2,7 @@ from hearts.hearts import Card
 from hearts.hearts import Hand
 from hearts.hearts import Player
 from hearts.hearts import Round
+from hearts.hearts import Game
 from hearts.hearts import Trick
 
 
@@ -11,8 +12,7 @@ def players(names='Lauren,Erin,Jeremy,Daniel'):
 
 def new_round(players_list=None, trick_plays=None, pass_to='left'):
     # trick_plays is in the form: [(leader_position, trick_string)]
-    if not players_list:
-        the_players = players()
+    the_players = players_list or players()
     test_round = Round(the_players, pass_to)
 
     if trick_plays:
@@ -21,6 +21,13 @@ def new_round(players_list=None, trick_plays=None, pass_to='left'):
             test_round.tricks.append(trick(ordered_players, trick_string))
 
     return test_round, the_players
+
+
+def new_game(players_list=None, points_to_win=100):
+    the_players = players_list or players()
+    my_game = Game(the_players, points_to_win)
+    seated_players = my_game.players
+    return my_game, seated_players
 
 
 def cards(cards='Ah,7d,6h,2s'):
@@ -33,15 +40,3 @@ def hand(cards='Ah,7d,6h,2s'):
 
 def trick(players, cards='5h,3h,Jh,Qs'):
     return Trick([(p, Card.deserialize(c)) for (p, c) in zip(players, cards.split(','))])
-
-'''
-def play_full_round():
-    # randomize the hand
-    while round_is_not_over:
-        player = get_next_player()
-        for card in player.hand:
-            try:
-                round.play_card(card)
-            except:
-                pass
-'''

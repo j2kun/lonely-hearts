@@ -265,7 +265,7 @@ def test_current_scores_no_points():
     assert round1.current_scores() == {player: 0 for player in players}
 
     test_plays = [(0, '2c,Ac,Kc,As'),
-                  (1, 'Ad,Qd,Qc,Ks')]
+                  (1, 'Ad,Qd,Ah')]   # incomplete trick has no points
     round2, players = new_round(trick_plays=test_plays)
     assert round2.current_scores() == {player: 0 for player in players}
 
@@ -340,6 +340,7 @@ def test_final_scores_shot_the_moon():
 
     assert round1.current_scores() == {p0: 0, p1: 26, p2: 0, p3: 0}
     assert round1.shot_the_moon() == {p0: False, p1: True, p2: False, p3: False}
+    assert round1.is_over()
     assert round1.final_scores() == {p0: 26, p1: 0, p2: 26, p3: 26}
 
 
@@ -366,6 +367,7 @@ def test_final_scores_without_shooting_the_moon():
 
     assert round1.current_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
     assert round1.shot_the_moon() == {p0: False, p1: False, p2: False, p3: False}
+    assert round1.is_over()
     assert round1.final_scores() == {p0: 0, p1: 13, p2: 0, p3: 13}
 
 
@@ -448,6 +450,45 @@ def test_pass_cards_across():
     assert round1.hands[p3] == hand('Jd,Kd,Jh,Ah,As')
 
 
+def test_is_over():
+    test_plays = [(0, '2c,Ac,Kc,As'),
+                  (1, 'Ad,Qd,Qc,Ks')]
+    round1, players = new_round(trick_plays=test_plays)
+    assert not round1.is_over()
+
+    test_plays = [(0, '2c,3c,4c,5c'),
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,As,4s'),
+                  (1, '2c,3c')]        # Last trick is incomplete.
+    round2, players = new_round(trick_plays=test_plays)
+    assert not round2.is_over()
+
+    test_plays = [(0, '2c,3c,4c,5c'),
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,As,4s'),
+                  (1, '2c,3c,4c,5c')]  # Last trick is complete.
+    round3, players = new_round(trick_plays=test_plays)
+    assert round3.is_over()
+
+
 def test_full_round_no_errors():
     round1, players = new_round()
     while len(round1.tricks) < 13:
@@ -458,3 +499,34 @@ def test_full_round_no_errors():
                 break
             except ValueError:
                 pass
+
+
+def test_deserialize_round():
+    test_plays = [(0, '2c,3c,4c,5c'),  # players[1] has 10 hearts
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh')]        # players[3]'s turn is next
+
+    test_round, players = new_round(trick_plays=test_plays, pass_to='across')
+
+    p0 = players[0]
+    p1 = players[1]
+    p2 = players[2]
+    p3 = players[3]
+
+    test_hands = {p0: hand('2d,3d,4d,5d'),
+                  p1: hand('2s,3s,4s'),
+                  p2: hand('5s,6s,7s'),
+                  p3: hand('8s,9s,Ts,Js')}
+
+    test_round.hands = test_hands
+    test_round.turn_counter = 3
+    test_round.hearts_broken = True
+
+    assert test_round == Round.deserialize(test_round.serialize())

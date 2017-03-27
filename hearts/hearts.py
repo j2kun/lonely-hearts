@@ -13,11 +13,90 @@ class Player(object):
 
 
 class Game(object):
-    def __init___(self, players, points_to_win=100):
-        self.points_to_win = points_to_win
+    def __init__(self, players, points_to_win=100):
+        self.max_points = points_to_win
         self.players = players
-        self.round_counter = 1
+        self.rounds = []
+        self.round_number = 0
+
         shuffle(self.players)
+        self.create_round()
+
+    def create_round(self):
+        pass_direction = ['left', 'right', 'across', 'keep']
+        new_round = Round(self.players, pass_direction[self.round_number % 4])
+        self.rounds.append(new_round)
+
+    @property
+    def scores(self):
+        # Returns a list of the form: [{Player: score}]
+        # self.rounds is assumed to be not empty after a Game object is initialized.
+        scores = []
+        for the_round in self.rounds:
+            if the_round.is_over():
+                scores.append(the_round.final_scores())
+            else:
+                scores.append({player: 0 for player in self.players})
+        return scores
+
+    @property
+    def total_scores(self):
+        # Game --> {Player: int}
+        totals = {player: 0 for player in self.players}
+        for round_score in self.scores:
+            for player, player_score in round_score.items():
+                totals[player] += player_score
+        return totals
+
+    def is_over(self):
+        return any(score >= self.max_points for score in self.total_scores.values())
+
+    def upkeep(self):
+        if self.rounds[-1].is_over() and not self.is_over():
+            self.round_number += 1
+            self.create_round()
+
+    def rankings(self):
+        '''
+        Returns a dictionary {Player: int} which ranks players based on
+        total scores when the Game is over.
+        Follows "standard competition ranking ("1224" ranking)".
+        '''
+        rankings = {}
+        scores = sorted(self.total_scores.items(), key=lambda x: x[1])
+
+        previous_score = -1   # Store the previous score and rank in the calculation here.
+        previous_rank = -1    # Actual scores and ranks are assumed to be greater than -1.
+
+        for i in range(len(scores)):
+            (player, score) = scores[i]
+            if score > previous_score:
+                rankings[player] = i + 1
+                previous_rank = i + 1
+            else:
+                rankings[player] = previous_rank
+            previous_score = score
+
+        return rankings
+
+    def serialize(self):
+        return {
+            'players': self.players,
+            'max_points': self.max_points,
+            'rounds': [the_round.serialize() for the_round in self.rounds],
+            'round_number': self.round_number,
+            'scores': self.scores,
+            'total_scores': self.total_scores,
+            'is_over': self.is_over()
+        }
+
+    @staticmethod
+    def deserialize(serialized):
+        deserialized = Game(serialized['players'], serialized['max_points'])
+        deserialized.players = serialized['players']  # set players in correct seated order
+        deserialized.rounds = [Round.deserialize(the_round) for the_round in serialized['rounds']]
+        deserialized.round_number = serialized['round_number']
+        return deserialized
 
 
 class Card(object):
@@ -261,23 +340,52 @@ class Round(object):
         return {player: score == 26 for (player, score) in self.current_scores().items()}
 
     def final_scores(self):
-        scores = self.current_scores()
-        shoot_successes = self.shot_the_moon()
+        if self.is_over:
+            scores = self.current_scores()
+            shoot_successes = self.shot_the_moon()
 
-        if any(shoot_successes.values()):
-            for (player, shoot_success) in shoot_successes.items():
-                scores[player] = 0 if shoot_success else 26
+            if any(shoot_successes.values()):
+                for (player, shoot_success) in shoot_successes.items():
+                    scores[player] = 0 if shoot_success else 26
+            return scores
+        else:
+            return None
 
-        return scores
+    def is_over(self):
+        return len(self.tricks) == 13 and len(self.tricks[-1]) == 4
 
     def serialize(self):
         return {
-            'players': self.players,
-            'turn': self.players[self.turn_counter].username,
-            'hands': self.hands,
+            'players': [player.username for player in self.players],
+            'direction': self.pass_to,
+            'turn': self.turn_counter,
+            'hands': {player.username: hand.serialize() for player, hand in self.hands.items()},
             'tricks': [trick.serialize() for trick in self.tricks],
-            'hearts': str(self.hearts_broken)
+            'hearts': self.hearts_broken,
+            'current_scores': self.current_scores(),
+            'final_scores': self.final_scores(),
+            'is_over': self.is_over()
         }
+
+    @staticmethod
+    def deserialize(serialized):
+        player_list = [Player(username) for username in serialized['players']]
+        the_round = Round(player_list, pass_to=serialized['direction'])
+        the_round.turn_counter = serialized['turn']
+        the_round.hands = {Player(username): Hand.deserialize(hand) for (username, hand) in serialized['hands'].items()}
+        the_round.tricks = [Trick.deserialize(trick) for trick in serialized['tricks']]
+        the_round.hearts_broken = serialized['hearts']
+        return the_round
+
+    def __eq__(self, other):
+        return (
+            self.players == other.players and
+            self.pass_to == other.pass_to and
+            self.turn_counter == other.turn_counter and
+            self.hearts_broken == other.hearts_broken and
+            self.hands.items() == other.hands.items() and
+            self.tricks == other.tricks
+        )
 
 
 class Trick(object):
@@ -337,10 +445,10 @@ class Trick(object):
 
     @staticmethod
     def deserialize(trick_data):
-        # trick_data is a dictionary with keys('player name')
-        # and values( dict{ 'turn': int, 'card': 'cardname'} )
+        # trick_data is a dictionary with keys--'player name'
+        # and values--dict{'turn': int, 'card': string}
 
-        play_sequence = [0, 0, 0, 0]
+        play_sequence = [None] * len(trick_data)
         for username, play in trick_data.items():
             play_sequence[play['turn']] = (Player(username), Card.deserialize(play['card']))
         return Trick(play_sequence)
