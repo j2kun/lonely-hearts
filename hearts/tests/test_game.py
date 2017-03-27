@@ -1,6 +1,10 @@
 from hearts.tests.fake import new_game
 from hearts.tests.fake import new_round
+from hearts.tests.fake import players
 
+from hearts.hearts import Game
+from hearts.hearts import Round
+from hearts.hearts import Player
 
 def test_create_round():
     game1, players = new_game()
@@ -108,3 +112,12 @@ def test_rankings():
                                     p1: 1,
                                     p2: 2,
                                     p3: 4}
+
+
+def test_deserialize_game_check_player_data():
+    test_players = [Player('Lauren'), Player('Erin'), Player('Jeremy'), Player('Daniel')]
+    test_game, _ = new_game(test_players, points_to_win=27)
+    test_game.players = test_players  # Seat players in the order: Lauren, Erin, Jeremy, Daniel
+    assert test_game.players == test_players
+    print ([player.username for player in test_game.players])
+    assert test_game.players == [Player('Lauren'), Player('Erin'), Player('Jeremy'), Player('Daniel')]
