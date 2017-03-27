@@ -1,0 +1,31 @@
+from flask import jsonify
+from flask import render_template
+from flask import request
+
+from app import app
+from app import db_client
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/rooms/', methods=['POST'])
+def rooms():
+    if request.method == 'POST':
+        room_id = db_client.rooms.insert({})
+        if room_id:
+            return jsonify({
+                'url': '/rooms/%s/' % room_id,
+                'id': str(room_id),
+            })
+
+
+@app.route('/rooms/<room_id>/', methods=['GET'])
+def room(room_id):
+    if request.method == 'GET':
+        result = db_client.rooms.find_one({'_id': room_id})
+        if not result:
+            render_template('index.html')
+        return render_template('room.html', room_id=room_id)
