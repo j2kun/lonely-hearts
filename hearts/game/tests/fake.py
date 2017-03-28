@@ -1,9 +1,9 @@
-from hearts.hearts import Card
-from hearts.hearts import Hand
-from hearts.hearts import Player
-from hearts.hearts import Round
-from hearts.hearts import Game
-from hearts.hearts import Trick
+from hearts.game.hearts import Card
+from hearts.game.hearts import Hand
+from hearts.game.hearts import Player
+from hearts.game.hearts import Round
+from hearts.game.hearts import Game
+from hearts.game.hearts import Trick
 
 
 def players(names='Lauren,Erin,Jeremy,Daniel'):

@@ -1,6 +1,6 @@
 import pytest
 
-from hearts.hearts import Card
+from hearts.game.hearts import Card
 
 
 def test_card_serialize():

@@ -2,7 +2,7 @@ import subprocess
 
 
 def test_flake8():
-    exit_status = subprocess.call(['flake8', '--exclude=venv/*,test'])
+    exit_status = subprocess.call(['flake8', '--exclude=venv/*,hearts/api/__init__.py'])
     assert exit_status == 0
 
 

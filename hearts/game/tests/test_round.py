@@ -1,16 +1,16 @@
 import pytest
 
-from hearts.hearts import Card
-from hearts.hearts import Hand
-from hearts.hearts import Player
-from hearts.hearts import Round
-from hearts.hearts import Trick
-from hearts.hearts import CARDS
+from hearts.game.hearts import Card
+from hearts.game.hearts import Hand
+from hearts.game.hearts import Player
+from hearts.game.hearts import Round
+from hearts.game.hearts import Trick
+from hearts.game.hearts import CARDS
 
-from hearts.tests.fake import new_round
-from hearts.tests.fake import hand
-from hearts.tests.fake import trick
-from hearts.tests.fake import cards
+from hearts.game.tests.fake import new_round
+from hearts.game.tests.fake import hand
+from hearts.game.tests.fake import trick
+from hearts.game.tests.fake import cards
 
 P1 = Player('Lauren')
 P2 = Player('Erin')

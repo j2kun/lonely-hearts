@@ -2,8 +2,8 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 
-from app import app
-from app import db_client
+from hearts.api import api_blueprint as app
+from hearts import mongo
 
 
 @app.route('/')
@@ -14,7 +14,7 @@ def index():
 @app.route('/rooms/', methods=['POST'])
 def rooms():
     if request.method == 'POST':
-        room_id = db_client.rooms.insert({})
+        room_id = mongo.db.rooms.insert({})
         if room_id:
             return jsonify({
                 'url': '/rooms/%s/' % room_id,
@@ -25,7 +25,7 @@ def rooms():
 @app.route('/rooms/<room_id>/', methods=['GET'])
 def room(room_id):
     if request.method == 'GET':
-        result = db_client.rooms.find_one({'_id': room_id})
+        result = mongo.db.rooms.find_one({'_id': room_id})
         if not result:
             render_template('index.html')
         return render_template('room.html', room_id=room_id)

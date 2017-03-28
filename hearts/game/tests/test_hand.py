@@ -1,7 +1,7 @@
 import pytest
 
-from hearts.hearts import Card
-from hearts.hearts import Hand
+from hearts.game.hearts import Card
+from hearts.game.hearts import Hand
 
 
 def test_hand():

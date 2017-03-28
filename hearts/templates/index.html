@@ -15,11 +15,13 @@
   console.log(base_url);
   $('form').submit(function(){
     $.ajax({
-        url: base_url + '/rooms/',
-        type: 'POST',
+      url: base_url + '/rooms/',
+      type: 'POST',
     }).done(function(data){
-        console.log(data.url);
-        window.location.href = data.url;
+      console.log(data.url);
+      window.location.href = data.url;
+    }).fail(function(xhr, status, error) {
+      console.log(error);
     });
   });
 </script>

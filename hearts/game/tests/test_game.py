@@ -1,5 +1,5 @@
-from hearts.tests.fake import new_game
-from hearts.tests.fake import new_round
+from hearts.game.tests.fake import new_game
+from hearts.game.tests.fake import new_round
 
 from hearts.hearts import Game
 from hearts.hearts import Player

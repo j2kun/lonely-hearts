@@ -1,7 +1,7 @@
 from flask import session
 import flask_socketio as io
 
-from app import socketio
+from hearts import socketio
 
 
 def chat(message, room):
