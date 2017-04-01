@@ -137,3 +137,48 @@ def test_deserialize_game_with_no_rounds():
     assert deserialized.rounds == []
     assert deserialized.round_number == 0
     assert deserialized == game
+
+
+def test_deserialize_game_with_rounds():
+    game, _ = new_game(points_to_win=27)
+    game.start()
+    randomized_players = game.players
+
+    test_plays = [(0, '2c,3c,4c,5c'),   # players[1] shoots the moon
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,3s,4s'),
+                  (1, '2c,3c,4c,5c')]
+    round1, _ = new_round(randomized_players, test_plays)
+    game.rounds[0] = round1
+
+    test_plays = [(0, '2c,3c,4c,5c'),  # players[1] takes 13 points, players[3] takes 13 pts
+                  (0, '2c,3c,4c,5c'),
+                  (0, '2c,Ac,2h,3c'),
+                  (0, '2c,Ac,3h,3c'),
+                  (0, '2c,Ac,3c,4h'),
+                  (0, '2c,Ac,3c,5h'),
+                  (0, '2c,Ac,3c,6h'),
+                  (0, '2c,Ac,3c,7h'),
+                  (0, '8h,Jh,9h,Th'),
+                  (1, 'Kh,Qh,3c,3c'),
+                  (1, 'Ah,3c,3c,3c'),
+                  (1, 'Qs,2s,As,4s'),
+                  (1, '2c,3c,4c,5c')]
+    round2, _ = new_round(randomized_players, test_plays)
+    game.rounds.append(round2)
+    game.round_number = 1
+
+    deserialized = Game.deserialize(game.serialize())
+    assert deserialized.players == randomized_players
+    assert deserialized.rounds == game.rounds
+    assert deserialized.round_number == game.round_number
+    assert deserialized == game
