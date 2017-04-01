@@ -5,9 +5,11 @@ from hearts.hearts import Game
 from hearts.hearts import Player
 
 
-def test_create_round():
+def test_start_game_and_create_round():
     game1, _ = new_game()
     assert game1.round_number == 0
+    assert len(game1.rounds) == 0
+    game1.start()
     assert len(game1.rounds) == 1
     assert game1.rounds[-1].pass_to == 'left'
     game1.round_number = 7
@@ -31,7 +33,7 @@ def test_is_over():
                   (1, 'Qs,2s,3s,4s'),
                   (1, '2c,3c,4c,5c')]
     round1, _ = new_round(players, test_plays)
-    test_game.rounds[0] = round1
+    test_game.rounds.append(round1)
     assert test_game.is_over() is False
 
     test_plays = [(0, '2c,3c,4c,5c'),  # players[1] takes 13 points, players[3] takes 13 pts
@@ -80,7 +82,7 @@ def test_rankings():
                   (1, 'Qs,2s,3s,4s'),
                   (1, '2c,3c,4c,5c')]
     round1, _ = new_round(players, test_plays)
-    test_game.rounds[0] = round1
+    test_game.rounds.append(round1)
 
     test_plays = [(0, '2c,3c,4c,5c'),  # players[1] takes 13 points, players[3] takes 13 pts
                   (0, '2c,3c,4c,5c'),
@@ -125,6 +127,7 @@ def test_deserialize_game_check_player_data():
                                                                Player('Erin'),
                                                                Player('Jeremy'),
                                                                Player('Daniel')]
+
 
 def test_deserialize_game_with_no_rounds():
     test_players = [Player('Lauren'), Player('Erin'), Player('Jeremy'), Player('Daniel')]
