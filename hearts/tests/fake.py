@@ -26,8 +26,7 @@ def new_round(players_list=None, trick_plays=None, pass_to='left'):
 def new_game(players_list=None, points_to_win=100):
     the_players = players_list or players()
     my_game = Game(the_players, points_to_win)
-    seated_players = my_game.players
-    return my_game, seated_players
+    return my_game, the_players
 
 
 def cards(cards='Ah,7d,6h,2s'):
