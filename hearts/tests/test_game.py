@@ -1,13 +1,13 @@
 from hearts.tests.fake import new_game
 from hearts.tests.fake import new_round
-from hearts.tests.fake import players
 
 from hearts.hearts import Game
 from hearts.hearts import Round
 from hearts.hearts import Player
 
+
 def test_create_round():
-    game1, players = new_game()
+    game1, _ = new_game()
     assert game1.round_number == 0
     assert len(game1.rounds) == 1
     assert game1.rounds[-1].pass_to == 'left'
@@ -31,7 +31,7 @@ def test_is_over():
                   (1, 'Ah,3c,3c,3c'),
                   (1, 'Qs,2s,3s,4s'),
                   (1, '2c,3c,4c,5c')]
-    round1, players = new_round(players, test_plays)
+    round1, _ = new_round(players, test_plays)
     test_game.rounds[0] = round1
     assert test_game.is_over() is False
 
@@ -48,7 +48,7 @@ def test_is_over():
                   (1, 'Ah,3c,3c,3c'),
                   (1, 'Qs,2s,As,4s'),
                   (1, '2c,3c,4c,5c')]
-    round2, players = new_round(players, test_plays)
+    round2, _ = new_round(players, test_plays)
     test_game.rounds.append(round2)
 
     p0 = players[0]
@@ -80,7 +80,7 @@ def test_rankings():
                   (1, 'Ah,3c,3c,3c'),
                   (1, 'Qs,2s,3s,4s'),
                   (1, '2c,3c,4c,5c')]
-    round1, players = new_round(players, test_plays)
+    round1, _ = new_round(players, test_plays)
     test_game.rounds[0] = round1
 
     test_plays = [(0, '2c,3c,4c,5c'),  # players[1] takes 13 points, players[3] takes 13 pts
@@ -96,7 +96,7 @@ def test_rankings():
                   (1, 'Ah,3c,3c,3c'),
                   (1, 'Qs,2s,As,4s'),
                   (1, '2c,3c,4c,5c')]
-    round2, players = new_round(players, test_plays)
+    round2, _ = new_round(players, test_plays)
     test_game.rounds.append(round2)
 
     p0 = players[0]
@@ -119,5 +119,5 @@ def test_deserialize_game_check_player_data():
     test_game, _ = new_game(test_players, points_to_win=27)
     test_game.players = test_players  # Seat players in the order: Lauren, Erin, Jeremy, Daniel
     assert test_game.players == test_players
-    print ([player.username for player in test_game.players])
+    print([player.username for player in test_game.players])
     assert test_game.players == [Player('Lauren'), Player('Erin'), Player('Jeremy'), Player('Daniel')]
