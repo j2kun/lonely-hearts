@@ -15,12 +15,9 @@ class Player(object):
 class Game(object):
     def __init__(self, players, points_to_win=100):
         self.max_points = points_to_win
-        self.players = players
+        self.players = players[:]
         self.rounds = []
         self.round_number = 0
-
-        shuffle(self.players)
-        self.create_round()
 
     def __eq__(self, other):
         return (
@@ -29,6 +26,10 @@ class Game(object):
             self.rounds == other.rounds and
             self.round_number == other.round_number
         )
+
+    def start(self):
+        shuffle(self.players)
+        self.create_round()
 
     def create_round(self):
         pass_direction = ['left', 'right', 'across', 'keep']
@@ -101,7 +102,6 @@ class Game(object):
     @staticmethod
     def deserialize(serialized):
         deserialized = Game(serialized['players'], serialized['max_points'])
-        deserialized.players = serialized['players']  # set players in correct seated order
         deserialized.rounds = [Round.deserialize(the_round) for the_round in serialized['rounds']]
         deserialized.round_number = serialized['round_number']
         return deserialized
