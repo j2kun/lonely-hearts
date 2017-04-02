@@ -1,8 +1,8 @@
 from hearts.game.tests.fake import new_game
 from hearts.game.tests.fake import new_round
 
-from hearts.hearts import Game
-from hearts.hearts import Player
+from hearts.game.hearts import Game
+from hearts.game.hearts import Player
 
 
 def test_start_game_and_create_round():
