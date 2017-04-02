@@ -1,8 +1,8 @@
-from hearts.hearts import Card
-from hearts.hearts import Player
-from hearts.hearts import Trick
-from hearts.tests.fake import new_round
-from hearts.tests.fake import trick
+from hearts.game.hearts import Card
+from hearts.game.hearts import Player
+from hearts.game.hearts import Trick
+from hearts.game.tests.fake import new_round
+from hearts.game.tests.fake import trick
 
 P1 = Player('Lauren')
 P2 = Player('Erin')
