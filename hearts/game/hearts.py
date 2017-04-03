@@ -1,5 +1,10 @@
 from random import shuffle
 
+from hearts.api.strings import INVALID_PASS
+from hearts.api.strings import NOT_THREE
+from hearts.api.strings import NOT_IN_HAND
+from hearts.api.strings import message
+
 
 class Player(object):
     def __init__(self, username):
@@ -227,8 +232,22 @@ class Round(object):
                 self.turn_counter = index
 
     def is_valid_pass_for_player(self, player, cards):
-        # [Card] --> Bool
-        return len(cards) == 3 and all(card in self.hands[player] for card in cards)
+        # [Card] --> (Bool, string)
+        is_valid = True
+        string_of_cards = ', '.join(str(card) for card in cards)
+        error_string = None
+
+        if len(cards) != 3:
+            error_string = message(INVALID_PASS, NOT_THREE).format(string_of_cards)
+            is_valid = False
+        elif not all(card in self.hands[player] for card in cards):
+            def illegal_card():
+                for card in cards:
+                    if card not in self.hands[player]:
+                        return str(card)
+            error_string = message(INVALID_PASS, NOT_IN_HAND).format(string_of_cards, illegal_card())
+            is_valid = False
+        return (is_valid, error_string)
 
     def pass_cards(self, card_selections):     # {player:[Card]} --> None
 
