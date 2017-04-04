@@ -106,14 +106,17 @@ def test_is_valid_lead_breaking_hearts():
 
 
 def test_is_valid_follow():
-    fake_trick = Trick([
-        (P1, Card('5', 'h')),
-        (P2, Card('3', 'h')),
-        (P3, Card('J', 'h'))
-    ])
-    fake_hand = Hand.deserialize(['Ah', '7d', '6h', '2s'])
-    assert sample_round.is_valid_follow(P4, fake_trick, fake_hand[0])
-    assert not sample_round.is_valid_follow(P4, fake_trick, fake_hand[1])
+    round1, players = new_round()
+    test_player = players[0]
+
+    test_trick = trick(players[:2], '5h,3h,Jh')
+    round1.hands[test_player] = hand('Ah,7d,6h,2s')
+
+    assert round1.is_valid_follow(test_player, test_trick, Card('A', 'h'))[0] is True
+
+    is_valid, error_message = round1.is_valid_follow(test_player, test_trick, Card('7', 'd'))
+    assert is_valid is False
+    assert error_message == 'You cannot play 7d because you still have hearts in your hand.'
 
 
 def test_lead_the_trick():
@@ -128,20 +131,20 @@ def test_lead_the_trick():
     assert round1.tricks[-1] == Trick([(P1, Card('2', 's'))])
     new_hand = hand('7d,6h,Ah')
     assert round1.hands[P1] == new_hand
-    assert round1.turn_counter == last_counter + 1
+    assert round1.turn_counter == (last_counter + 1) % 4
 
 
 def test_invalid_follow_on_first_trick():
-    round1 = Round(PLAYER_LIST)
-    hand = Hand.deserialize(['2d', '6h', 'Ah', 'Qs'])
+    round1, _ = new_round()
+    test_hand = hand('2d,6h,Ah,Qs')
     counter = round1.turn_counter
     first_player = round1.players[counter]
     round1.play_card(first_player, Card('2', 'c'))
 
     assert round1.turn_counter == (counter + 1) % 4
     next_player = round1.players[round1.turn_counter]
-    round1.hands[next_player] = hand
-    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))
+    round1.hands[next_player] = test_hand
+    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))[0]
     assert not round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
 
 
