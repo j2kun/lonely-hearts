@@ -241,11 +241,8 @@ class Round(object):
             error_string = message(INVALID_PASS, NOT_THREE).format(string_of_cards)
             is_valid = False
         elif not all(card in self.hands[player] for card in cards):
-            def illegal_card():
-                for card in cards:
-                    if card not in self.hands[player]:
-                        return str(card)
-            error_string = message(INVALID_PASS, NOT_IN_HAND).format(string_of_cards, illegal_card())
+            illegal_card = [str(card) for card in cards if card not in self.hands[player]][0]
+            error_string = message(INVALID_PASS, NOT_IN_HAND).format(string_of_cards, illegal_card)
             is_valid = False
         return (is_valid, error_string)
 

@@ -3,9 +3,13 @@
 INVALID_PLAY = 'You cannot play {} because {reason}'
 INVALID_PASS = 'You cannot pass {} because {reason}'
 
-NOT_A_CARD = '{} is not a valid card'
-NOT_IN_HAND = '{} is not in your hand'
-NOT_THREE = 'you must pass three cards'
+NOT_A_CARD = '{} is not a valid card.'
+NOT_IN_HAND = '{} is not in your hand.'
+NOT_THREE = 'you must pass three cards.'
+NOT_TWO_CLUBS = 'you must play the two of clubs on the first round.'
+NOT_HEARTS_BROKEN = 'hearts have not been broken yet.'
+NOT_FOLLOWING_SUIT = 'you still have {} in your hand.'
+NOT_YOUR_TURN = "it's not your turn."
 
 
 def message(error, error_reason):

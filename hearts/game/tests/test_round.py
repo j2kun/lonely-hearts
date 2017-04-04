@@ -35,17 +35,25 @@ def test_deal():
 def test_is_valid_pass_for_player():
     round1, players = new_round()
     round1.hands[players[0]] = hand('4c,Qc,5d,Ad,Kh,Qs')
+
     selection = cards('Qc,Ad,Qs')
-    assert round1.is_valid_pass_for_player(players[0], selection) is True
+    is_valid, error_string = round1.is_valid_pass_for_player(players[0], selection)
+    assert is_valid is True
+    assert error_string is None
+
     invalid_selection = cards('Qs,Ks,As')
-    assert round1.is_valid_pass_for_player(players[0], invalid_selection) is False
+    is_valid, message = round1.is_valid_pass_for_player(players[0], invalid_selection)
+    assert is_valid is False
+    assert message == 'You cannot pass Qs, Ks, As because Ks is not in your hand.'
 
 
 def test_is_valid_pass_for_player_not_enough_cards():
     round1, players = new_round()
     round1.hands[players[0]] = hand('4c,Qc,5d,Ad')
     selection = cards('Qc,Ad')
-    assert round1.is_valid_pass_for_player(players[0], selection) is False
+    is_valid, message = round1.is_valid_pass_for_player(players[0], selection)
+    assert is_valid is False
+    assert message == 'You cannot pass Qc, Ad because you must pass three cards.'
 
 
 def test_can_follow_suit():
