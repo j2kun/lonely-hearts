@@ -303,7 +303,7 @@ class Round(object):
             error_message = message(INVALID_PLAY, NOT_FOLLOWING_SUIT).format(str(card), suits[trick.suit])
         elif (len(self.tricks) == 1
                 and card.is_worth_points()
-                and self.hands[player].has_only_hearts_and_Qs()):
+                and not self.hands[player].has_only_hearts_and_Qs()):
             is_valid = False
             error_message = message(INVALID_PLAY, NO_FIRST_TRICK_POINTS).format(str(card))
         return (is_valid, error_message)

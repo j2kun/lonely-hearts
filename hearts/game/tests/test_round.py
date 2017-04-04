@@ -134,18 +134,33 @@ def test_lead_the_trick():
     assert round1.turn_counter == (last_counter + 1) % 4
 
 
-def test_invalid_follow_on_first_trick():
+def test_is_valid_follow_on_first_trick():
     round1, _ = new_round()
-    test_hand = hand('2d,6h,Ah,Qs')
     counter = round1.turn_counter
     first_player = round1.players[counter]
     round1.play_card(first_player, Card('2', 'c'))
 
     assert round1.turn_counter == (counter + 1) % 4
     next_player = round1.players[round1.turn_counter]
-    round1.hands[next_player] = test_hand
-    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))[0]
-    assert not round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
+    round1.hands[next_player] = hand('2d,6h,Ah,Qs')
+    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))[0] is True
+
+
+def test_is_valid_follow_on_first_trick_dropping_points():
+    round1, _ = new_round()
+    counter = round1.turn_counter
+    first_player = round1.players[counter]
+    round1.play_card(first_player, Card('2', 'c'))
+    next_player = round1.players[round1.turn_counter]
+
+    round1.hands[next_player] = hand('6h,Ah,Qs')   # forced to drop points
+    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))[0] is True
+
+    round1.hands[next_player] = hand('2d,6h,Ah,Qs')
+    is_valid, error_message = round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
+    assert is_valid is False
+    assert error_message == ('You cannot play 6h because you cannot play hearts '
+                             'or the queen of spades on the first trick.')
 
 
 def test_breaking_hearts_on_first_trick():

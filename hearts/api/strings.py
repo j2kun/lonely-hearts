@@ -10,6 +10,7 @@ NOT_TWO_CLUBS = 'you must play the two of clubs on the first trick.'
 NOT_HEARTS_BROKEN = 'hearts have not been broken yet.'
 NOT_FOLLOWING_SUIT = 'you still have {} in your hand.'
 NOT_YOUR_TURN = "it's not your turn."
+NO_FIRST_TRICK_POINTS = 'you cannot play hearts or the queen of spades on the first trick.'
 
 
 def message(error, error_reason):
