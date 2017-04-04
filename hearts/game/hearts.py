@@ -5,7 +5,9 @@ from hearts.api.strings import INVALID_PLAY
 from hearts.api.strings import NOT_THREE
 from hearts.api.strings import NOT_IN_HAND
 from hearts.api.strings import NOT_HEARTS_BROKEN
+from hearts.api.strings import NOT_FOLLOWING_SUIT
 from hearts.api.strings import NOT_TWO_CLUBS
+from hearts.api.strings import NO_FIRST_TRICK_POINTS
 from hearts.api.strings import message
 
 
@@ -290,19 +292,21 @@ class Round(object):
 
     def is_valid_follow(self, player, trick, card):
         '''
-            Return a boolean for whether the player
-            can use the given card to follow the trick
+            Returns (bool, string) to verify whether the player
+            can use the given card to follow the trick.
         '''
-        if self.can_follow_suit(player, trick):
-            return card.suit == trick.suit
-        elif len(self.tricks) == 1:
-            player_hand = self.hands[player]
-            if card.is_worth_points():
-                return player_hand.has_only_hearts_and_Qs()
-            else:
-                return True
-        else:
-            return True
+        is_valid = True
+        error_message = None
+        if self.can_follow_suit(player, trick) and card.suit != trick.suit:
+            is_valid = False
+            suits = {'c': 'clubs', 'd': 'diamonds', 'h': 'hearts', 's': 'spades'}
+            error_message = message(INVALID_PLAY, NOT_FOLLOWING_SUIT).format(str(card), suits[trick.suit])
+        elif (len(self.tricks) == 1
+                and card.is_worth_points()
+                and self.hands[player].has_only_hearts_and_Qs()):
+            is_valid = False
+            error_message = message(INVALID_PLAY, NO_FIRST_TRICK_POINTS).format(str(card))
+        return (is_valid, error_message)
 
     def is_player_turn(self, player):
         return self.players[self.turn_counter] == player
@@ -324,11 +328,13 @@ class Round(object):
 
     def follow_the_trick(self, player, card):
         last_trick = self.tricks[-1]
-        if self.is_valid_follow(player, last_trick, card):
+        is_valid, error_message = self.is_valid_follow(player, last_trick, card)
+
+        if is_valid:
             self.add_to_last_trick(player, card)
             self.upkeep(player, card)
         else:
-            raise ValueError('Invalid play: {}'.format(card))
+            raise ValueError(error_message)
 
     def upkeep(self, player, card):
         '''
