@@ -117,18 +117,18 @@ def test_is_valid_follow():
 
 
 def test_lead_the_trick():
-    round1 = Round(PLAYER_LIST)
-    hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
-    trick = Trick([(P1, Card('2', 'c'))])
-    round1.hands[P4] = hand
-    round1.turn_counter = 3
-    round1.tricks.append(trick)
+    round1, players = new_round()
+    first_trick = trick(players, '2c,3c,4c,5c')
+    round1.tricks.append(first_trick)
+    P1 = round1.next_player
+    last_counter = round1.turn_counter
+    round1.hands[P1] = hand('7d,6h,Ah,2s')
 
-    round1.lead_the_trick(P4, Card('2', 's'))
-    assert round1.tricks[-1] == Trick([(P4, Card('2', 's'))])
-    new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
-    assert round1.hands[P4] == new_hand
-    assert round1.turn_counter == 0
+    round1.lead_the_trick(P1, Card('2', 's'))
+    assert round1.tricks[-1] == Trick([(P1, Card('2', 's'))])
+    new_hand = hand('7d,6h,Ah')
+    assert round1.hands[P1] == new_hand
+    assert round1.turn_counter == last_counter + 1
 
 
 def test_invalid_follow_on_first_trick():

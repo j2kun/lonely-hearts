@@ -315,11 +315,12 @@ class Round(object):
         last_trick.cards_played.append((player, card))
 
     def lead_the_trick(self, player, card):
-        if self.is_valid_lead(player, card):
+        is_valid, error_message = self.is_valid_lead(player, card)
+        if is_valid:
             self.make_new_trick(player, card)
             self.upkeep(player, card)
         else:
-            raise ValueError('Invalid lead: {}'.format(card))
+            raise ValueError(error_message)
 
     def follow_the_trick(self, player, card):
         last_trick = self.tricks[-1]
