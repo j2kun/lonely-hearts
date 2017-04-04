@@ -71,15 +71,38 @@ def test_can_follow_suit():
     assert sample_round.can_follow_suit(P4, trick)
 
 
-def test_is_valid_lead():
-    sample_round.hearts_broken = False
-    sample_round.tricks.append(0)
+def test_is_valid_lead_with_2c():
+    test_round, _ = new_round()
+    P1 = test_round.next_player
+    test_round.hands[P1] = hand('4h,Qs,2c')
+    is_valid, message = test_round.is_valid_lead(P1, Card('2', 'c'))
+    assert is_valid is True
+    assert message is None
 
-    sample_round.hands[P1] = Hand.deserialize(['4h', 'Qs', '2d'])
-    assert not sample_round.is_valid_lead(P1, Card('4', 'h'))
+    is_valid, message = test_round.is_valid_lead(P1, Card('Q', 's'))
+    assert is_valid is False
+    assert message == ('You cannot play Qs because you must play the two '
+                       'of clubs on the first trick.')
 
-    sample_round.hands[P1] = Hand.deserialize(['4h', 'Qh', '2h'])
-    assert sample_round.is_valid_lead(P1, Card('4', 'h'))
+
+def test_is_valid_lead_breaking_hearts():
+    test_round, _ = new_round()
+    test_round.hearts_broken = False
+    test_round.tricks.append(trick())    # Set the first trick
+    P1 = test_round.next_player
+
+    test_round.hands[P1] = hand('4h,Qs,2d')
+    is_valid, message = test_round.is_valid_lead(P1, Card('4', 'h'))
+    assert is_valid is False
+    assert message == 'You cannot play 4h because hearts have not been broken yet.'
+
+    test_round.hearts_broken = True
+    assert test_round.is_valid_lead(P1, Card('4', 'h'))[0] is True
+
+    test_round.hands[P1] = hand('4h,Qh,2h')
+    is_valid, message = test_round.is_valid_lead(P1, Card('4', 'h'))
+    assert is_valid is True
+    assert message is None
 
 
 def test_is_valid_follow():

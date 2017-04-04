@@ -1,8 +1,11 @@
 from random import shuffle
 
 from hearts.api.strings import INVALID_PASS
+from hearts.api.strings import INVALID_PLAY
 from hearts.api.strings import NOT_THREE
 from hearts.api.strings import NOT_IN_HAND
+from hearts.api.strings import NOT_HEARTS_BROKEN
+from hearts.api.strings import NOT_TWO_CLUBS
 from hearts.api.strings import message
 
 
@@ -270,15 +273,20 @@ class Round(object):
 
     def is_valid_lead(self, player, card):
         '''
-           Return a boolean for whether the player can use the given card
+           Returns (bool, string) to validate whether the player can use the given card
            to start the trick.
         '''
-        if len(self.tricks) == 0:
-            return card == Card('2', 'c')
-        elif card.suit == 'h' and not self.hearts_broken:
-            return self.hands[player].is_only_hearts()
-        else:
-            return True
+        is_valid = True
+        error_message = None
+
+        if len(self.tricks) == 0 and card != Card('2', 'c'):
+            is_valid = False
+            error_message = message(INVALID_PLAY, NOT_TWO_CLUBS).format(str(card))
+        elif (card.suit == 'h' and not self.hearts_broken
+                and not self.hands[player].is_only_hearts()):
+            is_valid = False
+            error_message = message(INVALID_PLAY, NOT_HEARTS_BROKEN).format(str(card))
+        return (is_valid, error_message)
 
     def is_valid_follow(self, player, trick, card):
         '''
