@@ -35,17 +35,25 @@ def test_deal():
 def test_is_valid_pass_for_player():
     round1, players = new_round()
     round1.hands[players[0]] = hand('4c,Qc,5d,Ad,Kh,Qs')
+
     selection = cards('Qc,Ad,Qs')
-    assert round1.is_valid_pass_for_player(players[0], selection) is True
+    is_valid, error_string = round1.is_valid_pass_for_player(players[0], selection)
+    assert is_valid is True
+    assert error_string is None
+
     invalid_selection = cards('Qs,Ks,As')
-    assert round1.is_valid_pass_for_player(players[0], invalid_selection) is False
+    is_valid, message = round1.is_valid_pass_for_player(players[0], invalid_selection)
+    assert is_valid is False
+    assert message == 'You cannot pass Qs, Ks, As because Ks is not in your hand.'
 
 
 def test_is_valid_pass_for_player_not_enough_cards():
     round1, players = new_round()
     round1.hands[players[0]] = hand('4c,Qc,5d,Ad')
     selection = cards('Qc,Ad')
-    assert round1.is_valid_pass_for_player(players[0], selection) is False
+    is_valid, message = round1.is_valid_pass_for_player(players[0], selection)
+    assert is_valid is False
+    assert message == 'You cannot pass Qc, Ad because you must pass three cards.'
 
 
 def test_can_follow_suit():
@@ -63,55 +71,96 @@ def test_can_follow_suit():
     assert sample_round.can_follow_suit(P4, trick)
 
 
-def test_is_valid_lead():
-    sample_round.hearts_broken = False
-    sample_round.tricks.append(0)
+def test_is_valid_lead_with_2c():
+    test_round, _ = new_round()
+    P1 = test_round.next_player
+    test_round.hands[P1] = hand('4h,Qs,2c')
+    is_valid, message = test_round.is_valid_lead(P1, Card('2', 'c'))
+    assert is_valid is True
+    assert message is None
 
-    sample_round.hands[P1] = Hand.deserialize(['4h', 'Qs', '2d'])
-    assert not sample_round.is_valid_lead(P1, Card('4', 'h'))
+    is_valid, message = test_round.is_valid_lead(P1, Card('Q', 's'))
+    assert is_valid is False
+    assert message == ('You cannot play Qs because you must play the two '
+                       'of clubs on the first trick.')
 
-    sample_round.hands[P1] = Hand.deserialize(['4h', 'Qh', '2h'])
-    assert sample_round.is_valid_lead(P1, Card('4', 'h'))
+
+def test_is_valid_lead_breaking_hearts():
+    test_round, _ = new_round()
+    test_round.hearts_broken = False
+    test_round.tricks.append(trick())    # Set the first trick
+    P1 = test_round.next_player
+
+    test_round.hands[P1] = hand('4h,Qs,2d')
+    is_valid, message = test_round.is_valid_lead(P1, Card('4', 'h'))
+    assert is_valid is False
+    assert message == 'You cannot play 4h because hearts have not been broken yet.'
+
+    test_round.hearts_broken = True
+    assert test_round.is_valid_lead(P1, Card('4', 'h'))[0] is True
+
+    test_round.hands[P1] = hand('4h,Qh,2h')
+    is_valid, message = test_round.is_valid_lead(P1, Card('4', 'h'))
+    assert is_valid is True
+    assert message is None
 
 
 def test_is_valid_follow():
-    fake_trick = Trick([
-        (P1, Card('5', 'h')),
-        (P2, Card('3', 'h')),
-        (P3, Card('J', 'h'))
-    ])
-    fake_hand = Hand.deserialize(['Ah', '7d', '6h', '2s'])
-    assert sample_round.is_valid_follow(P4, fake_trick, fake_hand[0])
-    assert not sample_round.is_valid_follow(P4, fake_trick, fake_hand[1])
+    round1, players = new_round()
+    test_player = players[0]
+
+    test_trick = trick(players[:2], '5h,3h,Jh')
+    round1.hands[test_player] = hand('Ah,7d,6h,2s')
+
+    assert round1.is_valid_follow(test_player, test_trick, Card('A', 'h'))[0] is True
+
+    is_valid, error_message = round1.is_valid_follow(test_player, test_trick, Card('7', 'd'))
+    assert is_valid is False
+    assert error_message == 'You cannot play 7d because you still have hearts in your hand.'
 
 
 def test_lead_the_trick():
-    round1 = Round(PLAYER_LIST)
-    hand = Hand.deserialize(['7d', '6h', 'Ah', '2s'])
-    trick = Trick([(P1, Card('2', 'c'))])
-    round1.hands[P4] = hand
-    round1.turn_counter = 3
-    round1.tricks.append(trick)
+    round1, players = new_round()
+    first_trick = trick(players, '2c,3c,4c,5c')
+    round1.tricks.append(first_trick)
+    P1 = round1.next_player
+    last_counter = round1.turn_counter
+    round1.hands[P1] = hand('7d,6h,Ah,2s')
 
-    round1.lead_the_trick(P4, Card('2', 's'))
-    assert round1.tricks[-1] == Trick([(P4, Card('2', 's'))])
-    new_hand = Hand.deserialize(['7d', '6h', 'Ah'])
-    assert round1.hands[P4] == new_hand
-    assert round1.turn_counter == 0
+    round1.lead_the_trick(P1, Card('2', 's'))
+    assert round1.tricks[-1] == Trick([(P1, Card('2', 's'))])
+    new_hand = hand('7d,6h,Ah')
+    assert round1.hands[P1] == new_hand
+    assert round1.turn_counter == (last_counter + 1) % 4
 
 
-def test_invalid_follow_on_first_trick():
-    round1 = Round(PLAYER_LIST)
-    hand = Hand.deserialize(['2d', '6h', 'Ah', 'Qs'])
+def test_is_valid_follow_on_first_trick():
+    round1, _ = new_round()
     counter = round1.turn_counter
     first_player = round1.players[counter]
     round1.play_card(first_player, Card('2', 'c'))
 
     assert round1.turn_counter == (counter + 1) % 4
     next_player = round1.players[round1.turn_counter]
-    round1.hands[next_player] = hand
-    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))
-    assert not round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
+    round1.hands[next_player] = hand('2d,6h,Ah,Qs')
+    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('2', 'd'))[0] is True
+
+
+def test_is_valid_follow_on_first_trick_dropping_points():
+    round1, _ = new_round()
+    counter = round1.turn_counter
+    first_player = round1.players[counter]
+    round1.play_card(first_player, Card('2', 'c'))
+    next_player = round1.players[round1.turn_counter]
+
+    round1.hands[next_player] = hand('6h,Ah,Qs')   # forced to drop points
+    assert round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))[0] is True
+
+    round1.hands[next_player] = hand('2d,6h,Ah,Qs')
+    is_valid, error_message = round1.is_valid_follow(next_player, round1.tricks[-1], Card('6', 'h'))
+    assert is_valid is False
+    assert error_message == ('You cannot play 6h because you cannot play hearts '
+                             'or the queen of spades on the first trick.')
 
 
 def test_breaking_hearts_on_first_trick():

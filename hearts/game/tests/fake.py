@@ -37,5 +37,6 @@ def hand(cards='Ah,7d,6h,2s'):
     return Hand([Card.deserialize(c) for c in cards.split(',')])
 
 
-def trick(players, cards='5h,3h,Jh,Qs'):
-    return Trick([(p, Card.deserialize(c)) for (p, c) in zip(players, cards.split(','))])
+def trick(players_list=None, cards='5h,3h,Jh,Qs'):
+    the_players = players_list or players()
+    return Trick([(p, Card.deserialize(c)) for (p, c) in zip(the_players, cards.split(','))])
