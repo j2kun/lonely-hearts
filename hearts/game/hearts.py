@@ -7,6 +7,7 @@ from hearts.api.strings import NOT_IN_HAND
 from hearts.api.strings import NOT_HEARTS_BROKEN
 from hearts.api.strings import NOT_FOLLOWING_SUIT
 from hearts.api.strings import NOT_TWO_CLUBS
+from hearts.api.strings import NOT_YOUR_TURN
 from hearts.api.strings import NO_FIRST_TRICK_POINTS
 from hearts.api.strings import message
 
@@ -358,7 +359,8 @@ class Round(object):
             else:
                 self.follow_the_trick(player, card)
         else:
-            raise ValueError("Invalid play: it's not your turn")
+            error_message = message(INVALID_PLAY, NOT_YOUR_TURN).format(str(card))
+            raise ValueError(error_message)
 
     def current_scores(self):
         '''
