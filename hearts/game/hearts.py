@@ -213,6 +213,7 @@ class Round(object):
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
         self.pass_to = pass_to
+        self.pass_selections = {}
         self.tricks = []
         self.turn_counter = 0
         self.hearts_broken = False
@@ -252,9 +253,21 @@ class Round(object):
             is_valid = False
         return (is_valid, error_string)
 
+    def add_to_pass_selections(self, player, cards):
+        # This function will be unused until we decide on a passing protocol in the app.
+        '''
+        Verifies that cards is a valid list of cards to pass and appends
+        it to the pass_selections attribute of Round.
+        '''
+        is_valid, error_message = self.is_valid_pass_for_player(player, cards)
+        if is_valid:
+            self.pass_selections[player] = cards
+        else:
+            raise ValueError(error_message)
+
     def pass_cards(self, card_selections):     # {player:[Card]} --> None
 
-        if all(self.is_valid_pass_for_player(player, cards) for (player, cards) in card_selections.items()):
+        if all(self.is_valid_pass_for_player(player, cards)[0] for (player, cards) in card_selections.items()):
             passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
             for passer, cards in card_selections.items():
