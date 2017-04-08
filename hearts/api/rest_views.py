@@ -14,7 +14,8 @@ def index():
 @app.route('/rooms/', methods=['POST'])
 def rooms():
     if request.method == 'POST':
-        room_id = mongo.db.rooms.insert({})
+        # Room ids are the unique database document ids
+        room_id = mongo.db.rooms.insert({'users': []})
         if room_id:
             return jsonify({
                 'url': '/rooms/%s/' % room_id,

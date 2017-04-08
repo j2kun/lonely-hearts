@@ -20,7 +20,7 @@ def on_chat(message):
 
 def is_valid_room(data):
     # Check if database document exists and contains at most 3 players.
-    room = mongo.db.rooms.find_one({'room_id': data['room']})
+    room = mongo.db.rooms.find_one({'_id': data['room']})
     return (room is not None and len(room['users']) < 4)
 
 
@@ -34,7 +34,7 @@ def on_join(data):
         session['room'] = room_id
         chat(username + ' has entered the room.', room=room_id)
 
-        mongo.db.rooms.update_one({'room_id': room_id}, {'$push': {'users': username}})
+        mongo.db.rooms.update_one({'_id': room_id}, {'$push': {'users': username}})
     else:
         io.disconnect()
 
