@@ -9,6 +9,7 @@ def test_create_room(api_client, db):
     room_id = ObjectId(response['id'])
     cursor = db.rooms.find({"_id": room_id})
     assert cursor.count() == 1
+    assert cursor[0]['users'] == []
 
     response = api_client.get(response['url'])
     assert response.status_code == 200
