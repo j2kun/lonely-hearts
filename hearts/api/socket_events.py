@@ -34,7 +34,7 @@ def on_join(data):
         session['room'] = room_id
         chat(username + ' has entered the room.', room=room_id)
 
-        mongo.db.rooms.update_one({'room_id': room_id}, {$push: {'users': username}})
+        mongo.db.rooms.update_one({'room_id': room_id}, {'$push': {'users': username}})
     else:
         io.disconnect()
 
