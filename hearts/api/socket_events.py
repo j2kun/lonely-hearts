@@ -1,4 +1,5 @@
 from flask import session
+from flask import jsonify
 import flask_socketio as io
 
 from hearts import socketio
@@ -18,6 +19,7 @@ def on_chat(message):
         print('No room stored on session')
 
 
+# Make this function a wrapper to on_join()
 def is_valid_room(data):
     # Check if database document exists and contains at most 3 players.
     room = mongo.db.rooms.find_one({'_id': data['room']})
@@ -26,17 +28,19 @@ def is_valid_room(data):
 
 @socketio.on('join')
 def on_join(data):
-    if is_valid_room(data):
-        username = data['username']
-        room_id = data['room']
+    username = data['username']
+    room_id = data['room']
 
-        io.join_room(room_id)
-        session['room'] = room_id
-        chat(username + ' has entered the room.', room=room_id)
-
-        mongo.db.rooms.update_one({'_id': room_id}, {'$push': {'users': username}})
-    else:
-        io.disconnect()
+    io.join_room(room_id)
+    session['room'] = room_id
+    chat(username + ' has entered the room.', room=room_id)
+    updated = mongo.db.rooms.update_one(
+        {'_id': room_id},
+        {'$push': {'users': username}}
+        )
+    if updated.acknowledged is True:
+        data = mongo.db.rooms.find_one({'_id': room_id})
+        return jsonify(data)
 
 
 @socketio.on('leave')
