@@ -5,6 +5,8 @@ import flask_socketio as io
 from hearts import socketio
 from hearts import mongo
 
+from bson.objectid import ObjectId
+
 
 def chat(message, room):
     io.emit('chat', message, room=room)
@@ -22,7 +24,8 @@ def on_chat(message):
 # Make this function a wrapper to on_join()
 def is_valid_room(data):
     # Check if database document exists and contains at most 3 players.
-    room = mongo.db.rooms.find_one({'_id': data['room']})
+    room_id = data['room']
+    room = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
     return (room is not None and len(room['users']) < 4)
 
 
@@ -34,13 +37,14 @@ def on_join(data):
     io.join_room(room_id)
     session['room'] = room_id
     chat(username + ' has entered the room.', room=room_id)
-    updated = mongo.db.rooms.update_one(
-        {'_id': room_id},
+    mongo.db.rooms.update_one(
+        {'_id': ObjectId(room_id)},
         {'$push': {'users': username}}
         )
-    if updated.acknowledged is True:
-        data = mongo.db.rooms.find_one({'_id': room_id})
-        return jsonify(data)
+    new_data = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
+    return jsonify(data)     # We should be returning the JSON encoding of the contents
+                             # of new_data here.  Need to JSON encode the ObjectId in its
+                             # '_id' field. 
 
 
 @socketio.on('leave')

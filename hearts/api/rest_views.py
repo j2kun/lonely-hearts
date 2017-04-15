@@ -5,6 +5,8 @@ from flask import request
 from hearts.api import api_blueprint as app
 from hearts import mongo
 
+from bson.objectid import ObjectId
+
 
 @app.route('/')
 def index():
@@ -26,7 +28,7 @@ def rooms():
 @app.route('/rooms/<room_id>/', methods=['GET'])
 def room(room_id):
     if request.method == 'GET':
-        result = mongo.db.rooms.find_one({'_id': room_id})
+        result = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
         if not result:
             render_template('index.html')
         return render_template('room.html', room_id=room_id)
