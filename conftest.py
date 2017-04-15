@@ -6,7 +6,8 @@ from hearts import create_app
 from hearts import mongo
 from hearts import socketio
 
-os.environ['DATABASE_URL'] = 'mongodb://127.0.0.1:27017/test'
+database_name = 'test'
+os.environ['DATABASE_URL'] = 'mongodb://127.0.0.1:27017/{}'.format(database_name)
 app = create_app()
 
 
@@ -23,7 +24,8 @@ def socket_client(request):
     return client
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def db(api_client, request):
     with app.app_context():
+        mongo.db.command('dropDatabase')
         return mongo.db
