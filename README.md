@@ -78,7 +78,7 @@ mongod --dbpath data/db
 In a separate terminal window, run the web app
 
 ```
-python app.py
+python run.py
 ```
 
 and browse to `http://127.0.0.1:5000/`.
