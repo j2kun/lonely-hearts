@@ -1,4 +1,3 @@
-from flask import session
 
 
 def test_db(db):
@@ -11,7 +10,7 @@ def test_on_join_valid_room(api_client, socket_client, db):
     test_room_id = str(test_room['_id'])
 
     socket_client.emit('join', {'room': test_room_id, 'username': 'user_1'})
-    # assert session['room'] == test_room_id  # Causes RuntimeError: Working outside of request context
+    assert session['room'] == test_room_id  # Causes RuntimeError: Working outside of request context
 
     test_room = db.rooms.find_one({'testing': True})
     assert test_room['users'] == ['user_1']
