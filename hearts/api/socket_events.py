@@ -35,16 +35,20 @@ def on_join(data):
     room_id = data['room']
 
     io.join_room(room_id)
-    session['room'] = room_id
+    session['room'] = room_id  # Not sure why we need this
     chat(username + ' has entered the room.', room=room_id)
+
+    # refactor this as a separate function
     mongo.db.rooms.update_one(
         {'_id': ObjectId(room_id)},
         {'$push': {'users': username}}
         )
-    new_data = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
-    return jsonify(data)     # We should be returning the JSON encoding of the contents
-                             # of new_data here.  Need to JSON encode the ObjectId in its
-                             # '_id' field. 
+
+    new_data = mongo.db.rooms.find_one(
+        {'_id': ObjectId(room_id)},
+        projection={'_id': False}
+        )
+    return jsonify(new_data)
 
 
 @socketio.on('leave')

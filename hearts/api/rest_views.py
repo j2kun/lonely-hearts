@@ -19,6 +19,8 @@ def rooms():
         # Room ids are the unique database document ids
         room_id = mongo.db.rooms.insert({'users': []})
         if room_id:
+            room = mongo.db.rooms.find_one({'_id': room_id})
+            room['room_id'] = str(room_id)
             return jsonify({
                 'url': '/rooms/%s/' % room_id,
                 'id': str(room_id),
