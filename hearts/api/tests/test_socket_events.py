@@ -27,5 +27,17 @@ def test_on_join_valid_room(api_client, socket_client, db):
     assert set(test_room['users']) == {'user_1', 'user_2', 'user_3', 'user_4'}
 
 
-def test_on_join_invalid_room(api_client, db):
-    pass
+def test_is_room_full(db):
+    assert False
+
+
+def test_create_game_write_to_database(db):
+    assert False
+
+
+def test_create_game_when_room_is_not_full(db):
+    assert False
+
+
+def test_create_game_when_room_is_full(db):
+    assert False

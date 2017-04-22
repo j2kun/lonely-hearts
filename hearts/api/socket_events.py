@@ -21,12 +21,12 @@ def on_chat(message):
         print('No room stored on session')
 
 
-# Make this function a wrapper to on_join()
-def is_valid_room(data):
-    # Check if database document exists and contains at most 3 players.
-    room_id = data['room']
+def is_room_full(room_id):
     room = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
-    return (room is not None and len(room['users']) < 4)
+    if room is None:
+        pass
+    else:
+        return (len(room['users']) == 4)
 
 
 @socketio.on('join')
@@ -57,3 +57,18 @@ def on_leave(data):
     room = data['room']
     io.leave_room(room)
     chat(username + ' has left the room.', room=room)
+
+
+def create_game(room_id):
+    '''
+    Returns a string game_id.
+    If the room is not full, create_game will:
+        -Create a Game collection document in the db
+        -Store a game_id in the room
+        -Create and serialize a Game object from hearts.game.hearts.py
+         into the Game document.
+    '''
+    if is_room_full(room_id) is True:
+        pass
+    else:
+        return None
