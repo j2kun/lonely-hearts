@@ -3,6 +3,12 @@ import os
 
 import dotenv
 
+
+def is_truthy(s):
+    first_char = s[0].lower()
+    return first_char in ['1', 't', 'y']
+
+
 '''
     Load the configuration variables from .env
 '''
@@ -18,6 +24,7 @@ CONFIGS = [
     Config('PORT', 5000, int),
     Config('DATABASE_URL', 'mongodb://127.0.0.1:27017/hearts', str),
     Config('SECRET_KEY', 'tyhbjhgvk5r788uo3h1jnk', str),
+    Config('DEBUG', 'False', is_truthy),
 ]
 
 
