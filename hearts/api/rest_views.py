@@ -1,12 +1,13 @@
 import logging
 
-from bson.objectid import ObjectId
 from flask import jsonify
 from flask import render_template
 from flask import request
 
-from hearts.api import api_blueprint as app
 from hearts import mongo
+from hearts.api import api_blueprint as app
+from hearts.api.rooms import RoomDoesNotExist
+from hearts.api.rooms import get_room
 
 
 logger = logging.getLogger('hearts')
@@ -38,8 +39,10 @@ def rooms():
 @app.route('/rooms/<room_id>/', methods=['GET'])
 def room(room_id):
     if request.method == 'GET':
-        result = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
-        if not result:
+        try:
+            get_room(room_id)
+        except RoomDoesNotExist:
             logger.info('room - attempt to join nonexistent room id={}'.format(room_id))
             render_template('index.html')
+
         return render_template('room.html', room_id=room_id)
