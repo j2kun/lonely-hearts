@@ -1,7 +1,11 @@
 from flask import session
+from flask import jsonify
 import flask_socketio as io
 
 from hearts import socketio
+from hearts import mongo
+
+from bson.objectid import ObjectId
 
 
 def chat(message, room):
@@ -17,13 +21,34 @@ def on_chat(message):
         print('No room stored on session')
 
 
+# Make this function a wrapper to on_join()
+def is_valid_room(data):
+    # Check if database document exists and contains at most 3 players.
+    room_id = data['room']
+    room = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
+    return (room is not None and len(room['users']) < 4)
+
+
 @socketio.on('join')
 def on_join(data):
     username = data['username']
-    room = data['room']
-    io.join_room(room)
-    session['room'] = room
-    chat(username + ' has entered the room.', room=room)
+    room_id = data['room']
+
+    io.join_room(room_id)
+    session['room'] = room_id  # Not sure why we need this
+    chat(username + ' has entered the room.', room=room_id)
+
+    # refactor this as a separate function
+    mongo.db.rooms.update_one(
+        {'_id': ObjectId(room_id)},
+        {'$push': {'users': username}}
+        )
+
+    new_data = mongo.db.rooms.find_one(
+        {'_id': ObjectId(room_id)},
+        projection={'_id': False}
+        )
+    return jsonify(new_data)
 
 
 @socketio.on('leave')
