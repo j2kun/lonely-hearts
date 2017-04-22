@@ -1,3 +1,5 @@
+import logging
+
 from flask import jsonify
 from flask import render_template
 from flask import request
@@ -8,8 +10,12 @@ from hearts import mongo
 from bson.objectid import ObjectId
 
 
+logger = logging.getLogger('hearts')
+
+
 @app.route('/')
 def index():
+    logger.info('index - viewing index.html')
     return render_template('index.html')
 
 

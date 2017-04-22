@@ -1,4 +1,5 @@
 from collections import namedtuple
+import logging
 import os
 
 import dotenv
@@ -26,6 +27,16 @@ CONFIGS = [
     Config('SECRET_KEY', 'tyhbjhgvk5r788uo3h1jnk', str),
     Config('DEBUG', 'False', is_truthy),
 ]
+
+
+def configure_logging(app):
+    formatter = logging.Formatter(
+        "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"
+    )
+    if app.config['DEBUG']:
+        for handler in app.logger.handlers:
+            handler.setFormatter(formatter)
+            handler.setLevel(logging.INFO)
 
 
 def configure(app):
