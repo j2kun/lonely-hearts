@@ -7,6 +7,10 @@ class RoomDoesNotExist(Exception):
     pass
 
 
+class RoomCreateFailed(Exception):
+    pass
+
+
 def get_room(room_id):
     try:
         if not isinstance(room_id, ObjectId):
@@ -19,3 +23,11 @@ def get_room(room_id):
         raise RoomDoesNotExist()
 
     return result
+
+
+def create_room(users=tuple()):
+    room_id = mongo.db.rooms.insert({'users': users})
+    if room_id:
+        return get_room(room_id)
+    else:
+        raise RoomCreateFailed()
