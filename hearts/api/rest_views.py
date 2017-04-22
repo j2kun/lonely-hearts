@@ -32,6 +32,8 @@ def rooms():
                 'url': '/rooms/%s/' % room_id,
                 'id': str(room_id),
             })
+        else:
+            logger.warn('rooms - failed to create a new room')
 
 
 @app.route('/rooms/<room_id>/', methods=['GET'])
