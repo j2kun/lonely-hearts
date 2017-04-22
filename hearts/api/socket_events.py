@@ -58,3 +58,18 @@ def on_leave(data):
     room = data['room']
     io.leave_room(room)
     chat(username + ' has left the room.', room=room)
+
+
+def create_game(room_id):
+    '''
+    Returns a string game_id.
+    If the room is not full, create_game will:
+        -Create a Game collection document in the db
+        -Store a game_id in the room
+        -Create and serialize a Game object from hearts.game.hearts.py
+         into the Game document.
+    '''
+    if is_room_full(room_id) is True:
+        pass
+    else:
+        return None
