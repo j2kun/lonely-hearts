@@ -11,6 +11,7 @@ mongo = PyMongo()
 def create_app():
     app = Flask(__name__)
     settings.configure(app)
+    settings.configure_logging(app)
 
     from .api import api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='')
