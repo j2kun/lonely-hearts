@@ -1,13 +1,12 @@
 import logging
 
+from bson.objectid import ObjectId
 from flask import jsonify
 from flask import render_template
 from flask import request
 
 from hearts.api import api_blueprint as app
 from hearts import mongo
-
-from bson.objectid import ObjectId
 
 
 logger = logging.getLogger('hearts')
