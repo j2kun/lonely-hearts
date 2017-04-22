@@ -31,7 +31,7 @@ CONFIGS = [
 
 def configure_logging(app):
     formatter = logging.Formatter(
-        "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"
+        "[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
     )
     if app.config['DEBUG']:
         for handler in app.logger.handlers:
