@@ -4,6 +4,8 @@ import flask_socketio as io
 
 from hearts import socketio
 from hearts import mongo
+from hearts.api.rooms import get_room
+from hearts.game.hearts import Game
 
 from bson.objectid import ObjectId
 
@@ -22,11 +24,11 @@ def on_chat(message):
 
 
 def is_room_full(room_id):
-    room = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
-    if room is None:
+    try:
+        room = get_room(room_id)
+        return len(room['users']) == 4
+    except:
         pass
-    else:
-        return (len(room['users']) == 4)
 
 
 @socketio.on('join')
@@ -68,7 +70,21 @@ def create_game(room_id):
         -Create and serialize a Game object from hearts.game.hearts.py
          into the Game document.
     '''
-    if is_room_full(room_id) is True:
-        pass
+    if is_room_full(room_id) is False:
+        room = get_room(room_id)
+        players = room['users']
+
+        new_game = Game(players, points_to_win=100)
+        game_data = new_game.serialize()
+
+        game_id = mongo.db.games.insert({
+            'room_id': str(room_id),
+            'users': players,
+            'data': game_data
+        })
+        mongo.db.rooms.update_one(
+            {'_id': ObjectId(room_id)},
+            {'$set': {'game_id': game_id}}
+        )
     else:
-        return None
+        pass  # Room is full
