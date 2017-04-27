@@ -70,7 +70,6 @@ def create_game(room_id):
         -Create and serialize a Game object from hearts.game.hearts.py
          into the Game document.
     '''
-<<<<<<< 61191e6b1febb726634c6ace5e9f632d59e14faf
     if is_room_full(room_id) is False:
         room = get_room(room_id)
         players = room['users']
