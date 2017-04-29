@@ -28,4 +28,4 @@ def socket_client(request):
 def db(api_client, request):
     with app.app_context():
         mongo.db.command('dropDatabase')
-        return mongo.db
+        yield mongo.db
