@@ -1,7 +1,13 @@
+from hearts.api.rooms import create_room
 
 
 def test_db(db):
     assert db.rooms.find({}).count() == 0
+
+
+def test_create_room(db):
+    test_room = create_room()
+    assert test_room['users'] == []
 
 
 def test_on_join_valid_room(api_client, socket_client, db):
