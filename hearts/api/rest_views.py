@@ -22,14 +22,23 @@ def index():
 
 @app.route('/rooms/', methods=['POST'])
 def rooms():
+    '''
+    POST /rooms/  - create a new room
+
+    Returns:
+        {
+          'url': str
+        }
+
+    Visit the given url to join the created room.
+    '''
     if request.method == 'POST':
         try:
             room = create_room()
-            room_id = str(room['_id'])
+            room_id = room['_id']
             logger.info('rooms - created new room id={}'.format(room_id))
             return jsonify({
                 'url': '/rooms/%s/' % room_id,
-                'id': room_id,
             })
         except RoomCreateFailed:
             logger.critical('rooms - failed to create a new room')
@@ -37,6 +46,9 @@ def rooms():
 
 @app.route('/rooms/<room_id>/', methods=['GET'])
 def room(room_id):
+    '''
+    GET /rooms/<room_id>/  - join a given room
+    '''
     if request.method == 'GET':
         try:
             get_room(room_id)
