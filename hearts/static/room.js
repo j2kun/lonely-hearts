@@ -7,15 +7,35 @@ function apiCard(displayCard) {
     return displayCard[1] + displayCard[0];
 }
 
-// Will remove dummy data once we pull state from the API
+// API returns data of the form
+/*
+{
+    'players': [str],
+    'max_points': int,
+    'rounds': [
+        {
+            'players': str,
+            'direction': str,
+            'turn': int,
+            'hands': {str: [str]},
+            'tricks': [[str]],
+            'hearts': self.hearts_broken,
+            'current_scores': {str: int},
+            'final_scores': {str: int},
+            'is_over': boolean,
+        }, ...
+    ],
+    'round_number': int,
+    'scores': {str: int},
+    'total_scores': {str: int},
+    'is_over': boolean,
+}
+*/
 var state = {
-    hand: ['2h', '5s', '6c', 'Jc', 'Kd', 'As'],
-    trick: [],
+    chosenCards: [],
+    game: null,
     me: 'Jeremy',
-    players: ['Jeremy', 'Erin', 'Daniel', 'Lauren'],
-    turn: 'Jeremy',
     mode: 'play',  // or 'passing'
-    chosenCards: []
 };
 
 function chooseOrUnchooseCard(card) {
@@ -85,10 +105,22 @@ function displayTrick(trick) {
     $('#trick').html(trickToRender);
 }
 
+function renderWaitingForPlayers() {
+    
+}
+
 function render(state) {
-    displayHand(state.hand);
-    displayTrick(state.trick);
-    displayOpponents(state.me, state.players);
+    if (state.game === null) {
+        // game hasn't started yet
+        renderWaitingForPlayers();
+    } else {
+        var currentRound = state.game.rounds[state.game.rounds.length - 1];
+        var myHand = currentRound.hands[state.me];
+        var currentTrick = currentRound.tricks[currentRound.tricks.length - 1];
+        displayHand(myHand);
+        displayTrick(currentTrick);
+        displayOpponents(state.me, state.game.players);
+    }
 }
 
 function setup() {
