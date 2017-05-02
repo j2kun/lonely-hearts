@@ -36,7 +36,7 @@ def on_join(data):
     room_id = data['room']
 
     io.join_room(room_id)
-    session['room'] = room_id  # Not sure why we need this
+    session['room'] = room_id
     chat(username + ' has entered the room.', room=room_id)
 
     # refactor this as a separate function
