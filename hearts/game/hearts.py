@@ -99,11 +99,19 @@ class Game(object):
 
         return rankings
 
-    def serialize(self):
+    def serialize(self, for_player=None):
+        '''
+        Return a json-serializable representation of the Game, from which the
+        object can be reconstructed using Game.desearialize.
+
+        When for_player is specified, return only the information that the
+        specified player is allowed to see, as per the rules of the game.
+        This information will be sent directly to the client.
+        '''
         return {
             'players': self.players,
             'max_points': self.max_points,
-            'rounds': [the_round.serialize() for the_round in self.rounds],
+            'rounds': [the_round.serialize(for_player=for_player) for the_round in self.rounds],
             'round_number': self.round_number,
             'scores': self.scores,
             'total_scores': self.total_scores,
@@ -408,12 +416,26 @@ class Round(object):
     def is_over(self):
         return len(self.tricks) == 13 and len(self.tricks[-1]) == 4
 
-    def serialize(self):
+    def serialize(self, for_player=None):
+        '''
+        Return a json-serializable representation of the Round, from which the
+        object can be reconstructed using Round.desearialize.
+
+        When for_player is specified, return only the information that the
+        specified player is allowed to see, as per the rules of the game.
+        This information will be sent directly to the client.
+        '''
+        if for_player is None:
+            hands = {player.username: hand.serialize() for player, hand in self.hands.items()}
+        else:
+            player = for_player if isinstance(for_player, Player) else Player(for_player)
+            hands = {player.username: self.hands[player].serialize()}
+
         return {
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
             'turn': self.turn_counter,
-            'hands': {player.username: hand.serialize() for player, hand in self.hands.items()},
+            'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
             'hearts': self.hearts_broken,
             'current_scores': self.current_scores(),
