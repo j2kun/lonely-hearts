@@ -1,5 +1,7 @@
 from hearts.api.rooms import create_room
 from hearts.api.rooms import get_room
+from hearts.api.games import create_game
+from hearts.api.games import get_game
 
 
 def test_db(db):
@@ -34,7 +36,27 @@ def test_is_room_full(db):
 
 
 def test_create_game_write_to_database(db):
-    assert False
+    test_room = create_room(('Lauren', 'Erin', 'Jeremy', 'Daniel'))
+    test_room_id = test_room['_id']
+
+    game, game_id = create_game(test_room_id)
+
+    expected_data = {
+        'players': ['Lauren', 'Erin', 'Jeremy', 'Daniel'],
+        'max_points': 100,
+        'rounds': [],
+        'round_number': 0,
+        'scores': [],
+        'total_scores': {'Lauren': 0, 'Erin': 0, 'Jeremy': 0, 'Daniel': 0},
+        'is_over': False
+    }
+    game = get_game(game_id)
+    assert game['room_id'] == test_room_id
+    assert game['users'] == ['Lauren', 'Erin', 'Jeremy', 'Daniel']
+    for key in expected_data:
+        assert game['data'][key] == expected_data[key]
+
+    assert get_room(test_room_id)['game_id'] == game_id
 
 
 def test_create_game_when_room_is_not_full(db):
