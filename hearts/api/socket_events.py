@@ -4,7 +4,6 @@ import flask_socketio as io
 
 from hearts import socketio
 from hearts import mongo
-from hearts.api.rooms import get_room
 
 from bson.objectid import ObjectId
 
@@ -20,14 +19,6 @@ def on_chat(message):
     else:
         # chat to a global chat room?
         print('No room stored on session')
-
-
-def is_room_full(room_id):
-    try:
-        room = get_room(room_id)
-        return len(room['users']) == 4
-    except:
-        pass
 
 
 @socketio.on('join')

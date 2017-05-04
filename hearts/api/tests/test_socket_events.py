@@ -1,7 +1,10 @@
+import pytest
+
 from hearts.api.rooms import create_room
 from hearts.api.rooms import get_room
 from hearts.api.games import create_game
 from hearts.api.games import get_game
+from hearts.api.games import NotEnoughPlayers
 
 
 def test_db(db):
@@ -31,8 +34,9 @@ def test_on_join_valid_room(api_client, socket_client, db):
     assert set(test_room['users']) == {'user_1', 'user_2', 'user_3', 'user_4'}
 
 
-def test_is_room_full(db):
-    assert False
+def test_on_join_room_is_full(socket_client, db):
+    # Test for an exception thrown when trying to join a full room
+    pass
 
 
 def test_create_game_write_to_database(db):
@@ -59,9 +63,12 @@ def test_create_game_write_to_database(db):
     assert get_room(test_room_id)['game_id'] == game_id
 
 
-def test_create_game_when_room_is_not_full(db):
-    assert False
+def test_create_game_not_enough_players(db):
+    test_room = create_room(('Lauren', 'Erin', 'Jeremy'))
+    test_room_id = test_room['_id']
+    with pytest.raises(NotEnoughPlayers):
+        game, game_id = create_game(test_room_id)
 
 
-def test_create_game_when_room_is_full(db):
+def test_create_game_when_last_player_joins(db):
     assert False

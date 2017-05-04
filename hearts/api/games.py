@@ -23,18 +23,29 @@ class GameDoesNotExist(Exception):
 
 
 class GameCreateFailed(Exception):
+    '''
+    Exception thrown when database fails to create a game document.
+    '''
+    pass
+
+
+class NotEnoughPlayers(Exception):
+    '''
+    Exception thrown during game creation when not enough players
+    present in the room.
+    '''
     pass
 
 
 def get_game(game_id):
     '''
-    Get a game from the database
+    Get a game from the database.
     Input:
         game_id: string or ObjectId
     Output:
         {
           '_id': ObjectId,
-          'room_id': ObjectId,
+          'game_id': ObjectId,
           'data': serialized Game object
         }
     '''
@@ -61,26 +72,25 @@ def create_game(room_id):
     Output:
         A tuple (gameDocument, ObjectId)
     '''
-    try:
-        players = get_room(room_id)['users']
-        if len(players) == 4:
-            new_game = Game(players, points_to_win=100)
-            game_data = new_game.serialize()
+    players = get_room(room_id)['users']
+    if len(players) == 4:
+        new_game = Game(players, points_to_win=100)
+        game_data = new_game.serialize()
 
-            game_id = mongo.db.games.insert({
-                'room_id': room_id,
-                'users': players,
-                'data': game_data
-            })
+        game_id = mongo.db.games.insert({
+            'room_id': room_id,
+            'users': players,
+            'data': game_data
+        })
+        if not game_id:
+            raise GameCreateFailed()
 
-            mongo.db.rooms.update_one(
-                {'_id': ObjectId(room_id)},
-                {'$set': {'game_id': game_id}}
-            )
+        mongo.db.rooms.update_one(
+            {'_id': ObjectId(room_id)},
+            {'$set': {'game_id': game_id}}
+        )
 
-            game = mongo.db.games.find_one({'_id': game_id})
-            return game, game_id
-        else:
-            pass    # Not enough players to create a game
-    except:
-        pass    # handle RoomNotFull, RoomDoesNotExist exceptions
+        game = mongo.db.games.find_one({'_id': game_id})
+        return game, game_id
+    else:
+        raise NotEnoughPlayers()
