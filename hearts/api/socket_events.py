@@ -1,9 +1,11 @@
 from flask import session
-from flask import jsonify
 import flask_socketio as io
 
 from hearts import socketio
 from hearts import mongo
+from hearts.api.rooms import get_room
+from hearts.api.games import create_game
+from hearts.api.games import GameCreateFailed
 
 from bson.objectid import ObjectId
 
@@ -30,17 +32,20 @@ def on_join(data):
     session['room'] = room_id
     chat(username + ' has entered the room.', room=room_id)
 
-    # refactor this as a separate function
     mongo.db.rooms.update_one(
         {'_id': ObjectId(room_id)},
         {'$push': {'users': username}}
         )
 
-    new_data = mongo.db.rooms.find_one(
-        {'_id': ObjectId(room_id)},
-        projection={'_id': False}
-        )
-    return jsonify(new_data)
+    room = get_room(room_id)
+    if len(room['users']) == 4:
+        try:
+            game, game_id = create_game(room_id)
+
+            # Emit the serialized the game view for each player here.
+
+        except(GameCreateFailed):
+            pass
 
 
 @socketio.on('leave')

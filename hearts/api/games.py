@@ -45,7 +45,6 @@ def get_game(game_id):
     Output:
         {
           '_id': ObjectId,
-          'game_id': ObjectId,
           'data': serialized Game object
         }
     '''
@@ -78,7 +77,7 @@ def create_game(room_id):
         game_data = new_game.serialize()
 
         game_id = mongo.db.games.insert({
-            'room_id': room_id,
+            'room_id': ObjectId(room_id),
             'users': players,
             'data': game_data
         })

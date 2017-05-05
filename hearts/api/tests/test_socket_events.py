@@ -3,7 +3,6 @@ import pytest
 from hearts.api.rooms import create_room
 from hearts.api.rooms import get_room
 from hearts.api.games import create_game
-from hearts.api.games import get_game
 from hearts.api.games import NotEnoughPlayers
 
 
@@ -54,12 +53,10 @@ def test_create_game_write_to_database(db):
         'total_scores': {'Lauren': 0, 'Erin': 0, 'Jeremy': 0, 'Daniel': 0},
         'is_over': False
     }
-    game = get_game(game_id)
     assert game['room_id'] == test_room_id
     assert game['users'] == ['Lauren', 'Erin', 'Jeremy', 'Daniel']
     for key in expected_data:
         assert game['data'][key] == expected_data[key]
-
     assert get_room(test_room_id)['game_id'] == game_id
 
 
@@ -67,8 +64,17 @@ def test_create_game_not_enough_players(db):
     test_room = create_room(('Lauren', 'Erin', 'Jeremy'))
     test_room_id = test_room['_id']
     with pytest.raises(NotEnoughPlayers):
-        game, game_id = create_game(test_room_id)
+        create_game(test_room_id)
 
 
-def test_create_game_when_last_player_joins(db):
-    assert False
+def test_create_game_when_last_player_joins(socket_client, db):
+    room = create_room()
+    room_id = str(room['_id'])
+
+    socket_client.emit('join', {'room': room_id, 'username': 'user_1'})
+    socket_client.emit('join', {'room': room_id, 'username': 'user_2'})
+    socket_client.emit('join', {'room': room_id, 'username': 'user_3'})
+
+    assert db.games.count() == 0
+    socket_client.emit('join', {'room': room_id, 'username': 'user_4'})
+    assert db.games.count() == 1
