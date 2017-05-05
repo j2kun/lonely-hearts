@@ -30,17 +30,18 @@ def on_join(data):
 
     io.join_room(room_id)
     session['room'] = room_id
-    chat(username + ' has entered the room.', room=room_id)
-
     mongo.db.rooms.update_one(
         {'_id': ObjectId(room_id)},
         {'$push': {'users': username}}
         )
+    chat(username + ' has entered the room.', room=room_id)
 
     room = get_room(room_id)
     if len(room['users']) == 4:
         try:
             game, game_id = create_game(room_id)
+            session['game'] = str(game_id)
+            chat('The Hearts game has started.', room=room_id)
 
             # Emit the serialized the game view for each player here.
 
