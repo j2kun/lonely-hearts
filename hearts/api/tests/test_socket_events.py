@@ -45,9 +45,7 @@ def test_create_game_write_to_database(db):
     game, game_id = create_game(test_room_id)
 
     expected_data = {
-        'players': ['Lauren', 'Erin', 'Jeremy', 'Daniel'],
         'max_points': 100,
-        'rounds': [],
         'round_number': 0,
         'scores': [],
         'total_scores': {'Lauren': 0, 'Erin': 0, 'Jeremy': 0, 'Daniel': 0},
@@ -57,6 +55,8 @@ def test_create_game_write_to_database(db):
     assert game['users'] == ['Lauren', 'Erin', 'Jeremy', 'Daniel']
     for key in expected_data:
         assert game['data'][key] == expected_data[key]
+    assert set(game['data']['players']) == set(('Lauren', 'Erin', 'Jeremy', 'Daniel'))
+    assert len(game['data']['rounds']) == 1
     assert get_room(test_room_id)['game_id'] == game_id
 
 

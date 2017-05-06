@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 
 from hearts import mongo
 from hearts.game.hearts import Game
+from hearts.game.hearts import Player
 from hearts.api.rooms import get_room
 
 
@@ -71,14 +72,15 @@ def create_game(room_id):
     Output:
         A tuple (gameDocument, ObjectId)
     '''
-    players = get_room(room_id)['users']
-    if len(players) == 4:
-        new_game = Game(players, points_to_win=100)
+    usernames = get_room(room_id)['users']
+    if len(usernames) == 4:
+        new_game = Game([Player(name) for name in usernames], points_to_win=100)
+        new_game.start()
         game_data = new_game.serialize()
 
         game_id = mongo.db.games.insert({
             'room_id': ObjectId(room_id),
-            'users': players,
+            'users': usernames,
             'data': game_data
         })
         if not game_id:
