@@ -39,7 +39,7 @@ def on_join(data):
     room = get_room(room_id)
     if len(room['users']) == 4:
         try:
-            game, game_id = create_game(room_id)
+            game, game_id = create_game(room_id, max_points=100)
             session['game'] = str(game_id)
             chat('The Hearts game has started.', room=room_id)
 

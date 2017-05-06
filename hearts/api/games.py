@@ -62,7 +62,7 @@ def get_game(game_id):
     return result
 
 
-def create_game(room_id):
+def create_game(room_id, max_points=100):
     '''
     Create a new game based on the users in the given room. Creates
     a 'game_id' field in the room document.
@@ -74,7 +74,7 @@ def create_game(room_id):
     '''
     usernames = get_room(room_id)['users']
     if len(usernames) == 4:
-        new_game = Game([Player(name) for name in usernames], points_to_win=100)
+        new_game = Game([Player(name) for name in usernames], points_to_win=max_points)
         new_game.start()
         game_data = new_game.serialize()
 

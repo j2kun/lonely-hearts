@@ -47,7 +47,7 @@ def test_create_game_write_to_database(db):
     expected_data = {
         'max_points': 100,
         'round_number': 0,
-        'scores': [],
+        'scores': [{'Lauren': 0, 'Erin': 0, 'Jeremy': 0, 'Daniel': 0}],
         'total_scores': {'Lauren': 0, 'Erin': 0, 'Jeremy': 0, 'Daniel': 0},
         'is_over': False
     }
