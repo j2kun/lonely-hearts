@@ -612,5 +612,4 @@ def test_deserialize_round():
     test_round.hands = test_hands
     test_round.turn_counter = 3
     test_round.hearts_broken = True
-
     assert test_round == Round.deserialize(test_round.serialize())

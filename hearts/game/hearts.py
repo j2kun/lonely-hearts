@@ -107,20 +107,35 @@ class Game(object):
         When for_player is specified, return only the information that the
         specified player is allowed to see, as per the rules of the game.
         This information will be sent directly to the client.
+
+        Output:
+        {
+            'players': [str],
+            'max_points': int,
+            'rounds': A list of serialized Round Objects,
+            'round_number': int,
+            'scores': [{str: int}]
+            'final_scores': {str: int}
+            'is_over': boolean
+        }
         '''
+        def serialize_the_score(score_dict):
+            # Return a score dictionary with Player replaced by its username
+            return {player.username: points for (player, points) in score_dict.items()}
+
         return {
-            'players': self.players,
+            'players': [player.username for player in self.players],
             'max_points': self.max_points,
             'rounds': [the_round.serialize(for_player=for_player) for the_round in self.rounds],
             'round_number': self.round_number,
-            'scores': self.scores,
-            'total_scores': self.total_scores,
+            'scores': [serialize_the_score(round_score) for round_score in self.scores],
+            'total_scores': serialize_the_score(self.total_scores),
             'is_over': self.is_over()
         }
 
     @staticmethod
     def deserialize(serialized):
-        deserialized = Game(serialized['players'], serialized['max_points'])
+        deserialized = Game([Player(name) for name in serialized['players']], serialized['max_points'])
         deserialized.rounds = [Round.deserialize(the_round) for the_round in serialized['rounds']]
         deserialized.round_number = serialized['round_number']
         return deserialized
@@ -424,12 +439,29 @@ class Round(object):
         When for_player is specified, return only the information that the
         specified player is allowed to see, as per the rules of the game.
         This information will be sent directly to the client.
+
+        Output:
+        {
+            'players': [str],
+            'direction': str,
+            'turn': int,
+            'hands': [str],
+            'tricks': {str: {int: str}}
+            'hearts': boolean
+            'current_scores': {str: int}
+            'final_scores': {str: int}
+            'is_over': boolean
+        }
         '''
         if for_player is None:
             hands = {player.username: hand.serialize() for player, hand in self.hands.items()}
         else:
             player = for_player if isinstance(for_player, Player) else Player(for_player)
             hands = {player.username: self.hands[player].serialize()}
+
+        def serialize_the_score(score_dict):
+            # Return a score dictionary with Player replaced by its username
+            return {player.username: points for (player, points) in score_dict.items()}
 
         return {
             'players': [player.username for player in self.players],
@@ -438,8 +470,8 @@ class Round(object):
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
             'hearts': self.hearts_broken,
-            'current_scores': self.current_scores(),
-            'final_scores': self.final_scores(),
+            'current_scores': serialize_the_score(self.current_scores()),
+            'final_scores': serialize_the_score(self.final_scores()),
             'is_over': self.is_over()
         }
 
@@ -513,6 +545,8 @@ class Trick(object):
     def serialize(self):
         '''
             Return a serialized representation of the trick.
+        Output:
+            {str: {int: str}}
         '''
         return {
             player.username: dict(turn=i, card=card.serialize())

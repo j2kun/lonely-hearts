@@ -122,7 +122,7 @@ def test_deserialize_game_check_player_data():
     test_game.players = test_players  # Seat players in the order: Lauren, Erin, Jeremy, Daniel
 
     assert test_game.players == [Player('Lauren'), Player('Erin'), Player('Jeremy'), Player('Daniel')]
-    assert test_game.serialize()['players'] == [Player('Lauren'), Player('Erin'), Player('Jeremy'), Player('Daniel')]
+    assert test_game.serialize()['players'] == ['Lauren', 'Erin', 'Jeremy', 'Daniel']
     assert Game.deserialize(test_game.serialize()).players == [Player('Lauren'),
                                                                Player('Erin'),
                                                                Player('Jeremy'),
