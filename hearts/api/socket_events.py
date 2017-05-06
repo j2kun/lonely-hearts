@@ -1,9 +1,11 @@
 from flask import session
-from flask import jsonify
 import flask_socketio as io
 
 from hearts import socketio
 from hearts import mongo
+from hearts.api.rooms import get_room
+from hearts.api.games import create_game
+from hearts.api.games import GameCreateFailed
 
 from bson.objectid import ObjectId
 
@@ -21,34 +23,30 @@ def on_chat(message):
         print('No room stored on session')
 
 
-# Make this function a wrapper to on_join()
-def is_valid_room(data):
-    # Check if database document exists and contains at most 3 players.
-    room_id = data['room']
-    room = mongo.db.rooms.find_one({'_id': ObjectId(room_id)})
-    return (room is not None and len(room['users']) < 4)
-
-
 @socketio.on('join')
 def on_join(data):
     username = data['username']
     room_id = data['room']
 
     io.join_room(room_id)
-    session['room'] = room_id  # Not sure why we need this
-    chat(username + ' has entered the room.', room=room_id)
-
-    # refactor this as a separate function
+    session['room'] = room_id
     mongo.db.rooms.update_one(
         {'_id': ObjectId(room_id)},
         {'$push': {'users': username}}
         )
+    chat(username + ' has entered the room.', room=room_id)
 
-    new_data = mongo.db.rooms.find_one(
-        {'_id': ObjectId(room_id)},
-        projection={'_id': False}
-        )
-    return jsonify(new_data)
+    room = get_room(room_id)
+    if len(room['users']) == 4:
+        try:
+            game, game_id = create_game(room_id, max_points=100)
+            session['game'] = str(game_id)
+            chat('The Hearts game has started.', room=room_id)
+
+            # Emit the serialized the game view for each player here.
+
+        except(GameCreateFailed):
+            pass
 
 
 @socketio.on('leave')
