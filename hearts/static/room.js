@@ -1,4 +1,8 @@
 
+/* 
+ * Rendering functions
+ */
+
 function displayCard(apiCard) {
     return apiCard[1] + apiCard[0];
 }
@@ -7,48 +11,13 @@ function apiCard(displayCard) {
     return displayCard[1] + displayCard[0];
 }
 
-// API returns data of the form
-/*
-{
-    'players': [str],
-    'max_points': int,
-    'rounds': [
-        {
-            'players': str,
-            'direction': str,
-            'turn': int,
-            'hands': {str: [str]},
-            'tricks': [[str]],
-            'hearts': self.hearts_broken,
-            'current_scores': {str: int},
-            'final_scores': {str: int},
-            'is_over': boolean,
-        }, ...
-    ],
-    'round_number': int,
-    'scores': {str: int},
-    'total_scores': {str: int},
-    'is_over': boolean,
-}
-*/
-var state = {
-    chosenCards: [],
-    game: null,
-    me: 'Jeremy',
-    mode: 'play',  // or 'passing'
-};
-
-function chooseOrUnchooseCard(card) {
-    var foundIndex = $.inArray(card, state.chosenCards);
-    if (foundIndex > -1) {
-        state.chosenCards.splice(foundIndex, 1);
-        return true;
-    } else if (state.chosenCards.length < 3) {
-        state.chosenCards.push(card);
-        return true;
-    } else {
-        return false;
+function displayHand(hand) {
+    var handToRender = '';
+    for (var i = 0; i < hand.length; i++) {
+        handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
     }
+    $('#hand #cards_list').html(handToRender);
+    $('#hand .card').click(handCardClick);
 }
 
 function displayOpponent(position, name) {
@@ -67,34 +36,6 @@ function displayOpponents(player, all_players) {
     }
 }
 
-function displayHand(hand) {
-    var handToRender = '';
-    for (var i = 0; i < hand.length; i++) {
-        handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
-    }
-    $('#hand #cards_list').html(handToRender);
-    $('#hand .card').click(handCardClick);
-}
-
-function handCardClick(event) {
-    var card = apiCard(this.id);
-    console.log('clicked ' + card);
-    if (state.mode === 'passing') {
-        if (chooseOrUnchooseCard(card)) {
-            $(this).toggleClass('chosen_to_pass');
-        }
-    } else if (state.mode === 'play') {
-        var success = true; // playCard(card);  // call the API
-        if (success) {
-            var index = state.hand.indexOf(card);
-            state.hand.splice(index, 1);
-            state.trick.push(card);
-            render(state);
-        }
-    }
-    // socket.emit('chat message', $('#m').val());
-}
-
 function displayTrick(trick) {
     var trickToRender = '';
     var orderedPositions = ['bottom', 'left', 'top', 'right'];
@@ -105,28 +46,115 @@ function displayTrick(trick) {
     $('#trick').html(trickToRender);
 }
 
-function renderWaitingForPlayers() {
-    
-}
 
-function render(state) {
-    if (state.game === null) {
-        // game hasn't started yet
-        renderWaitingForPlayers();
-    } else {
-        var currentRound = state.game.rounds[state.game.rounds.length - 1];
-        var myHand = currentRound.hands[state.me];
-        var currentTrick = currentRound.tricks[currentRound.tricks.length - 1];
-        displayHand(myHand);
-        displayTrick(currentTrick);
-        displayOpponents(state.me, state.game.players);
+/* 
+ * Hearts state maintainer
+ *
+ * example state:
+{
+  "players": [
+    "BillSpsP7", "Bill Xnnqk", "Bill tC3g1", "Bill sEYQH"
+  ],
+  "rounds": [
+    {
+      "hands": {
+        "Bill sEYQH": [ "4c", "8c", "Ac", "4d", "6d", "2h", "3h", 
+                        "5h", "9h", "Jh", "3s", "7s", "Js" ]
+      },
+      "players": [
+        "BillSpsP7", "Bill Xnnqk", "Bill tC3g1", "Bill sEYQH"
+      ],
+      "is_over": false,
+      "current_scores": {
+        "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
+      },
+      "hearts": false,
+      "turn": 1,
+      "direction": "left",
+      "tricks": [],
+      "final_scores": {
+        "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
+      }
+    }
+  ],
+  "total_scores": {
+    "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
+  },
+  "max_points": 100,
+  "is_over": false,
+  "round_number": 0,
+  "scores": [
+    {
+      "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
+    }
+  ]
+}
+ */
+
+function HeartsClient() {
+
+    this.state = {
+        chosenCards: [],
+        game: null,
+        username: 'Jeremy',
+        mode: 'play',  // or 'passing'
+    };
+
+    this.chooseOrUnchooseCard = function(card) {
+        var foundIndex = $.inArray(card, this.state.chosenCards);
+        if (foundIndex > -1) {
+            this.state.chosenCards.splice(foundIndex, 1);
+            return true;
+        } else if (this.state.chosenCards.length < 3) {
+            this.state.chosenCards.push(card);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    this.handCardClick = function(event) {
+        var card = apiCard(this.id);
+        console.log('clicked ' + card);
+        if (this.state.mode === 'passing') {
+            if (this.chooseOrUnchooseCard(card)) {
+                $(this).toggleClass('chosen_to_pass');
+            } // if 3, display button
+        } else if (this.state.mode === 'play') {
+            var success = true; // playCard(card);  // call the API
+            if (success) {
+                var index = this.state.hand.indexOf(card);
+                this.state.hand.splice(index, 1);
+                this.state.trick.push(card);
+                this.render();
+            }
+        }
+    }
+
+    this.renderWaitingForPlayers = function() {
+        
+    }
+
+    this.render = function() {
+        if (this.state.game === null) {
+            // game hasn't started yet
+            this.renderWaitingForPlayers();
+        } else {
+            var currentRound = this.state.game.rounds[this.state.game.rounds.length - 1];
+            console.log('currentRound: ' + JSON.stringify(currentRound, null, 2));
+            var hands = currentRound.hands;
+            console.log('hands: ' + JSON.stringify(hands, null, 2));
+            var myHand = currentRound.hands[this.state.username];
+            console.log('myHand: ' + JSON.stringify(myHand, null, 2));
+            var currentTrick = currentRound.tricks[currentRound.tricks.length - 1];
+            console.log('currentTrick: ' + JSON.stringify(currentTrick, null, 2));
+            displayHand(myHand);
+            displayTrick(currentTrick);
+            displayOpponents(this.state.username, this.state.game.players);
+        }
+    }
+
+    this.game_update = function(data) {
+        this.state.game = data;
     }
 }
-
-function setup() {
-    $("body").removeClass("preload");
-    render(state);
-}
-
-
-$(window).load(setup);

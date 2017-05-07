@@ -1,5 +1,6 @@
 import logging
 
+from flask import current_app
 from flask import jsonify
 from flask import render_template
 from flask import request
@@ -56,4 +57,4 @@ def room(room_id):
             logger.info('room - attempt to join nonexistent room id={}'.format(room_id))
             render_template('index.html')
 
-        return render_template('room.html', room_id=room_id)
+        return render_template('room.html', room_id=room_id, api_url=current_app.config['API_URL'])
