@@ -321,8 +321,7 @@ class Round(object):
         if len(self.tricks) == 0 and card != Card('2', 'c'):
             is_valid = False
             error_message = message(INVALID_PLAY, NOT_TWO_CLUBS).format(str(card))
-        elif (card.suit == 'h' and not self.hearts_broken
-                and not self.hands[player].is_only_hearts()):
+        elif (card.suit == 'h' and not self.hearts_broken and not self.hands[player].is_only_hearts()):
             is_valid = False
             error_message = message(INVALID_PLAY, NOT_HEARTS_BROKEN).format(str(card))
         return (is_valid, error_message)
@@ -338,9 +337,9 @@ class Round(object):
             is_valid = False
             suits = {'c': 'clubs', 'd': 'diamonds', 'h': 'hearts', 's': 'spades'}
             error_message = message(INVALID_PLAY, NOT_FOLLOWING_SUIT).format(str(card), suits[trick.suit])
-        elif (len(self.tricks) == 1
-                and card.is_worth_points()
-                and not self.hands[player].has_only_hearts_and_Qs()):
+        elif (len(self.tricks) == 1 and
+              card.is_worth_points() and
+              not self.hands[player].has_only_hearts_and_Qs()):
             is_valid = False
             error_message = message(INVALID_PLAY, NO_FIRST_TRICK_POINTS).format(str(card))
         return (is_valid, error_message)

@@ -62,7 +62,7 @@ def get_game(game_id):
     return result
 
 
-def create_game(room_id, max_points=100):
+def create_game(room_id, max_points=100, deserialize=True):
     '''
     Create a new game based on the users in the given room. Creates
     a 'game_id' field in the room document.
@@ -70,17 +70,18 @@ def create_game(room_id, max_points=100):
     Input:
         room_id: string or ObjectId
     Output:
-        A tuple (gameDocument, ObjectId)
+        A tuple (Game, ObjectId)
     '''
-    usernames = get_room(room_id)['users']
-    if len(usernames) == 4:
-        new_game = Game([Player(name) for name in usernames], points_to_win=max_points)
+    room = get_room(room_id)
+    users = room['users']
+    if len(users) == 4:
+        new_game = Game([Player(d['username']) for d in users], points_to_win=max_points)
         new_game.start()
         game_data = new_game.serialize()
 
         game_id = mongo.db.games.insert({
             'room_id': ObjectId(room_id),
-            'users': usernames,
+            'users': users,
             'data': game_data
         })
         if not game_id:
@@ -91,7 +92,10 @@ def create_game(room_id, max_points=100):
             {'$set': {'game_id': game_id}}
         )
 
-        game = mongo.db.games.find_one({'_id': game_id})
-        return game, game_id
+        if deserialize:
+            return new_game, game_id
+        else:
+            game = mongo.db.games.find_one({'_id': game_id})
+            return game, game_id
     else:
         raise NotEnoughPlayers()
