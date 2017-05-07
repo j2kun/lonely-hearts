@@ -8,9 +8,9 @@ function makeid() {
     return text;
 }
 
-function RoomSocket(api_url, state) {
+function RoomSocket(api_url, heartsClient) {
     this.api_url = api_url;
-    this.state = state;
+    this.heartsClient = heartsClient;
     this.socket = io(this.api_url);
 
     this.join_room = function(room_id) {
@@ -20,14 +20,14 @@ function RoomSocket(api_url, state) {
             room: this.room_id,
             username: this.username,
         });
-        this.state.username = this.username;
+        this.heartsClient.setUsername(this.username);
     };
 
     var that = this;
     this.socket.on('game_update', function(data) {
         console.log('received game update: ');
         console.log(JSON.stringify(data, null, 2));
-        that.state.game_update(data);
-        that.state.render();
+        that.heartsClient.gameUpdate(data);
+        that.heartsClient.render();
     });
 }

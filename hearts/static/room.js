@@ -11,15 +11,6 @@ function apiCard(displayCard) {
     return displayCard[1] + displayCard[0];
 }
 
-function displayHand(hand) {
-    var handToRender = '';
-    for (var i = 0; i < hand.length; i++) {
-        handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
-    }
-    $('#hand #cards_list').html(handToRender);
-    $('#hand .card').click(handCardClick);
-}
-
 function displayOpponent(position, name) {
     var class_name = '.opponent.' + position;
     $(class_name + ' .name').text(name);
@@ -131,6 +122,15 @@ function HeartsClient() {
         }
     }
 
+    this.displayHand = function(hand) {
+        var handToRender = '';
+        for (var i = 0; i < hand.length; i++) {
+            handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
+        }
+        $('#hand #cards_list').html(handToRender);
+        $('#hand .card').click(this.handCardClick.bind(this));
+    }
+
     this.renderWaitingForPlayers = function() {
         
     }
@@ -141,20 +141,20 @@ function HeartsClient() {
             this.renderWaitingForPlayers();
         } else {
             var currentRound = this.state.game.rounds[this.state.game.rounds.length - 1];
-            console.log('currentRound: ' + JSON.stringify(currentRound, null, 2));
-            var hands = currentRound.hands;
-            console.log('hands: ' + JSON.stringify(hands, null, 2));
             var myHand = currentRound.hands[this.state.username];
-            console.log('myHand: ' + JSON.stringify(myHand, null, 2));
             var currentTrick = currentRound.tricks[currentRound.tricks.length - 1];
-            console.log('currentTrick: ' + JSON.stringify(currentTrick, null, 2));
-            displayHand(myHand);
+            this.displayHand(myHand);
             displayTrick(currentTrick);
             displayOpponents(this.state.username, this.state.game.players);
         }
     }
 
-    this.game_update = function(data) {
+    this.gameUpdate = function(data) {
         this.state.game = data;
+    }
+
+    this.setUsername = function(username) {
+        this.state.username = username;
+        // Re-render username information
     }
 }
