@@ -25,6 +25,16 @@ def socket_client(request):
 
 
 @pytest.fixture
+def socket_clients(request, db):
+    class ClientGenerator(object):
+        def new_client(self):
+            client = socketio.test_client(app)
+            client.get_received()  # clears the 'connected' event
+            return client
+    return ClientGenerator()
+
+
+@pytest.fixture
 def db(api_client, request):
     with app.app_context():
         mongo.db.command('dropDatabase')
