@@ -28,6 +28,7 @@ function displayOpponents(player, all_players) {
 }
 
 function displayTrick(trick) {
+    // Need to rewrite this
     var trickToRender = '';
     var orderedPositions = ['bottom', 'left', 'top', 'right'];
     for (var i = 0; i < trick.length; i++) {
@@ -140,12 +141,18 @@ function HeartsClient() {
             // game hasn't started yet
             this.renderWaitingForPlayers();
         } else {
+            displayOpponents(this.state.username, this.state.game.players);
+
             var currentRound = this.state.game.rounds[this.state.game.rounds.length - 1];
             var myHand = currentRound.hands[this.state.username];
-            var currentTrick = currentRound.tricks[currentRound.tricks.length - 1];
             this.displayHand(myHand);
-            displayTrick(currentTrick);
-            displayOpponents(this.state.username, this.state.game.players);
+
+            if (currentRound.tricks.length > 0) {
+                var currentTrick = currentRound.tricks[currentRound.tricks.length - 1];
+                displayTrick(currentTrick);
+            } else {
+                displayTrick([]);
+            }
         }
     }
 
