@@ -105,12 +105,11 @@ function HeartsClient() {
         }
     }
 
-    this.handCardClick = function(event) {
-        var card = apiCard(this.id);
+    this.cardClick = function(card, div) {
         console.log('clicked ' + card);
         if (this.state.mode === 'passing') {
             if (this.chooseOrUnchooseCard(card)) {
-                $(this).toggleClass('chosen_to_pass');
+                div.toggleClass('chosen_to_pass');
             } // if 3, display button
         } else if (this.state.mode === 'play') {
             var success = true; // playCard(card);  // call the API
@@ -129,7 +128,13 @@ function HeartsClient() {
             handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
         }
         $('#hand #cards_list').html(handToRender);
-        $('#hand .card').click(this.handCardClick.bind(this));
+        $('#hand .card').click({heartsClient: this}, 
+            function(event) {
+                var card = apiCard(this.id);
+                var heartsClient = event.data.heartsClient;
+                heartsClient.cardClick(card, $(this));
+            }
+        );
     }
 
     this.renderWaitingForPlayers = function() {
@@ -142,26 +147,26 @@ function HeartsClient() {
             this.renderWaitingForPlayers();
         } else {
             displayOpponents(this.state.username, this.state.game.players);
-
-            var currentRound = this.state.game.rounds[this.state.game.rounds.length - 1];
-            var myHand = currentRound.hands[this.state.username];
-            this.displayHand(myHand);
-
-            if (currentRound.tricks.length > 0) {
-                var currentTrick = currentRound.tricks[currentRound.tricks.length - 1];
-                displayTrick(currentTrick);
-            } else {
-                displayTrick([]);
-            }
+            this.displayHand(this.state.hand);
+            displayTrick(this.state.trick);
         }
     }
 
     this.gameUpdate = function(data) {
-        this.state.game = data;
+        // Update the local copy of the game state with the server data
+        var state = this.state;
+        state.game = data;
+        state.round = state.game.rounds[state.game.rounds.length - 1];
+        state.hand = state.round.hands[state.username];
+        if (state.round.tricks.length > 0) {
+            state.trick = state.round.tricks[state.round.tricks.length - 1];
+        } else {
+            state.trick = [];
+        }
     }
 
     this.setUsername = function(username) {
         this.state.username = username;
-        // Re-render username information
+        this.render();
     }
 }
