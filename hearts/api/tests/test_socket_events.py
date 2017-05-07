@@ -14,10 +14,6 @@ users = [
 ]
 
 
-def test_db(db):
-    assert db.rooms.find({}).count() == 0
-
-
 def test_create_room(db):
     test_room = create_room()
     assert test_room['users'] == []
@@ -39,17 +35,11 @@ def test_on_join_valid_room(api_client, socket_client, db):
 
     socket_client.emit('join', {'room': test_room_id, 'username': 'user_2'})
     socket_client.emit('join', {'room': test_room_id, 'username': 'user_3'})
-    socket_client.emit('join', {'room': test_room_id, 'username': 'user_4'})
     test_room = get_room(test_room_id)
-    assert len(test_room['users']) == 4
+    assert len(test_room['users']) == 3
     for data in test_room['users']:
         assert 'username' in data
         assert 'socket_id' in data
-
-
-def test_on_join_room_is_full(socket_client, db):
-    # Test for an exception thrown when trying to join a full room
-    pass
 
 
 def test_create_game_write_to_database(db):
