@@ -52,7 +52,7 @@ def on_join(data):
 
         for user_info in room['users']:
             serialized_for_player = game.serialize(for_player=Player(user_info['username']))
-            io.emit(serialized_for_player, room=user_info['socket_id'])
+            io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
 
 
 @socketio.on('leave')

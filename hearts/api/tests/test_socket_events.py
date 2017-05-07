@@ -70,14 +70,30 @@ def test_create_game_not_enough_players(db):
         create_game(test_room_id)
 
 
-def test_create_game_when_last_player_joins(socket_client, db):
+def test_create_game_when_last_player_joins(socket_clients, db):
     room = create_room()
     room_id = str(room['_id'])
 
-    socket_client.emit('join', {'room': room_id, 'username': 'user_1'})
-    socket_client.emit('join', {'room': room_id, 'username': 'user_2'})
-    socket_client.emit('join', {'room': room_id, 'username': 'user_3'})
+    usernames = ['user1', 'user2', 'user3', 'user4']
+    clients = [socket_clients.new_client() for _ in range(4)]
 
-    assert db.games.count() == 0
-    socket_client.emit('join', {'room': room_id, 'username': 'user_4'})
-    assert db.games.count() == 1
+    for username, client in zip(usernames, clients):
+        client.emit('join', {'room': room_id, 'username': username})
+        if username == usernames[-1]:
+            assert db.games.count() == 1
+        else:
+            assert db.games.count() == 0
+
+    for username, client in zip(usernames, clients):
+        received_events = client.get_received()
+        game_updates = [x for x in received_events if x['name'] == 'game_update']
+        assert len(game_updates) == 1
+
+        game_data = game_updates[0]['args'][0]
+        rounds = game_data['rounds']
+        assert len(rounds) == 1
+
+        hands = rounds[0]['hands']
+        assert username in hands
+        for u in [v for v in usernames if v != username]:
+            assert u not in hands
