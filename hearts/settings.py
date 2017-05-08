@@ -46,4 +46,4 @@ def configure(app):
         app.config[config.name] = value
 
     app.config['MONGO_URI'] = app.config['DATABASE_URL']
-    app.config['API_URL'] = '{}:{}'.format(app.config['HOST'], app.config['PORT'])
+    app.config['API_URL'] = '{}:{}'.format(app.config['WWW_HOST'], app.config['PORT'])
