@@ -1,5 +1,3 @@
-var CHAT = 'chat';
-
 function makeid() {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -10,23 +8,26 @@ function makeid() {
     return text;
 }
 
-function RoomSocket(api_url) {
+function RoomSocket(api_url, heartsClient) {
     this.api_url = api_url;
+    this.heartsClient = heartsClient;
     this.socket = io(this.api_url);
-    this.socket.on(CHAT, function(data) {
-        console.log('User chatted: ' + data);
-    });
 
     this.join_room = function(room_id) {
         this.room_id = room_id;
+        this.username = 'Bill ' + makeid(),
         this.socket.emit('join', {
             room: this.room_id,
-            username: 'Bill' + makeid(),
+            username: this.username,
         });
+        this.heartsClient.setUsername(this.username);
     };
 
-    this.chat = function(message) {
-        console.log('Submitting chat: ' + message);
-        this.socket.emit(CHAT, message);
-    }
+    var that = this;
+    this.socket.on('game_update', function(data) {
+        console.log('received game update: ');
+        console.log(JSON.stringify(data, null, 2));
+        that.heartsClient.gameUpdate(data);
+        that.heartsClient.render();
+    });
 }

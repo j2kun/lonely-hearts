@@ -41,14 +41,20 @@
 <script src="{{url_for('static', filename='socket.io.min.js')}}"></script>
 <script src="{{url_for('static', filename='jquery.js')}}"></script>
 <script src="{{url_for('static', filename='socket_api.js')}}"></script>
+<script src="{{url_for('static', filename='room.js')}}"></script>
 
 <script>
-var client = new RoomSocket("{{ api_url }}");
-client.join_room("{{ room_id }}");
-client.chat("I'm saaillling aawaayy");
-</script>
+var game_client = new HeartsClient();
+var socket_client = new RoomSocket("{{ api_url }}", game_client);
+socket_client.join_room("{{ room_id }}");
 
-<script src="{{url_for('static', filename='room.js')}}"></script>
+function setup() {
+    $("body").removeClass("preload");
+    game_client.render();
+}
+
+$(window).load(setup);
+</script>
 
 </body>
 </html>
