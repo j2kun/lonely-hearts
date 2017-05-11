@@ -6,15 +6,19 @@ from hearts.api.games import create_game
 from hearts.api.games import NotEnoughPlayers
 
 
-def test_db(db):
-    assert db.rooms.find({}).count() == 0
+users = [
+    {'username': 'Daniel', 'socket_id': 'wat1'},
+    {'username': 'Lauren', 'socket_id': 'wat2'},
+    {'username': 'Erin', 'socket_id': 'wat3'},
+    {'username': 'Jeremy', 'socket_id': 'wat4'},
+]
 
 
 def test_create_room(db):
     test_room = create_room()
     assert test_room['users'] == []
-    test_room2 = create_room(('Daniel', 'Lauren', 'Erin', 'Jeremy'))
-    assert test_room2['users'] == ['Daniel', 'Lauren', 'Erin', 'Jeremy']
+    test_room2 = create_room(users)
+    assert test_room2['users'] == users
 
 
 def test_on_join_valid_room(api_client, socket_client, db):
@@ -24,25 +28,24 @@ def test_on_join_valid_room(api_client, socket_client, db):
     socket_client.emit('join', {'room': test_room_id, 'username': 'user_1'})
 
     test_room = get_room(test_room_id)
-    assert test_room['users'] == ['user_1']
+    assert len(test_room['users']) == 1
+    for data in test_room['users']:
+        assert 'username' in data
+        assert 'socket_id' in data
 
     socket_client.emit('join', {'room': test_room_id, 'username': 'user_2'})
     socket_client.emit('join', {'room': test_room_id, 'username': 'user_3'})
-    socket_client.emit('join', {'room': test_room_id, 'username': 'user_4'})
     test_room = get_room(test_room_id)
-    assert set(test_room['users']) == {'user_1', 'user_2', 'user_3', 'user_4'}
-
-
-def test_on_join_room_is_full(socket_client, db):
-    # Test for an exception thrown when trying to join a full room
-    pass
+    assert len(test_room['users']) == 3
+    for data in test_room['users']:
+        assert 'username' in data
+        assert 'socket_id' in data
 
 
 def test_create_game_write_to_database(db):
-    test_room = create_room(('Lauren', 'Erin', 'Jeremy', 'Daniel'))
+    test_room = create_room(users)
     test_room_id = test_room['_id']
-
-    game, game_id = create_game(test_room_id)
+    game, game_id = create_game(test_room_id, deserialize=False)
 
     expected_data = {
         'max_points': 100,
@@ -52,7 +55,7 @@ def test_create_game_write_to_database(db):
         'is_over': False
     }
     assert game['room_id'] == test_room_id
-    assert game['users'] == ['Lauren', 'Erin', 'Jeremy', 'Daniel']
+    assert game['users'] == users
     for key in expected_data:
         assert game['data'][key] == expected_data[key]
     assert set(game['data']['players']) == set(('Lauren', 'Erin', 'Jeremy', 'Daniel'))
@@ -61,20 +64,36 @@ def test_create_game_write_to_database(db):
 
 
 def test_create_game_not_enough_players(db):
-    test_room = create_room(('Lauren', 'Erin', 'Jeremy'))
+    test_room = create_room(users[:-1])
     test_room_id = test_room['_id']
     with pytest.raises(NotEnoughPlayers):
         create_game(test_room_id)
 
 
-def test_create_game_when_last_player_joins(socket_client, db):
+def test_create_game_when_last_player_joins(socket_clients, db):
     room = create_room()
     room_id = str(room['_id'])
 
-    socket_client.emit('join', {'room': room_id, 'username': 'user_1'})
-    socket_client.emit('join', {'room': room_id, 'username': 'user_2'})
-    socket_client.emit('join', {'room': room_id, 'username': 'user_3'})
+    usernames = ['user1', 'user2', 'user3', 'user4']
+    clients = [socket_clients.new_client() for _ in range(4)]
 
-    assert db.games.count() == 0
-    socket_client.emit('join', {'room': room_id, 'username': 'user_4'})
-    assert db.games.count() == 1
+    for username, client in zip(usernames, clients):
+        client.emit('join', {'room': room_id, 'username': username})
+        if username == usernames[-1]:
+            assert db.games.count() == 1
+        else:
+            assert db.games.count() == 0
+
+    for username, client in zip(usernames, clients):
+        received_events = client.get_received()
+        game_updates = [x for x in received_events if x['name'] == 'game_update']
+        assert len(game_updates) == 1
+
+        game_data = game_updates[0]['args'][0]
+        rounds = game_data['rounds']
+        assert len(rounds) == 1
+
+        hands = rounds[0]['hands']
+        assert username in hands
+        for u in [v for v in usernames if v != username]:
+            assert u not in hands
