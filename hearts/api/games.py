@@ -38,16 +38,14 @@ class NotEnoughPlayers(Exception):
     pass
 
 
-def get_game(game_id):
+def get_game(game_id, deserialize=True):
     '''
     Get a game from the database.
     Input:
         game_id: string or ObjectId
     Output:
-        {
-          '_id': ObjectId,
-          'data': serialized Game object
-        }
+        A deserialized Game object if deserilize=True.
+        Otherwise, a Game object from the database.
     '''
     try:
         if not isinstance(game_id, ObjectId):
@@ -59,7 +57,10 @@ def get_game(game_id):
     if not result:
         raise GameDoesNotExist()
 
-    return result
+    if not deserialize:
+        return result
+    else:
+        return Game.deserialize(result['data'])
 
 
 def create_game(room_id, max_points=100, deserialize=True):
@@ -95,7 +96,7 @@ def create_game(room_id, max_points=100, deserialize=True):
         if deserialize:
             return new_game, game_id
         else:
-            game = mongo.db.games.find_one({'_id': game_id})
+            game = get_game(game_id, deserialize=False)
             return game, game_id
     else:
         raise NotEnoughPlayers()
