@@ -39,6 +39,7 @@ def get_room(room_id):
         room_id: string or ObjectId
 
     Output:
+        A room object.
     '''
     try:
         if not isinstance(room_id, ObjectId):
@@ -58,12 +59,13 @@ def create_room(users=tuple()):
     Create a new room with the given users
 
     Input:
-        users: iterable of strings
+        An iterable of dicts {'username': str, 'socket_id': str}
 
     Output:
+        A tuple (Room, str)
     '''
     room_id = mongo.db.rooms.insert({'users': users})
     if room_id:
-        return get_room(room_id)
+        return get_room(room_id), str(room_id)
     else:
         raise RoomCreateFailed()
