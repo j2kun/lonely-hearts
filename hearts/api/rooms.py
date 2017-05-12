@@ -5,8 +5,11 @@ A room object has the following fields
 
     {
       '_id': ObjectId,
-      'users': iterable of strings,
+      'users': [{'username': str, 'socket_id': str}]
+      'game_id': ObjectId of most recent game created
     }
+
+The 'users' field is indexed by the order in which the users joined.
 '''
 
 from bson.objectid import ObjectId
@@ -36,10 +39,6 @@ def get_room(room_id):
         room_id: string or ObjectId
 
     Output:
-        {
-          '_id': ObjectId,
-          'users': iterable of strings,
-        }
     '''
     try:
         if not isinstance(room_id, ObjectId):
@@ -62,10 +61,6 @@ def create_room(users=tuple()):
         users: iterable of strings
 
     Output:
-        {
-          '_id': ObjectId,
-          'users': iterable of strings,
-        }
     '''
     room_id = mongo.db.rooms.insert({'users': users})
     if room_id:
