@@ -1,4 +1,4 @@
-
+ROOM_IS_FULL = 'This room is full!'
 
 INVALID_PLAY = 'You cannot play {} because {reason}'
 INVALID_PASS = 'You cannot pass {} because {reason}'

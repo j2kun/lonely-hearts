@@ -1,5 +1,4 @@
 import pytest
-
 from bson import ObjectId
 
 from hearts.api.rooms import create_room
@@ -41,6 +40,17 @@ def test_on_join_valid_room(api_client, socket_client, db):
     for data in test_room['users']:
         assert 'username' in data
         assert 'socket_id' in data
+
+
+def test_on_join_room_is_full(db, socket_client):
+    room, room_id = create_room(users)
+    socket_client.emit('join', {'room': room_id, 'username': 'user_5'})
+    received = socket_client.get_received()
+    messages = [event for event in received if event['name'] == 'message']
+    assert len(messages) == 1
+    assert messages[0]['args'] == 'This room is full!'
+    for user in get_room(room_id)['users']:
+        assert user['username'] != 'user_5'
 
 
 def test_create_game_write_to_database(db):

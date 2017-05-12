@@ -7,6 +7,7 @@ from hearts import mongo
 from hearts.api.rooms import get_room
 from hearts.api.games import create_game
 from hearts.game.hearts import Player
+from hearts.api.strings import ROOM_IS_FULL
 
 from bson.objectid import ObjectId
 
@@ -36,23 +37,27 @@ def on_join(data):
     '''
     socket_id = request.sid
 
-    io.join_room(room_id)
-    session['room'] = room_id
-    mongo.db.rooms.update_one(
-        {'_id': ObjectId(room_id)},
-        {'$push': {'users': {'username': username, 'socket_id': socket_id}}}
-    )
-    chat(username + ' has entered the room.', room=room_id)
+    if len(get_room(room_id)['users']) >= 4:
+        io.emit('message', ROOM_IS_FULL, room=socket_id)
 
-    room = get_room(room_id)
-    if len(room['users']) == 4:
-        game, game_id = create_game(room_id, max_points=100)
-        session['game'] = str(game_id)
-        chat('The Hearts game has started.', room=room_id)
+    else:
+        io.join_room(room_id)
+        session['room'] = room_id
+        mongo.db.rooms.update_one(
+            {'_id': ObjectId(room_id)},
+            {'$push': {'users': {'username': username, 'socket_id': socket_id}}}
+        )
+        chat(username + ' has entered the room.', room=room_id)
 
-        for user_info in room['users']:
-            serialized_for_player = game.serialize(for_player=Player(user_info['username']))
-            io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
+        room = get_room(room_id)
+        if len(room['users']) == 4:
+            game, game_id = create_game(room_id, max_points=100)
+            session['game'] = str(game_id)
+            chat('The Hearts game has started.', room=room_id)
+
+            for user_info in room['users']:
+                serialized_for_player = game.serialize(for_player=Player(user_info['username']))
+                io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
 
 
 @socketio.on('leave')
