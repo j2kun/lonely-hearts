@@ -106,7 +106,7 @@ def save_game(game, game_id):
     '''
     Serializes a game and updates it in the database.
 
-    Input: 
+    Input:
         game: A deserialized Game object
         game_id: ObjectId or string
     '''
@@ -120,4 +120,3 @@ def save_game(game, game_id):
         {'_id': game_id},
         {'$set': {'data': game.serialize()}}
     )
-
