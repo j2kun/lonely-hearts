@@ -111,6 +111,12 @@ function HeartsClient() {
         }
     }
 
+    this.removeCard = function(card) {
+        var index = this.state.hand.indexOf(card);
+        this.state.hand.splice(index, 1);
+        return card;
+    }
+
     this.cardClick = function(card, div) {
         console.log('clicked ' + card);
         if (this.state.mode === 'passing') {
@@ -120,8 +126,7 @@ function HeartsClient() {
         } else if (this.state.mode === 'play') {
             var success = true; // playCard(card);  // call the API
             if (success) {
-                var index = this.state.hand.indexOf(card);
-                this.state.hand.splice(index, 1);
+                this.removeCard(card);
                 this.state.trick.push(card);
                 this.render();
             }
@@ -153,6 +158,10 @@ function HeartsClient() {
     }
 
     this.donePassing = function() {
+        for (var i = 0; i < this.state.chosenCards.length; i++) {
+            this.removeCard(this.state.chosenCards[i]);
+        }
+        this.resetPassing();
         this.state.mode = 'waiting';
     }
 
