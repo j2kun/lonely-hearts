@@ -38,6 +38,15 @@ function displayTrick(trick) {
     $('#trick').html(trickToRender);
 }
 
+function renderPassingInfo(message, heartsClient) {
+    var msg = '<div><p>' + message + '</p></div>';
+    var button = '<div><button id="submit_pass">Confirm pass' + message + '</button></div>';
+    $('#trick').html(msg + button);
+    $('#submit_pass').click(function() {
+        socket_client.pass_cards(heartsClient.state.chosenCards)
+    });
+}
+
 
 /*
  * Hearts state maintainer
@@ -149,6 +158,24 @@ function HeartsClient() {
     }
 
     this.renderWaitingForPlayers = function() {
+
+    }
+
+    this.renderPassing = function() {
+        var passingDirection = this.state.round.direction;
+        var indexOfMe = this.state.players.index(this.state.username);
+        var offset = {
+            hold: 0,
+            right: 1,
+            across: 2,
+            left: 3,
+        }
+        var indexOfPass = (indexOfMe + offset[passingDirection]) % 4;
+        if (indexOfPass != indexOfMe) {
+            var passingString = 'Pass 3 cards ' + passingDirection +
+                                ' to ' + this.state.game.players[indexOfPass];
+            renderPassingInfo(passingString, this);
+        }
 
     }
 
