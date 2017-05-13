@@ -8,6 +8,9 @@ from hearts.api.rooms import get_room
 from hearts.api.games import create_game
 from hearts.game.hearts import Player
 from hearts.api.strings import ROOM_IS_FULL
+from hearts.game.hearts import Card
+from hearts.game.hearts import Game
+from hearts.game.hearts import Round
 
 from bson.objectid import ObjectId
 
@@ -66,3 +69,22 @@ def on_leave(data):
     room = data['room']
     io.leave_room(room)
     chat(username + ' has left the room.', room=room)
+
+
+@socketio.on('pass_cards')
+def on_pass_cards(data):
+    '''
+    data: {'cards': [str, str, str]}
+    '''
+    socket_id = request.sid
+    game_id = session['game_id']
+
+    game = get_game(game_id)
+    current_round = game.rounds[-1]
+    cards = [Card.deserialize(a) for a in data['cards']]
+    player = None
+
+    try:
+        current_round.add_to_pass_selections(player, cards)
+    except:
+        pass
