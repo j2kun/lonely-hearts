@@ -61,7 +61,9 @@ def test_get_game(db):
     test_room, test_room_id = create_room(users)
     game, game_id = create_game(test_room_id, deserialize=True)
     assert isinstance(game, Game)
-    serialized, game_id = create_game(test_room_id, deserialize=False)
+    assert game == get_game(game_id, deserialize=True)
+
+    serialized = get_game(game_id, deserialize=False)
     assert 'users' in serialized
     assert 'data' in serialized
 
