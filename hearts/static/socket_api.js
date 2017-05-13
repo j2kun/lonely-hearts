@@ -1,13 +1,3 @@
-function makeid() {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < 5; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-}
-
 function RoomSocket(api_url, heartsClient) {
     this.api_url = api_url;
     this.heartsClient = heartsClient;
@@ -15,12 +5,27 @@ function RoomSocket(api_url, heartsClient) {
 
     this.join_room = function(room_id) {
         this.room_id = room_id;
-        this.username = 'Bill ' + makeid(),
+        this.username = prompt('Enter your name: ');
         this.socket.emit('join', {
             room: this.room_id,
             username: this.username,
         });
         this.heartsClient.setUsername(this.username);
+    };
+
+    this.pass_cards = function(cards) {
+        var data = {
+            cards: cards
+        };
+        var result = this.socket.emit('pass_cards', data);
+        if (result.status == 'failure') {
+            this.heartsClient.message(result.message);
+            this.heartsClient.resetPassing();
+        } else {
+            // success
+            this.heartsClient.message(result.message);
+            this.heartsClient.donePassing();
+        }
     };
 
     var that = this;

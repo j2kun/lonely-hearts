@@ -1,5 +1,5 @@
 
-/* 
+/*
  * Rendering functions
  */
 
@@ -32,14 +32,14 @@ function displayTrick(trick) {
     var trickToRender = '';
     var orderedPositions = ['bottom', 'left', 'top', 'right'];
     for (var i = 0; i < trick.length; i++) {
-        trickToRender += ('<div class="card ' + orderedPositions[i] + 
+        trickToRender += ('<div class="card ' + orderedPositions[i] +
                            '" id="' + displayCard(trick[i]) + '"></div>');
     }
     $('#trick').html(trickToRender);
 }
 
 
-/* 
+/*
  * Hearts state maintainer
  *
  * example state:
@@ -50,7 +50,7 @@ function displayTrick(trick) {
   "rounds": [
     {
       "hands": {
-        "Bill sEYQH": [ "4c", "8c", "Ac", "4d", "6d", "2h", "3h", 
+        "Bill sEYQH": [ "4c", "8c", "Ac", "4d", "6d", "2h", "3h",
                         "5h", "9h", "Jh", "3s", "7s", "Js" ]
       },
       "players": [
@@ -86,10 +86,16 @@ function displayTrick(trick) {
 function HeartsClient() {
 
     this.state = {
+        username: '',
         chosenCards: [],
+        mode: 'passing',  // 'play' or 'passing' or 'waiting'
+
+        // game, round, hand, trick are updated by incoming
+        // socket events
         game: null,
-        username: 'Jeremy',
-        mode: 'play',  // or 'passing'
+        round: null,
+        hand: null,
+        trick: null,
     };
 
     this.chooseOrUnchooseCard = function(card) {
@@ -128,7 +134,7 @@ function HeartsClient() {
             handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
         }
         $('#hand #cards_list').html(handToRender);
-        $('#hand .card').click({heartsClient: this}, 
+        $('#hand .card').click({heartsClient: this},
             function(event) {
                 var card = apiCard(this.id);
                 var heartsClient = event.data.heartsClient;
@@ -138,7 +144,20 @@ function HeartsClient() {
     }
 
     this.renderWaitingForPlayers = function() {
-        
+
+    }
+
+    this.resetPassing = function() {
+        this.state.chosenCards = [];
+        this.render();
+    }
+
+    this.donePassing = function() {
+        this.state.mode = 'waiting';
+    }
+
+    this.message = function(messageStr) {
+        alert(messageStr);  // this is temporary
     }
 
     this.render = function() {
