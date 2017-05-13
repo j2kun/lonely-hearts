@@ -100,3 +100,24 @@ def create_game(room_id, max_points=100, deserialize=True):
             return game, game_id
     else:
         raise NotEnoughPlayers()
+
+
+def save_game(game, game_id):
+    '''
+    Serializes a game and updates it in the database.
+
+    Input: 
+        game: A deserialized Game object
+        game_id: ObjectId or string
+    '''
+    try:
+        if not isinstance(game_id, ObjectId):
+            game_id = ObjectId(game_id)
+    except TypeError:
+        raise TypeError("game_id must be a string or ObjectId, was {}".format(type(game_id).__name__))
+
+    mongo.db.games.update_one(
+        {'_id': game_id},
+        {'$set': {'data': game.serialize()}}
+    )
+

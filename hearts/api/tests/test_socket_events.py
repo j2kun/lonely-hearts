@@ -6,6 +6,8 @@ from hearts.game.hearts import Game
 from hearts.api.rooms import create_room
 from hearts.api.rooms import get_room
 from hearts.api.games import create_game
+from hearts.api.games import get_game
+from hearts.api.games import save_game
 from hearts.api.games import NotEnoughPlayers
 
 
@@ -62,6 +64,19 @@ def test_get_game(db):
     serialized, game_id = create_game(test_room_id, deserialize=False)
     assert 'users' in serialized
     assert 'data' in serialized
+
+
+def test_save_game(db):
+    room, room_id = create_room(users)
+    game, game_id = create_game(room_id)
+    save_game(game, game_id)
+    assert game.round_number == 0
+    assert game == get_game(game_id)
+
+    game.round_number += 1
+    assert game.round_number == 1
+    save_game(game, game_id)
+    assert game == get_game(game_id)
 
 
 def test_create_game_for_serialized_data(db):
