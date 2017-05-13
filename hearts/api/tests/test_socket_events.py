@@ -1,4 +1,5 @@
 import pytest
+from bson import ObjectId
 
 from hearts.api.rooms import create_room
 from hearts.api.rooms import get_room
@@ -15,15 +16,14 @@ users = [
 
 
 def test_create_room(db):
-    test_room = create_room()
+    test_room, _ = create_room()
     assert test_room['users'] == []
-    test_room2 = create_room(users)
+    test_room2, _ = create_room(users)
     assert test_room2['users'] == users
 
 
 def test_on_join_valid_room(api_client, socket_client, db):
-    test_room = create_room()
-    test_room_id = str(test_room['_id'])
+    test_room, test_room_id = create_room()
 
     socket_client.emit('join', {'room': test_room_id, 'username': 'user_1'})
 
@@ -42,9 +42,19 @@ def test_on_join_valid_room(api_client, socket_client, db):
         assert 'socket_id' in data
 
 
+def test_on_join_room_is_full(db, socket_client):
+    room, room_id = create_room(users)
+    socket_client.emit('join', {'room': room_id, 'username': 'user_5'})
+    received = socket_client.get_received()
+    messages = [event for event in received if event['name'] == 'message']
+    assert len(messages) == 1
+    assert messages[0]['args'] == 'This room is full!'
+    for user in get_room(room_id)['users']:
+        assert user['username'] != 'user_5'
+
+
 def test_create_game_write_to_database(db):
-    test_room = create_room(users)
-    test_room_id = test_room['_id']
+    test_room, test_room_id = create_room(users)
     game, game_id = create_game(test_room_id, deserialize=False)
 
     expected_data = {
@@ -54,7 +64,7 @@ def test_create_game_write_to_database(db):
         'total_scores': {'Lauren': 0, 'Erin': 0, 'Jeremy': 0, 'Daniel': 0},
         'is_over': False
     }
-    assert game['room_id'] == test_room_id
+    assert game['room_id'] == ObjectId(test_room_id)
     assert game['users'] == users
     for key in expected_data:
         assert game['data'][key] == expected_data[key]
@@ -64,15 +74,13 @@ def test_create_game_write_to_database(db):
 
 
 def test_create_game_not_enough_players(db):
-    test_room = create_room(users[:-1])
-    test_room_id = test_room['_id']
+    test_room, test_room_id = create_room(users[:-1])
     with pytest.raises(NotEnoughPlayers):
         create_game(test_room_id)
 
 
 def test_create_game_when_last_player_joins(socket_clients, db):
-    room = create_room()
-    room_id = str(room['_id'])
+    room, room_id = create_room()
 
     usernames = ['user1', 'user2', 'user3', 'user4']
     clients = [socket_clients.new_client() for _ in range(4)]

@@ -35,8 +35,7 @@ def rooms():
     '''
     if request.method == 'POST':
         try:
-            room = create_room()
-            room_id = room['_id']
+            room, room_id = create_room()
             logger.info('rooms - created new room id={}'.format(room_id))
             return jsonify({
                 'url': '/rooms/%s/' % room_id,
