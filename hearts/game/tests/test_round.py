@@ -56,6 +56,26 @@ def test_is_valid_pass_for_player_not_enough_cards():
     assert message == 'You cannot pass Qc, Ad because you must pass three cards.'
 
 
+def test_add_to_pass_selections():
+    round1, players = new_round()
+    round1.hands[players[0]] = hand('4c,Qc,5d,Ad,Kh,Qs')
+
+    selected = cards('4c,Qc,5d')
+    assert len(round1.pass_selections) == 0
+
+    round1.add_to_pass_selections(players[0], selected)
+    assert len(round1.pass_selections) == 1
+    assert round1.pass_selections[players[0]] == selected
+
+
+def test_add_to_pass_selections_not_enough_cards():
+    round1, players = new_round()
+    round1.hands[players[0]] = hand('4c,Qc,5d,Ad,Kh,Qs')
+    selected = cards('4c,Qc')
+    with pytest.raises(ValueError):
+        round1.add_to_pass_selections(players[0], selected)
+
+
 def test_can_follow_suit():
     hand1 = Hand.deserialize(['Td', '5c', '7c', 'Qs', 'As'])
     hand2 = Hand.deserialize(['Td', '5c', '7c', 'Kh', 'As'])
@@ -609,7 +629,13 @@ def test_deserialize_round():
                   p2: hand('5s,6s,7s'),
                   p3: hand('8s,9s,Ts,Js')}
 
+    selections = {p0: hand('As,Ks,Qs'),
+                  p1: hand('Ac,Kc,Qc'),
+                  p2: hand('Ad,Kd,Qd')}  # p3 has not picked 3 cards yet
+
     test_round.hands = test_hands
+    test_round.pass_selections = selections
     test_round.turn_counter = 3
     test_round.hearts_broken = True
     assert test_round == Round.deserialize(test_round.serialize())
+    assert test_round.serialize() == Round.deserialize(test_round.serialize()).serialize()

@@ -236,7 +236,7 @@ class Round(object):
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
         self.pass_to = pass_to
-        self.pass_selections = {}
+        self.pass_selections = {}  # A dictionary {player: [card]}
         self.tricks = []
         self.turn_counter = 0
         self.hearts_broken = False
@@ -277,8 +277,9 @@ class Round(object):
         return (is_valid, error_string)
 
     def add_to_pass_selections(self, player, cards):
-        # This function will be unused until we decide on a passing protocol in the app.
         '''
+        Input: player: A Player object
+               cards: A list of Card objects
         Verifies that cards is a valid list of cards to pass and appends
         it to the pass_selections attribute of Round.
         '''
@@ -289,7 +290,7 @@ class Round(object):
             raise ValueError(error_message)
 
     def pass_cards(self, card_selections):     # {player:[Card]} --> None
-
+        # This function will be unused until we decide on a passing protocol in the app.
         if all(self.is_valid_pass_for_player(player, cards)[0] for (player, cards) in card_selections.items()):
             passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
@@ -458,6 +459,13 @@ class Round(object):
             player = for_player if isinstance(for_player, Player) else Player(for_player)
             hands = {player.username: self.hands[player].serialize()}
 
+        def serialize_pass_selections(pass_selections):
+            # Converts a dictionary of the form {Player: [Card]} to {str: [str]}.
+            serialized = {}
+            for player, cards in pass_selections.items():
+                serialized[player.username] = [card.serialize() for card in cards]
+            return serialized
+
         def serialize_the_score(score_dict):
             # Return a score dictionary with Player replaced by its username
             return {player.username: points for (player, points) in score_dict.items()}
@@ -465,6 +473,7 @@ class Round(object):
         return {
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
+            'pass_selections': serialize_pass_selections(self.pass_selections),
             'turn': self.turn_counter,
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
@@ -478,6 +487,12 @@ class Round(object):
     def deserialize(serialized):
         player_list = [Player(username) for username in serialized['players']]
         the_round = Round(player_list, pass_to=serialized['direction'])
+
+        selections = {}
+        for (username, cards) in serialized['pass_selections'].items():
+            selections[Player(username)] = [Card.deserialize(card) for card in cards]
+        the_round.pass_selections = selections
+
         the_round.turn_counter = serialized['turn']
         the_round.hands = {Player(username): Hand.deserialize(hand) for (username, hand) in serialized['hands'].items()}
         the_round.tricks = [Trick.deserialize(trick) for trick in serialized['tricks']]
@@ -488,6 +503,7 @@ class Round(object):
         return (
             self.players == other.players and
             self.pass_to == other.pass_to and
+            self.pass_selections == other.pass_selections and
             self.turn_counter == other.turn_counter and
             self.hearts_broken == other.hearts_broken and
             self.hands.items() == other.hands.items() and
