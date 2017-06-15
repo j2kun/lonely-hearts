@@ -570,6 +570,37 @@ def test_full_round_no_errors():
                 pass
 
 
+def test_serialize_pass_selections():
+    round1, players = new_round()      # players are Lauren, Erin, Jeremy, Daniel
+    selections = {
+	players[0]: hand('As,Ks,Qs'),
+	players[1]: hand('Ac,Kc,Qc'),
+	players[2]: hand('Ad,Kd,Qd')   # players[3] has not picked 3 cards yet
+    }
+    serialized_selections = {
+	'Lauren': ['As', 'Ks', 'Qs'],
+	'Erin': ['Ac', 'Kc', 'Qc'],
+	'Jeremy': ['Ad', 'Kd', 'Qd']
+    }
+    serialized_round = {
+        'players': ['Lauren', 'Erin', 'Jeremy', 'Daniel'],
+	'direction': 'None',
+	'pass_selections': serialized_selections,
+	'turn': 0,
+	'hands': {},
+	'tricks': [],
+	'hearts': False,
+	'current_scores': {},
+	'final_scores': {},
+	'is_over': False
+    }
+    round1.pass_selections = selections
+    assert round1.serialize()['pass_selections'] == serialized_selections
+    deserialized_round = Round.deserialize(round1.serialize())
+    assert round1.pass_selections == deserialized_round.pass_selections
+    assert serialized_round['pass_selections'] == Round.deserialize(serialized_round).serialize()['pass_selections']
+
+
 def test_serialize_for_player():
     test_plays = [(0, '2c,3c,4c,5c'),  # players[1] has 10 hearts
                   (0, '2c,3c,4c,5c'),
