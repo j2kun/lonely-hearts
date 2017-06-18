@@ -4,6 +4,7 @@ A game document has the following fields
     {
       '_id': ObjectId,
       'room_id': ObjectId,
+      'users': [{'username': str, 'socket_id': str}],
       'data': serialized Game object
     }
 '''
@@ -88,6 +89,7 @@ def create_game(room_id, max_points=100, deserialize=True):
         if not game_id:
             raise GameCreateFailed()
 
+        # Record the id for the current game being played in the room.
         mongo.db.rooms.update_one(
             {'_id': ObjectId(room_id)},
             {'$set': {'game_id': game_id}}
@@ -115,6 +117,10 @@ def save_game(game, game_id):
             game_id = ObjectId(game_id)
     except TypeError:
         raise TypeError("game_id must be a string or ObjectId, was {}".format(type(game_id).__name__))
+
+    # Print a saved_game for testing purposes
+    print('saving: ')
+    print(game.serialize())
 
     mongo.db.games.update_one(
         {'_id': game_id},

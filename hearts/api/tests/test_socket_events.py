@@ -115,7 +115,7 @@ def test_create_game_when_last_player_joins(socket_clients, db):
 
     for username, client in zip(usernames, clients):
         client.emit('join', {'room': room_id, 'username': username})
-        if username == usernames[-1]:
+        if username == usernames[-1]:   # When last player has joined
             assert db.games.count() == 1
         else:
             assert db.games.count() == 0
@@ -133,3 +133,30 @@ def test_create_game_when_last_player_joins(socket_clients, db):
         assert username in hands
         for u in [v for v in usernames if v != username]:
             assert u not in hands
+
+
+def test_pass_cards_add_to_pass_selections(db, socket_clients):
+    room, room_id = create_room()
+
+    usernames = ['user1', 'user2', 'user3', 'user4']
+    clients = [socket_clients.new_client() for _ in range(4)]
+    for username, client in zip(usernames, clients):
+        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
+
+    '''Get user4's hand.'''
+    room = get_room(room_id)
+    game_id = str(room['game_id'])
+    game = get_game(game_id, deserialize=False)
+    current_round = game['data']['rounds'][-1]
+    hand = current_round['hands']['user4']
+    cards = hand[:3]
+
+    '''
+    Bug: This test fails if clients[3] and user4 is replaced
+    with any other client/user.  The game_id is not saved in
+    the session cookie for the other clients.
+    '''
+    clients[3].emit('pass_cards', {'cards': cards})
+    game = get_game(game_id, deserialize=False)
+    assert len(game['data']['rounds'][-1]['pass_selections']) == 1
+    assert game['data']['rounds'][-1]['pass_selections']['user4'] == cards

@@ -6,11 +6,11 @@ from hearts import socketio
 from hearts import mongo
 from hearts.api.rooms import get_room
 from hearts.api.games import create_game
+from hearts.api.games import get_game
+from hearts.api.games import save_game
 from hearts.game.hearts import Player
 from hearts.api.strings import ROOM_IS_FULL
 from hearts.game.hearts import Card
-from hearts.game.hearts import Game
-from hearts.game.hearts import Round
 
 from bson.objectid import ObjectId
 
@@ -55,8 +55,21 @@ def on_join(data):
         room = get_room(room_id)
         if len(room['users']) == 4:
             game, game_id = create_game(room_id, max_points=100)
+
+            '''
+            TO FIX: session['game'] seems to only be defined for the last client
+            who joins the game.  Instead, game_id needs to be stored in all users'
+            sessions.
+            '''
             session['game'] = str(game_id)
+
             chat('The Hearts game has started.', room=room_id)
+
+            ''' For testing purposes-Delete this later '''
+            if 'game' in session:
+                print('join game: game in session')
+            else:
+                print('join game: game not in session')
 
             for user_info in room['users']:
                 serialized_for_player = game.serialize(for_player=Player(user_info['username']))
@@ -77,14 +90,35 @@ def on_pass_cards(data):
     data: {'cards': [str, str, str]}
     '''
     socket_id = request.sid
-    game_id = session['game_id']
+
+    '''
+    delete this later
+    '''
+    if 'game' in session:
+        print('pass cards: game is in session')
+        game_id = session['game']
+    else:
+        print('pass cards: game is not in session')
+        raise Exception
 
     game = get_game(game_id)
     current_round = game.rounds[-1]
     cards = [Card.deserialize(a) for a in data['cards']]
-    player = None
+
+    room = get_room(session['room'])
+
+    # Create a Player object based on the user who emitted 'pass_cards'
+    username = None
+    for user_data in room['users']:
+        if user_data['socket_id'] == socket_id:
+            username = user_data['username']
+    player = Player(username)
 
     try:
         current_round.add_to_pass_selections(player, cards)
-    except:
+        game.rounds[-1] = current_round
+        save_game(game, game_id)
+    except ValueError as error_message:
+        print(error_message)  # For testing
+        # emit message to client here.
         pass
