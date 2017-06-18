@@ -102,7 +102,7 @@ class Game(object):
     def serialize(self, for_player=None):
         '''
         Return a json-serializable representation of the Game, from which the
-        object can be reconstructed using Game.desearialize.
+        object can be reconstructed using Game.deserialize.
 
         When for_player is specified, return only the information that the
         specified player is allowed to see, as per the rules of the game.
@@ -112,7 +112,7 @@ class Game(object):
         {
             'players': [str],
             'max_points': int,
-            'rounds': A list of serialized Round Objects,
+            'rounds': A list of serialized Round objects,
             'round_number': int,
             'scores': [{str: int}]
             'final_scores': {str: int}

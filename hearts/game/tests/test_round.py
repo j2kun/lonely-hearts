@@ -573,26 +573,26 @@ def test_full_round_no_errors():
 def test_serialize_pass_selections():
     round1, players = new_round()      # players are Lauren, Erin, Jeremy, Daniel
     selections = {
-	players[0]: hand('As,Ks,Qs'),
-	players[1]: hand('Ac,Kc,Qc'),
-	players[2]: hand('Ad,Kd,Qd')   # players[3] has not picked 3 cards yet
+        players[0]: hand('As,Ks,Qs'),
+        players[1]: hand('Ac,Kc,Qc'),
+        players[2]: hand('Ad,Kd,Qd')   # players[3] has not picked 3 cards yet
     }
     serialized_selections = {
-	'Lauren': ['As', 'Ks', 'Qs'],
-	'Erin': ['Ac', 'Kc', 'Qc'],
-	'Jeremy': ['Ad', 'Kd', 'Qd']
+        'Lauren': ['As', 'Ks', 'Qs'],
+        'Erin': ['Ac', 'Kc', 'Qc'],
+        'Jeremy': ['Ad', 'Kd', 'Qd']
     }
     serialized_round = {
         'players': ['Lauren', 'Erin', 'Jeremy', 'Daniel'],
-	'direction': 'None',
-	'pass_selections': serialized_selections,
-	'turn': 0,
-	'hands': {},
-	'tricks': [],
-	'hearts': False,
-	'current_scores': {},
-	'final_scores': {},
-	'is_over': False
+        'direction': 'None',
+        'pass_selections': serialized_selections,
+        'turn': 0,
+        'hands': {},
+        'tricks': [],
+        'hearts': False,
+        'current_scores': {},
+        'final_scores': {},
+        'is_over': False
     }
     round1.pass_selections = selections
     assert round1.serialize()['pass_selections'] == serialized_selections
