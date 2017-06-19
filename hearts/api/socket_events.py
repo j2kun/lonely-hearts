@@ -116,7 +116,6 @@ def on_pass_cards(data):
 
     try:
         current_round.add_to_pass_selections(player, cards)
-        game.rounds[-1] = current_round
         save_game(game, game_id)
     except ValueError as error_message:
         print(error_message)  # For testing
