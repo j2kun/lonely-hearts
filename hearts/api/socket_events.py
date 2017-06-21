@@ -23,7 +23,7 @@ def game_id_lookup():
     '''
     Returns the game_id of the client making a socket request
     through the session variable.  If not present, looks up the
-    game_id from the room object in the database and saves it in 
+    game_id from the room object in the database and saves it in
     the session.
     '''
     if 'game' in session:

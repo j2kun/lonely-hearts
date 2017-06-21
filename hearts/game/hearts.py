@@ -444,6 +444,7 @@ class Round(object):
         {
             'players': [str],
             'direction': str,
+            'pass_selections': {str: [str, str, str]}
             'turn': int,
             'hands': [str],
             'tricks': {str: {int: str}}
@@ -459,11 +460,20 @@ class Round(object):
             player = for_player if isinstance(for_player, Player) else Player(for_player)
             hands = {player.username: self.hands[player].serialize()}
 
-        def serialize_pass_selections(pass_selections):
-            # Converts a dictionary of the form {Player: [Card]} to {str: [str]}.
+        def serialize_pass_selections(pass_selections, for_player=for_player):
+            '''
+            Converts a dictionary of the form {Player: [Card, Card, Card]}
+            to {str: [str, str, str]}.  If for_player is not None, then
+            only that player's selected cards are serialized.
+            '''
             serialized = {}
-            for player, cards in pass_selections.items():
-                serialized[player.username] = [card.serialize() for card in cards]
+
+            if for_player is None:
+                for player, cards in pass_selections.items():  # Serialize all submitted cards.
+                    serialized[player.username] = [card.serialize() for card in cards]
+            elif for_player in pass_selections:   # Serialize only the cards that for_player chose.
+                player = for_player if isinstance(for_player, Player) else Player(for_player)
+                serialized[player.username] = [card.serialize() for card in pass_selections[player]]
             return serialized
 
         def serialize_the_score(score_dict):
@@ -473,7 +483,7 @@ class Round(object):
         return {
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
-            'pass_selections': serialize_pass_selections(self.pass_selections),
+            'pass_selections': serialize_pass_selections(self.pass_selections, for_player),
             'turn': self.turn_counter,
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],

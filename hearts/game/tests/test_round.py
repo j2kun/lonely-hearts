@@ -596,12 +596,17 @@ def test_serialize_pass_selections():
     }
     round1.pass_selections = selections
     assert round1.serialize()['pass_selections'] == serialized_selections
+    # serialize for Lauren only
+    assert round1.serialize(for_player=players[0])['pass_selections'] == {'Lauren': ['As', 'Ks', 'Qs']}
+    # serialize for Daniel, who did not select cards
+    assert round1.serialize(for_player=players[3])['pass_selections'] == {}
+
     deserialized_round = Round.deserialize(round1.serialize())
     assert round1.pass_selections == deserialized_round.pass_selections
     assert serialized_round['pass_selections'] == Round.deserialize(serialized_round).serialize()['pass_selections']
 
 
-def test_serialize_for_player():
+def test_serialize_for_player_hands():
     test_plays = [(0, '2c,3c,4c,5c'),  # players[1] has 10 hearts
                   (0, '2c,3c,4c,5c'),
                   (0, '2c,Ac,2h,3c'),
