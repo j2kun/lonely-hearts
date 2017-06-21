@@ -19,6 +19,24 @@ def chat(message, room):
     io.emit('chat', message, room=room)
 
 
+def game_id_lookup():
+    '''
+    Returns the game_id of the client making a socket request
+    through the session variable.  If not present, looks up the
+    game_id from the room object in the database and saves it in 
+    the session.
+    '''
+    if 'game' in session:
+        return session['game']
+    else:
+        room = get_room(session['room'])
+        if 'game_id' in room:
+            session['game'] = room['game_id']
+            return session['game']
+        else:
+            raise Exception('User is currently not in a game!')
+
+
 @socketio.on('chat')
 def on_chat(message):
     if 'room' in session:
@@ -55,12 +73,6 @@ def on_join(data):
         room = get_room(room_id)
         if len(room['users']) == 4:
             game, game_id = create_game(room_id, max_points=100)
-
-            '''
-            TO FIX: session['game'] seems to only be defined for the last client
-            who joins the game.  Instead, game_id needs to be stored in all users'
-            sessions.
-            '''
             session['game'] = str(game_id)
 
             chat('The Hearts game has started.', room=room_id)
@@ -90,21 +102,10 @@ def on_pass_cards(data):
     data: {'cards': [str, str, str]}
     '''
     socket_id = request.sid
-
-    '''
-    delete this later
-    '''
-    if 'game' in session:
-        print('pass cards: game is in session')
-        game_id = session['game']
-    else:
-        print('pass cards: game is not in session')
-        raise Exception
-
+    game_id = game_id_lookup()
     game = get_game(game_id)
     current_round = game.rounds[-1]
     cards = [Card.deserialize(a) for a in data['cards']]
-
     room = get_room(session['room'])
 
     # Create a Player object based on the user who emitted 'pass_cards'
@@ -118,6 +119,5 @@ def on_pass_cards(data):
         current_round.add_to_pass_selections(player, cards)
         save_game(game, game_id)
     except ValueError as error_message:
-        print(error_message)  # For testing
         # emit message to client here.
         pass
