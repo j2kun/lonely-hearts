@@ -143,7 +143,7 @@ def test_pass_cards_add_to_pass_selections(db, socket_clients):
     for username, client in zip(usernames, clients):
         client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
 
-    '''Get user4's hand.'''
+    '''Get the first 3 cards from user4's hand.'''
     room = get_room(room_id)
     game_id = str(room['game_id'])
     game = get_game(game_id, deserialize=False)
@@ -151,12 +151,32 @@ def test_pass_cards_add_to_pass_selections(db, socket_clients):
     hand = current_round['hands']['user4']
     cards = hand[:3]
 
-    '''
-    Bug: This test fails if clients[3] and user4 is replaced
-    with any other client/user.  The game_id is not saved in
-    the session cookie for the other clients.
-    '''
     clients[3].emit('pass_cards', {'cards': cards})
     game = get_game(game_id, deserialize=False)
     assert len(game['data']['rounds'][-1]['pass_selections']) == 1
     assert game['data']['rounds'][-1]['pass_selections']['user4'] == cards
+
+
+def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
+    room, room_id = create_room()
+
+    usernames = ['user1', 'user2', 'user3', 'user4']
+    clients = [socket_clients.new_client() for _ in range(4)]
+    for username, client in zip(usernames, clients):
+        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
+
+    room = get_room(room_id)
+    game_id = str(room['game_id'])
+    game = get_game(game_id, deserialize=False)
+    current_round = game['data']['rounds'][-1]
+
+    # user1 and user2 choose to pass their first 3 cards
+    user1_cards = current_round['hands']['user1'][:3]
+    user2_cards = current_round['hands']['user2'][:3]
+    clients[0].emit('pass_cards', {'cards': user1_cards})
+    clients[1].emit('pass_cards', {'cards': user2_cards})
+
+    game = get_game(game_id, deserialize=False)
+    assert len(game['data']['rounds'][-1]['pass_selections']) == 2
+    assert game['data']['rounds'][-1]['pass_selections']['user1'] == user1_cards
+    assert game['data']['rounds'][-1]['pass_selections']['user2'] == user2_cards
