@@ -77,12 +77,6 @@ def on_join(data):
 
             chat('The Hearts game has started.', room=room_id)
 
-            ''' For testing purposes-Delete this later '''
-            if 'game' in session:
-                print('join game: game in session')
-            else:
-                print('join game: game not in session')
-
             for user_info in room['users']:
                 serialized_for_player = game.serialize(for_player=Player(user_info['username']))
                 io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
