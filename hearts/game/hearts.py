@@ -289,23 +289,22 @@ class Round(object):
         else:
             raise ValueError(error_message)
 
-    def pass_cards(self, card_selections):     # {player:[Card]} --> None
-        # This function will be unused until we decide on a passing protocol in the app.
-        if all(self.is_valid_pass_for_player(player, cards)[0] for (player, cards) in card_selections.items()):
-            passing_shift = {'left': -1, 'right': 1, 'across': 2}
+    def pass_cards(self):
+        '''
+        Distribute the cards in the pass_selections of the round to the intended player.
+        '''
+        passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
-            for passer, cards in card_selections.items():
-                for card in cards:
-                    self.hands[passer].remove(card)
-            for passer, cards in card_selections.items():
-                shift = passing_shift[self.pass_to]
-                passer_position = self.players.index(passer)
-                receiver = self.players[(passer_position + shift) % 4]
+        for passer, cards in self.pass_selections.items():
+            for card in cards:
+                self.hands[passer].remove(card)
+        for passer, cards in self.pass_selections.items():
+            shift = passing_shift[self.pass_to]
+            passer_position = self.players.index(passer)
+            receiver = self.players[(passer_position + shift) % 4]
 
-                self.hands[receiver] += card_selections[passer]
-                self.hands[receiver].hand_sort()
-        else:
-            raise ValueError
+            self.hands[receiver] += self.pass_selections[passer]
+            self.hands[receiver].hand_sort()
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]

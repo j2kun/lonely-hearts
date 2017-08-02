@@ -452,11 +452,11 @@ def test_pass_cards_left():
     round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
     round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
 
-    selections = {p0: cards('Kc,7h,Qs'),
-                  p1: cards('Jd,Kd,As'),
-                  p2: cards('Th,Qh,Kh'),
-                  p3: cards('Tc,Qc,Ks')}
-    round1.pass_cards(selections)
+    round1.pass_selections = {p0: cards('Kc,7h,Qs'),
+                              p1: cards('Jd,Kd,As'),
+                              p2: cards('Th,Qh,Kh'),
+                              p3: cards('Tc,Qc,Ks')}
+    round1.pass_cards()
     assert Card('K', 'c') not in round1.hands[p0]
     assert Card('K', 'c') in round1.hands[p3]
 
@@ -478,12 +478,12 @@ def test_pass_cards_right():
     round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
     round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
 
-    selections = {p0: cards('Kc,7h,Qs'),
-                  p1: cards('Jd,Kd,As'),
-                  p2: cards('Th,Qh,Kh'),
-                  p3: cards('Tc,Qc,Ks')}
+    round1.pass_selections = {p0: cards('Kc,7h,Qs'),
+                              p1: cards('Jd,Kd,As'),
+                              p2: cards('Th,Qh,Kh'),
+                              p3: cards('Tc,Qc,Ks')}
 
-    round1.pass_cards(selections)
+    round1.pass_cards()
     assert Card('K', 'c') not in round1.hands[p0]
     assert Card('K', 'c') in round1.hands[p1]
 
@@ -505,12 +505,12 @@ def test_pass_cards_across():
     round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
     round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
 
-    selections = {p0: cards('Kc,7h,Qs'),
-                  p1: cards('Jd,Kd,As'),
-                  p2: cards('Th,Qh,Kh'),
-                  p3: cards('Tc,Qc,Ks')}
+    round1.pass_selections = {p0: cards('Kc,7h,Qs'),
+                              p1: cards('Jd,Kd,As'),
+                              p2: cards('Th,Qh,Kh'),
+                              p3: cards('Tc,Qc,Ks')}
 
-    round1.pass_cards(selections)
+    round1.pass_cards()
     assert Card('K', 'c') not in round1.hands[p0]
     assert Card('K', 'c') in round1.hands[p2]
     assert round1.hands[p0] == hand('2c,3d,Th,Qh,Kh')
