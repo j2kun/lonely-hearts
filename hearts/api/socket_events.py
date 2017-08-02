@@ -109,8 +109,15 @@ def on_pass_cards(data):
             username = user_data['username']
     player = Player(username)
 
+    confirmation = {'status': 'success'}
     try:
         current_round.add_to_pass_selections(player, cards)
         save_game(game, game_id)
     except ValueError as error_message:
-        io.send(str(error_message), room=socket_id)
+        confirmation['status'] = 'failure'
+        confirmation['message'] = str(error_message)
+    finally:
+        io.emit('pass_submission_status', confirmation, room=socket_id)
+        if len(current_round.pass_selections) == 4:
+            # Trigger the pass
+            pass

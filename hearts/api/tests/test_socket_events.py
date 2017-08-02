@@ -1,4 +1,5 @@
 import pytest
+import ipdb
 
 from bson import ObjectId
 
@@ -175,6 +176,9 @@ def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
     user2_cards = current_round['hands']['user2'][:3]
     clients[0].emit('pass_cards', {'cards': user1_cards})
     clients[1].emit('pass_cards', {'cards': user2_cards})
+    log = clients[1].get_received()
+    assert log[-1]['name'] == 'pass_submission_status'
+    assert log[-1]['args'][0]['status'] == 'success'
 
     game = get_game(game_id, deserialize=False)
     assert len(game['data']['rounds'][-1]['pass_selections']) == 2
@@ -198,5 +202,6 @@ def test_pass_cards_invalid_pass(db, socket_clients):
     user1_cards = current_round['hands']['user1'][:2]   # Only 2 cards chosen
     clients[0].emit('pass_cards', {'cards': user1_cards})
     log = clients[0].get_received()
-    assert log[-1]['name'] == 'message'
-    assert 'You cannot pass' in log[-1]['args']
+    assert log[-1]['name'] == 'pass_submission_status'
+    assert log[-1]['args'][0]['status'] == 'failure'
+    assert 'You cannot pass' in log[-1]['args'][0]['message']
