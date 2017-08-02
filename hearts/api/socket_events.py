@@ -37,6 +37,15 @@ def game_id_lookup():
             raise Exception('User is currently not in a game!')
 
 
+def emit_game_updates(room, game):
+    '''
+    Emit a serialized view of the game to each player in the room.
+    '''
+    for user_info in room['users']:
+        serialized_for_player = game.serialize(for_player=Player(user_info['username']))
+        io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
+
+
 @socketio.on('chat')
 def on_chat(message):
     if 'room' in session:
@@ -76,10 +85,7 @@ def on_join(data):
             session['game'] = str(game_id)
 
             chat('The Hearts game has started.', room=room_id)
-
-            for user_info in room['users']:
-                serialized_for_player = game.serialize(for_player=Player(user_info['username']))
-                io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
+            emit_game_updates(room, game)
 
 
 @socketio.on('leave')
@@ -119,5 +125,6 @@ def on_pass_cards(data):
     finally:
         io.emit('pass_submission_status', confirmation, room=socket_id)
         if len(current_round.pass_selections) == 4:
-            # Trigger the pass
-            pass
+            current_round.pass_cards()
+            save_game(game, game_id)
+            emit_game_updates(room, game)

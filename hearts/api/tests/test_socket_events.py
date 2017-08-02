@@ -205,3 +205,26 @@ def test_pass_cards_invalid_pass(db, socket_clients):
     assert log[-1]['name'] == 'pass_submission_status'
     assert log[-1]['args'][0]['status'] == 'failure'
     assert 'You cannot pass' in log[-1]['args'][0]['message']
+
+
+def test_pass_cards_all_users(db, socket_clients):
+    room, room_id = create_room()
+
+    usernames = ['user1', 'user2', 'user3', 'user4']
+    clients = [socket_clients.new_client() for _ in range(4)]
+    for username, client in zip(usernames, clients):
+        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
+
+    room = get_room(room_id)
+    game_id = str(room['game_id'])
+    game = get_game(game_id, deserialize=False)
+    current_round = game['data']['rounds'][-1]
+
+    user_cards = [current_round['hands'][user][:3] for user in usernames]  # 3 cards from each hand
+    ipdb.set_trace()
+    for x in range(4):
+        clients[x].emit('pass_cards', {'cards': user_cards[x]})
+    for x in range(4):
+        received_events = clients[x].get_received()
+        assert received_events[-2]['name'] == 'pass_submission_status'
+        assert received_events[-1]['name'] == 'game_update'
