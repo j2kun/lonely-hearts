@@ -113,5 +113,4 @@ def on_pass_cards(data):
         current_round.add_to_pass_selections(player, cards)
         save_game(game, game_id)
     except ValueError as error_message:
-        # emit message to client here.
-        pass
+        io.send(str(error_message), room=socket_id)

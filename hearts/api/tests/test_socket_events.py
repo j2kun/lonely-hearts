@@ -180,3 +180,23 @@ def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
     assert len(game['data']['rounds'][-1]['pass_selections']) == 2
     assert game['data']['rounds'][-1]['pass_selections']['user1'] == user1_cards
     assert game['data']['rounds'][-1]['pass_selections']['user2'] == user2_cards
+
+
+def test_pass_cards_invalid_pass(db, socket_clients):
+    room, room_id = create_room()
+
+    usernames = ['user1', 'user2', 'user3', 'user4']
+    clients = [socket_clients.new_client() for _ in range(4)]
+    for username, client in zip(usernames, clients):
+        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
+
+    room = get_room(room_id)
+    game_id = str(room['game_id'])
+    game = get_game(game_id, deserialize=False)
+    current_round = game['data']['rounds'][-1]
+
+    user1_cards = current_round['hands']['user1'][:2]   # Only 2 cards chosen
+    clients[0].emit('pass_cards', {'cards': user1_cards})
+    log = clients[0].get_received()
+    assert log[-1]['name'] == 'message'
+    assert 'You cannot pass' in log[-1]['args']
