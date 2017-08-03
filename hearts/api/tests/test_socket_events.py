@@ -1,5 +1,4 @@
 import pytest
-import ipdb
 
 from bson import ObjectId
 
@@ -221,7 +220,6 @@ def test_pass_cards_all_users(db, socket_clients):
     current_round = game['data']['rounds'][-1]
 
     user_cards = [current_round['hands'][user][:3] for user in usernames]  # 3 cards from each hand
-    ipdb.set_trace()
     for x in range(4):
         clients[x].emit('pass_cards', {'cards': user_cards[x]})
     for x in range(4):

@@ -37,6 +37,17 @@ def game_id_lookup():
             raise Exception('User is currently not in a game!')
 
 
+def create_player(room, socket_id):
+    '''
+    Create a Player object based on the socket_id of the user in the room.
+    '''
+    username = None
+    for user_data in room['users']:
+        if user_data['socket_id'] == socket_id:
+            username = user_data['username']
+            return Player(username)
+
+
 def emit_game_updates(room, game):
     '''
     Emit a serialized view of the game to each player in the room.
@@ -108,13 +119,7 @@ def on_pass_cards(data):
     cards = [Card.deserialize(a) for a in data['cards']]
     room = get_room(session['room'])
 
-    # Create a Player object based on the user who emitted 'pass_cards'
-    username = None
-    for user_data in room['users']:
-        if user_data['socket_id'] == socket_id:
-            username = user_data['username']
-    player = Player(username)
-
+    player = create_player(room, socket_id)
     confirmation = {'status': 'success'}
     try:
         current_round.add_to_pass_selections(player, cards)
