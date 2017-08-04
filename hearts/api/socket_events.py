@@ -1,3 +1,18 @@
+'''
+Documentation for the various socket events sent from the 
+server to the client:
+
+    'chat':   A message to all players in a room.
+    'message':   An error message sent to a player.
+    'game_update':   A private serialized view of a game object.
+    'pass_submission_status':
+        Server determines if the 'pass_cards' event data is valid.
+        {
+         'status': 'success'|'failure'
+         'message': error string
+        }
+'''
+
 from flask import session
 from flask import request
 import flask_socketio as io
