@@ -220,9 +220,9 @@ def test_pass_cards_all_users(db, socket_clients):
     current_round = game['data']['rounds'][-1]
 
     user_cards = [current_round['hands'][user][:3] for user in usernames]  # 3 cards from each hand
-    for x in range(4):
-        clients[x].emit('pass_cards', {'cards': user_cards[x]})
-    for x in range(4):
-        received_events = clients[x].get_received()
+    for client, cards in zip(clients, user_cards):
+        client.emit('pass_cards', {'cards': cards})
+    for client in clients:
+        received_events = client.get_received()
         assert received_events[-2]['name'] == 'pass_submission_status'
         assert received_events[-1]['name'] == 'game_update'
