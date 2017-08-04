@@ -1,5 +1,5 @@
 '''
-Documentation for the various socket events sent from the 
+Documentation for the various socket events sent from the
 server to the client:
 
     'chat':   A message to all players in a room.
@@ -142,9 +142,9 @@ def on_pass_cards(data):
     except ValueError as error_message:
         confirmation['status'] = 'failure'
         confirmation['message'] = str(error_message)
-    finally:
-        io.emit('pass_submission_status', confirmation, room=socket_id)
-        if len(current_round.pass_selections) == 4:
-            current_round.pass_cards()
-            save_game(game, game_id)
-            emit_game_updates(room, game)
+
+    io.emit('pass_submission_status', confirmation, room=socket_id)
+    if len(current_round.pass_selections) == 4:
+        current_round.pass_cards()
+        save_game(game, game_id)
+        emit_game_updates(room, game)
