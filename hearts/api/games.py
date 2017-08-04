@@ -118,10 +118,6 @@ def save_game(game, game_id):
     except TypeError:
         raise TypeError("game_id must be a string or ObjectId, was {}".format(type(game_id).__name__))
 
-    # Print a saved_game for testing purposes
-    print('saving: ')
-    print(game.serialize())
-
     mongo.db.games.update_one(
         {'_id': game_id},
         {'$set': {'data': game.serialize()}}
