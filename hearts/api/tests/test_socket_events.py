@@ -9,6 +9,7 @@ from hearts.api.games import create_game
 from hearts.api.games import get_game
 from hearts.api.games import save_game
 from hearts.api.games import NotEnoughPlayers
+from hearts.api.tests.setup import setup_room_and_game
 
 
 users = [
@@ -17,6 +18,26 @@ users = [
     {'username': 'Erin', 'socket_id': 'wat3'},
     {'username': 'Jeremy', 'socket_id': 'wat4'},
 ]
+
+'''
+def setup_room_and_game(db, socket_clients):
+    room, room_id = create_room()
+    usernames = ['user1', 'user2', 'user3', 'user4']
+    clients = [socket_clients.new_client() for _ in range(4)]
+    for username, client in zip(usernames, clients):
+        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
+    room = get_room(room_id)
+    game_id = str(room['game_id'])
+
+    return {
+        'clients': clients,
+        'usernames': usernames,
+        'room': get_room(room_id),
+        'room_id': room_id,
+        'game_id': game_id,
+        'game': get_game(game_id, deserialize=False)
+    }
+'''
 
 
 def test_create_room(db):
@@ -136,17 +157,11 @@ def test_create_game_when_last_player_joins(socket_clients, db):
 
 
 def test_pass_cards_add_to_pass_selections(db, socket_clients):
-    room, room_id = create_room()
+    test_env = setup_room_and_game(db, socket_clients)
+    game = test_env['game']
+    game_id = test_env['game_id']
+    clients = test_env['clients']
 
-    usernames = ['user1', 'user2', 'user3', 'user4']
-    clients = [socket_clients.new_client() for _ in range(4)]
-    for username, client in zip(usernames, clients):
-        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
-
-    '''Get the first 3 cards from user4's hand.'''
-    room = get_room(room_id)
-    game_id = str(room['game_id'])
-    game = get_game(game_id, deserialize=False)
     current_round = game['data']['rounds'][-1]
     hand = current_round['hands']['user4']
     cards = hand[:3]
@@ -158,16 +173,11 @@ def test_pass_cards_add_to_pass_selections(db, socket_clients):
 
 
 def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
-    room, room_id = create_room()
+    test_env = setup_room_and_game(db, socket_clients)
+    game = test_env['game']
+    game_id = test_env['game_id']
+    clients = test_env['clients']
 
-    usernames = ['user1', 'user2', 'user3', 'user4']
-    clients = [socket_clients.new_client() for _ in range(4)]
-    for username, client in zip(usernames, clients):
-        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
-
-    room = get_room(room_id)
-    game_id = str(room['game_id'])
-    game = get_game(game_id, deserialize=False)
     current_round = game['data']['rounds'][-1]
 
     # user1 and user2 choose to pass their first 3 cards
@@ -186,16 +196,10 @@ def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
 
 
 def test_pass_cards_invalid_pass(db, socket_clients):
-    room, room_id = create_room()
+    test_env = setup_room_and_game(db, socket_clients)
+    game = test_env['game']
+    clients = test_env['clients']
 
-    usernames = ['user1', 'user2', 'user3', 'user4']
-    clients = [socket_clients.new_client() for _ in range(4)]
-    for username, client in zip(usernames, clients):
-        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
-
-    room = get_room(room_id)
-    game_id = str(room['game_id'])
-    game = get_game(game_id, deserialize=False)
     current_round = game['data']['rounds'][-1]
 
     user1_cards = current_round['hands']['user1'][:2]   # Only 2 cards chosen
@@ -207,18 +211,12 @@ def test_pass_cards_invalid_pass(db, socket_clients):
 
 
 def test_pass_cards_all_users(db, socket_clients):
-    room, room_id = create_room()
+    test_env = setup_room_and_game(db, socket_clients)
+    game = test_env['game']
+    clients = test_env['clients']
+    usernames = test_env['usernames']
 
-    usernames = ['user1', 'user2', 'user3', 'user4']
-    clients = [socket_clients.new_client() for _ in range(4)]
-    for username, client in zip(usernames, clients):
-        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
-
-    room = get_room(room_id)
-    game_id = str(room['game_id'])
-    game = get_game(game_id, deserialize=False)
     current_round = game['data']['rounds'][-1]
-
     user_cards = [current_round['hands'][user][:3] for user in usernames]  # 3 cards from each hand
     for client, cards in zip(clients, user_cards):
         client.emit('pass_cards', {'cards': cards})
