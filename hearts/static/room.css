@@ -88,11 +88,15 @@ html, body {
   width: 219px;
 }
 
+#message {
+  position: absolute;
+}
+
 #cards_list {
   padding: 0;
   margin: 0;
   list-style: none;
-  
+
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
