@@ -4,6 +4,7 @@ A game document has the following fields
     {
       '_id': ObjectId,
       'room_id': ObjectId,
+      'users': [{'username': str, 'socket_id': str}],
       'data': serialized Game object
     }
 '''
@@ -88,6 +89,7 @@ def create_game(room_id, max_points=100, deserialize=True):
         if not game_id:
             raise GameCreateFailed()
 
+        # Record the id for the current game being played in the room.
         mongo.db.rooms.update_one(
             {'_id': ObjectId(room_id)},
             {'$set': {'game_id': game_id}}

@@ -56,6 +56,26 @@ def test_is_valid_pass_for_player_not_enough_cards():
     assert message == 'You cannot pass Qc, Ad because you must pass three cards.'
 
 
+def test_add_to_pass_selections():
+    round1, players = new_round()
+    round1.hands[players[0]] = hand('4c,Qc,5d,Ad,Kh,Qs')
+
+    selected = cards('4c,Qc,5d')
+    assert len(round1.pass_selections) == 0
+
+    round1.add_to_pass_selections(players[0], selected)
+    assert len(round1.pass_selections) == 1
+    assert round1.pass_selections[players[0]] == selected
+
+
+def test_add_to_pass_selections_not_enough_cards():
+    round1, players = new_round()
+    round1.hands[players[0]] = hand('4c,Qc,5d,Ad,Kh,Qs')
+    selected = cards('4c,Qc')
+    with pytest.raises(ValueError):
+        round1.add_to_pass_selections(players[0], selected)
+
+
 def test_can_follow_suit():
     hand1 = Hand.deserialize(['Td', '5c', '7c', 'Qs', 'As'])
     hand2 = Hand.deserialize(['Td', '5c', '7c', 'Kh', 'As'])
@@ -432,11 +452,11 @@ def test_pass_cards_left():
     round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
     round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
 
-    selections = {p0: cards('Kc,7h,Qs'),
-                  p1: cards('Jd,Kd,As'),
-                  p2: cards('Th,Qh,Kh'),
-                  p3: cards('Tc,Qc,Ks')}
-    round1.pass_cards(selections)
+    round1.pass_selections = {p0: cards('Kc,7h,Qs'),
+                              p1: cards('Jd,Kd,As'),
+                              p2: cards('Th,Qh,Kh'),
+                              p3: cards('Tc,Qc,Ks')}
+    round1.pass_cards()
     assert Card('K', 'c') not in round1.hands[p0]
     assert Card('K', 'c') in round1.hands[p3]
 
@@ -458,12 +478,12 @@ def test_pass_cards_right():
     round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
     round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
 
-    selections = {p0: cards('Kc,7h,Qs'),
-                  p1: cards('Jd,Kd,As'),
-                  p2: cards('Th,Qh,Kh'),
-                  p3: cards('Tc,Qc,Ks')}
+    round1.pass_selections = {p0: cards('Kc,7h,Qs'),
+                              p1: cards('Jd,Kd,As'),
+                              p2: cards('Th,Qh,Kh'),
+                              p3: cards('Tc,Qc,Ks')}
 
-    round1.pass_cards(selections)
+    round1.pass_cards()
     assert Card('K', 'c') not in round1.hands[p0]
     assert Card('K', 'c') in round1.hands[p1]
 
@@ -485,12 +505,12 @@ def test_pass_cards_across():
     round1.hands[p2] = hand('4c,Ac,Th,Qh,Kh')
     round1.hands[p3] = hand('Tc,Qc,Jh,Ah,Ks')
 
-    selections = {p0: cards('Kc,7h,Qs'),
-                  p1: cards('Jd,Kd,As'),
-                  p2: cards('Th,Qh,Kh'),
-                  p3: cards('Tc,Qc,Ks')}
+    round1.pass_selections = {p0: cards('Kc,7h,Qs'),
+                              p1: cards('Jd,Kd,As'),
+                              p2: cards('Th,Qh,Kh'),
+                              p3: cards('Tc,Qc,Ks')}
 
-    round1.pass_cards(selections)
+    round1.pass_cards()
     assert Card('K', 'c') not in round1.hands[p0]
     assert Card('K', 'c') in round1.hands[p2]
     assert round1.hands[p0] == hand('2c,3d,Th,Qh,Kh')
@@ -550,7 +570,43 @@ def test_full_round_no_errors():
                 pass
 
 
-def test_serialize_for_player():
+def test_serialize_pass_selections():
+    round1, players = new_round()      # players are Lauren, Erin, Jeremy, Daniel
+    selections = {
+        players[0]: hand('As,Ks,Qs'),
+        players[1]: hand('Ac,Kc,Qc'),
+        players[2]: hand('Ad,Kd,Qd')   # players[3] has not picked 3 cards yet
+    }
+    serialized_selections = {
+        'Lauren': ['As', 'Ks', 'Qs'],
+        'Erin': ['Ac', 'Kc', 'Qc'],
+        'Jeremy': ['Ad', 'Kd', 'Qd']
+    }
+    serialized_round = {
+        'players': ['Lauren', 'Erin', 'Jeremy', 'Daniel'],
+        'direction': 'None',
+        'pass_selections': serialized_selections,
+        'turn': 0,
+        'hands': {},
+        'tricks': [],
+        'hearts': False,
+        'current_scores': {},
+        'final_scores': {},
+        'is_over': False
+    }
+    round1.pass_selections = selections
+    assert round1.serialize()['pass_selections'] == serialized_selections
+    # serialize for Lauren only
+    assert round1.serialize(for_player=players[0])['pass_selections'] == {'Lauren': ['As', 'Ks', 'Qs']}
+    # serialize for Daniel, who did not select cards
+    assert round1.serialize(for_player=players[3])['pass_selections'] == {}
+
+    deserialized_round = Round.deserialize(round1.serialize())
+    assert round1.pass_selections == deserialized_round.pass_selections
+    assert serialized_round['pass_selections'] == Round.deserialize(serialized_round).serialize()['pass_selections']
+
+
+def test_serialize_for_player_hands():
     test_plays = [(0, '2c,3c,4c,5c'),  # players[1] has 10 hearts
                   (0, '2c,3c,4c,5c'),
                   (0, '2c,Ac,2h,3c'),
@@ -609,7 +665,13 @@ def test_deserialize_round():
                   p2: hand('5s,6s,7s'),
                   p3: hand('8s,9s,Ts,Js')}
 
+    selections = {p0: hand('As,Ks,Qs'),
+                  p1: hand('Ac,Kc,Qc'),
+                  p2: hand('Ad,Kd,Qd')}  # p3 has not picked 3 cards yet
+
     test_round.hands = test_hands
+    test_round.pass_selections = selections
     test_round.turn_counter = 3
     test_round.hearts_broken = True
     assert test_round == Round.deserialize(test_round.serialize())
+    assert test_round.serialize() == Round.deserialize(test_round.serialize()).serialize()

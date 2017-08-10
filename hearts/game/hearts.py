@@ -102,7 +102,7 @@ class Game(object):
     def serialize(self, for_player=None):
         '''
         Return a json-serializable representation of the Game, from which the
-        object can be reconstructed using Game.desearialize.
+        object can be reconstructed using Game.deserialize.
 
         When for_player is specified, return only the information that the
         specified player is allowed to see, as per the rules of the game.
@@ -112,7 +112,7 @@ class Game(object):
         {
             'players': [str],
             'max_points': int,
-            'rounds': A list of serialized Round Objects,
+            'rounds': A list of serialized Round objects,
             'round_number': int,
             'scores': [{str: int}]
             'final_scores': {str: int}
@@ -236,7 +236,7 @@ class Round(object):
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
         self.pass_to = pass_to
-        self.pass_selections = {}
+        self.pass_selections = {}  # A dictionary {player: [card]}
         self.tricks = []
         self.turn_counter = 0
         self.hearts_broken = False
@@ -277,8 +277,9 @@ class Round(object):
         return (is_valid, error_string)
 
     def add_to_pass_selections(self, player, cards):
-        # This function will be unused until we decide on a passing protocol in the app.
         '''
+        Input: player: A Player object
+               cards: A list of Card objects
         Verifies that cards is a valid list of cards to pass and appends
         it to the pass_selections attribute of Round.
         '''
@@ -288,23 +289,22 @@ class Round(object):
         else:
             raise ValueError(error_message)
 
-    def pass_cards(self, card_selections):     # {player:[Card]} --> None
+    def pass_cards(self):
+        '''
+        Distribute the cards in the pass_selections of the round to the intended player.
+        '''
+        passing_shift = {'left': -1, 'right': 1, 'across': 2}
 
-        if all(self.is_valid_pass_for_player(player, cards)[0] for (player, cards) in card_selections.items()):
-            passing_shift = {'left': -1, 'right': 1, 'across': 2}
+        for passer, cards in self.pass_selections.items():
+            for card in cards:
+                self.hands[passer].remove(card)
+        for passer, cards in self.pass_selections.items():
+            shift = passing_shift[self.pass_to]
+            passer_position = self.players.index(passer)
+            receiver = self.players[(passer_position + shift) % 4]
 
-            for passer, cards in card_selections.items():
-                for card in cards:
-                    self.hands[passer].remove(card)
-            for passer, cards in card_selections.items():
-                shift = passing_shift[self.pass_to]
-                passer_position = self.players.index(passer)
-                receiver = self.players[(passer_position + shift) % 4]
-
-                self.hands[receiver] += card_selections[passer]
-                self.hands[receiver].hand_sort()
-        else:
-            raise ValueError
+            self.hands[receiver] += self.pass_selections[passer]
+            self.hands[receiver].hand_sort()
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
@@ -443,6 +443,7 @@ class Round(object):
         {
             'players': [str],
             'direction': str,
+            'pass_selections': {str: [str, str, str]}
             'turn': int,
             'hands': [str],
             'tricks': {str: {int: str}}
@@ -458,6 +459,22 @@ class Round(object):
             player = for_player if isinstance(for_player, Player) else Player(for_player)
             hands = {player.username: self.hands[player].serialize()}
 
+        def serialize_pass_selections(pass_selections, for_player=for_player):
+            '''
+            Converts a dictionary of the form {Player: [Card, Card, Card]}
+            to {str: [str, str, str]}.  If for_player is not None, then
+            only that player's selected cards are serialized.
+            '''
+            serialized = {}
+
+            if for_player is None:
+                for player, cards in pass_selections.items():  # Serialize all submitted cards.
+                    serialized[player.username] = [card.serialize() for card in cards]
+            elif for_player in pass_selections:   # Serialize only the cards that for_player chose.
+                player = for_player if isinstance(for_player, Player) else Player(for_player)
+                serialized[player.username] = [card.serialize() for card in pass_selections[player]]
+            return serialized
+
         def serialize_the_score(score_dict):
             # Return a score dictionary with Player replaced by its username
             return {player.username: points for (player, points) in score_dict.items()}
@@ -465,6 +482,7 @@ class Round(object):
         return {
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
+            'pass_selections': serialize_pass_selections(self.pass_selections, for_player),
             'turn': self.turn_counter,
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
@@ -478,6 +496,12 @@ class Round(object):
     def deserialize(serialized):
         player_list = [Player(username) for username in serialized['players']]
         the_round = Round(player_list, pass_to=serialized['direction'])
+
+        selections = {}
+        for (username, cards) in serialized['pass_selections'].items():
+            selections[Player(username)] = [Card.deserialize(card) for card in cards]
+        the_round.pass_selections = selections
+
         the_round.turn_counter = serialized['turn']
         the_round.hands = {Player(username): Hand.deserialize(hand) for (username, hand) in serialized['hands'].items()}
         the_round.tricks = [Trick.deserialize(trick) for trick in serialized['tricks']]
@@ -488,6 +512,7 @@ class Round(object):
         return (
             self.players == other.players and
             self.pass_to == other.pass_to and
+            self.pass_selections == other.pass_selections and
             self.turn_counter == other.turn_counter and
             self.hearts_broken == other.hearts_broken and
             self.hands.items() == other.hands.items() and
