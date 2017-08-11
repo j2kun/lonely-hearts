@@ -224,3 +224,31 @@ def test_pass_cards_all_users(db, socket_clients):
         received_events = client.get_received()
         assert received_events[-2]['name'] == 'pass_submission_status'
         assert received_events[-1]['name'] == 'game_update'
+
+
+def test_play_card_2c(db, socket_clients):
+    '''
+    Test that the first player can successfully play the two of
+    clubs and all players receive a game update afterwards.
+
+    '''
+    test_env = setup_room_and_game(db, socket_clients, deserialize=True)
+    clients = test_env['clients']
+    usernames = test_env['usernames']
+
+    game = test_env['game']
+    test_round = game.rounds[-1]
+    next_player = test_round.next_player
+
+    for client, name in zip(clients, usernames):
+        if next_player.username == name:
+            client.emit('play_card', {'card': '2c'}) # First player plays the two of clubs.
+            log  = client.get_received() # Inspect the log of the first player.
+            assert log[-1]['name'] == 'game_update'
+            assert log[-2]['name'] == 'play_submission_status'
+            assert log[-2]['args'][0]['status'] == 'success'
+
+    for client in clients:
+        log = client.get_received()
+        if len(log) != 0: # Inspect the logs of all other players.
+            assert log[-1]['name'] == 'game_update'
