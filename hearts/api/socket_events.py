@@ -128,14 +128,17 @@ def on_pass_cards(data):
     data: {'cards': [str, str, str]}
     '''
     socket_id = request.sid
+    room = get_room(session['room'])
+
     game_id = game_id_lookup()
     game = get_game(game_id)
     current_round = game.rounds[-1]
-    cards = [Card.deserialize(a) for a in data['cards']]
-    room = get_room(session['room'])
 
     player = create_player(room, socket_id)
-    confirmation = {'status': 'success'}
+    cards = [Card.deserialize(a) for a in data['cards']]
+    confirmation = {'status': 'success'
+                    'message': None
+                   }
     try:
         current_round.add_to_pass_selections(player, cards)
         save_game(game, game_id)
@@ -147,4 +150,30 @@ def on_pass_cards(data):
     if len(current_round.pass_selections) == 4:
         current_round.pass_cards()
         save_game(game, game_id)
+        emit_game_updates(room, game)
+
+
+@socketio.on('play_card')
+def on_play_card(data):
+    socket_id = request.sid
+    room = get_room(session['room'])
+
+    game_id = game_id_lookup()
+    game = get_game(game_id)
+    current_round = game.rounds[-1]
+
+    player = create_player(room, socket_id)
+    card = Card.deserialize(data['card'])
+
+    confirmation = {'status': 'success'
+                    'message': None
+                   }
+    try:
+        current_round.play_card(player, card)
+        save_game(game, game_id)
+    except ValueError as error_message:
+        confirmation['status'] = 'failure'
+        confirmation['message'] = str(error_messsage)
+    io.emit('play_submission_status', confirmation, room=socket_id)
+    if confirmation['status'] == 'success':
         emit_game_updates(room, game)
