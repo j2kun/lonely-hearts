@@ -3,7 +3,7 @@ from hearts.api.rooms import get_room
 from hearts.api.games import get_game
 
 
-def setup_room_and_game(db, socket_clients):
+def setup_room_and_game(db, socket_clients, deserialize=False):
     room, room_id = create_room()
     usernames = ['user1', 'user2', 'user3', 'user4']
     clients = [socket_clients.new_client() for _ in range(4)]
@@ -19,5 +19,5 @@ def setup_room_and_game(db, socket_clients):
         'room': get_room(room_id),
         'room_id': room_id,
         'game_id': game_id,
-        'game': get_game(game_id, deserialize=False)
+        'game': get_game(game_id, deserialize=deserialize)
     }
