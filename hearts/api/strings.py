@@ -16,6 +16,7 @@ PLAYED_A_CARD = '{} played {}.'
 PASSED_CARDS = 'You passed {} to {}.'
 RECEIVED_CARDS = '{} passed {} to you.'
 
+
 def message(error, error_reason):
     '''
     Formats an error string of the form 'You cannot...{}...because {reason}'
@@ -23,11 +24,14 @@ def message(error, error_reason):
     '''
     return error.format({}, reason=error_reason)
 
-def play_card_message(player, card):
+
+def played_a_card(player, card):
     return PLAYED_A_CARD.format(player, card)
 
-def pass_cards_message(receiver, cards):
+
+def passed_cards_to(receiver, cards):
     return PASSED_CARDS.format(cards, receiver)
 
-def receive_cards_message(passer, cards):
+
+def received_cards_from(passer, cards):
     return RECEIVED_CARDS.format(passer, cards)

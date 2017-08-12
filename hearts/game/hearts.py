@@ -22,6 +22,9 @@ class Player(object):
     def __hash__(self):
         return hash(self.username)
 
+    def __str__(self):
+        return self.username
+
 
 class Game(object):
     def __init__(self, players, points_to_win=100):

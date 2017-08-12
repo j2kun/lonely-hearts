@@ -242,13 +242,13 @@ def test_play_card_2c(db, socket_clients):
 
     for client, name in zip(clients, usernames):
         if next_player.username == name:
-            client.emit('play_card', {'card': '2c'}) # First player plays the two of clubs.
-            log  = client.get_received() # Inspect the log of the first player.
+            client.emit('play_card', {'card': '2c'})  # First player plays the two of clubs.
+            log = client.get_received()  # Inspect the log of the first player.
             assert log[-1]['name'] == 'game_update'
             assert log[-2]['name'] == 'play_submission_status'
             assert log[-2]['args'][0]['status'] == 'success'
 
     for client in clients:
         log = client.get_received()
-        if len(log) != 0: # Inspect the logs of all other players.
+        if len(log) != 0:       # Inspect the logs of all other players.
             assert log[-1]['name'] == 'game_update'
