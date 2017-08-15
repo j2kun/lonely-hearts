@@ -14,6 +14,7 @@ NO_FIRST_TRICK_POINTS = 'you cannot play hearts or the queen of spades on the fi
 
 PLAYED_A_CARD = '{} played {}.'
 PASSED_CARDS = 'You passed {} to {}.'
+PASS_SUBMIT = 'You chose to pass {}.'
 RECEIVED_CARDS = '{} passed {} to you.'
 
 
@@ -27,6 +28,10 @@ def message(error, error_reason):
 
 def played_a_card(player, card):
     return PLAYED_A_CARD.format(player, card)
+
+
+def pass_submit(cards):
+    return PASS_SUBMIT.format(', '.join(cards))
 
 
 def passed_cards_to(receiver, cards):

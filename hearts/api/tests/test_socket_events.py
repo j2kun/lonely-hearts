@@ -152,7 +152,7 @@ def test_pass_cards_add_to_pass_selections(db, socket_clients):
     assert game['data']['rounds'][-1]['pass_selections']['user4'] == cards
 
 
-def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
+def test_pass_cards_add_to_pass_selections_confirmation(db, socket_clients):
     test_env = setup_room_and_game(db, socket_clients)
     game = test_env['game']
     game_id = test_env['game_id']
@@ -168,6 +168,7 @@ def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
     log = clients[1].get_received()
     assert log[-1]['name'] == 'pass_submission_status'
     assert log[-1]['args'][0]['status'] == 'success'
+    assert 'You chose to pass' in log[-1]['args'][0]['message']
 
     game = get_game(game_id, deserialize=False)
     assert len(game['data']['rounds'][-1]['pass_selections']) == 2

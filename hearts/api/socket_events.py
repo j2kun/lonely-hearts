@@ -36,6 +36,7 @@ from hearts.game.hearts import Player
 from hearts.game.hearts import Card
 from hearts.api.strings import ROOM_IS_FULL
 from hearts.api.strings import played_a_card
+from hearts.api.strings import pass_submit
 from hearts.api.strings import received_cards_from
 
 from bson.objectid import ObjectId
@@ -158,7 +159,7 @@ def on_pass_cards(data):
     cards = [Card.deserialize(a) for a in data['cards']]
     confirmation = {
         'status': 'success',
-        'message': None
+        'message': pass_submit(data['cards'])
     }
     try:
         current_round.add_to_pass_selections(player, cards)
