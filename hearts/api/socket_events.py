@@ -11,13 +11,19 @@ server to the client:
     'pass_submission_status':
         Server determines if the 'pass_cards' event data is valid.
         {
-         'status': 'success'|'failure'
+         'status': 'success'|'failure',
          'message': error string
         }
 
     'receive_cards':    A list and description of the cards a user receives.
         {
-         'cards': [str, str, str]
+         'cards': [str, str, str],
+         'message': str
+        }
+
+    'play_submission_status':
+        {
+         'status': 'success'|'failure',
          'message': str
         }
 '''
