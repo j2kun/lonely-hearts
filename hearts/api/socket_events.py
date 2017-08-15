@@ -3,13 +3,22 @@ Documentation for the various socket events sent from the
 server to the client:
 
     'chat':   A message to all players in a room.
+
     'message':   An error message sent to a player.
+
     'game_update':   A private serialized view of a game object.
+
     'pass_submission_status':
         Server determines if the 'pass_cards' event data is valid.
         {
          'status': 'success'|'failure'
          'message': error string
+        }
+
+    'receive_cards':    A list and description of the cards a user receives.
+        {
+         'cards': [str, str, str]
+         'message': str
         }
 '''
 
@@ -27,6 +36,7 @@ from hearts.game.hearts import Player
 from hearts.game.hearts import Card
 from hearts.api.strings import ROOM_IS_FULL
 from hearts.api.strings import played_a_card
+from hearts.api.strings import received_cards_from
 
 from bson.objectid import ObjectId
 
@@ -158,10 +168,24 @@ def on_pass_cards(data):
         confirmation['message'] = str(error_message)
 
     io.emit('pass_submission_status', confirmation, room=socket_id)
+
     if len(current_round.pass_selections) == 4:
-        current_round.pass_cards()
+        received_cards = current_round.pass_cards()
         save_game(game, game_id)
         emit_game_updates(room, game)
+
+        '''Notify each player of the cards they received.'''
+        for user_data in room['users']:
+            receiver_id = user_data['socket_id']
+            receiver = Player(user_data['username'])
+            cards = received_cards[receiver]['cards']
+            passer = received_cards[receiver]['from']
+
+            data = {
+                'cards': cards,
+                'message': received_cards_from(passer, cards)
+            }
+            io.emit('receive_cards', data, room=receiver_id)
 
 
 @socketio.on('play_card')

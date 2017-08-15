@@ -30,8 +30,8 @@ def played_a_card(player, card):
 
 
 def passed_cards_to(receiver, cards):
-    return PASSED_CARDS.format(cards, receiver)
+    return PASSED_CARDS.format(', '.join(cards), receiver)
 
 
 def received_cards_from(passer, cards):
-    return RECEIVED_CARDS.format(passer, cards)
+    return RECEIVED_CARDS.format(passer, ', '.join(cards))

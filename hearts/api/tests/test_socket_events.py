@@ -1,5 +1,5 @@
 import pytest
-
+import ipdb
 from bson import ObjectId
 
 from hearts.game.hearts import Game
@@ -18,26 +18,6 @@ users = [
     {'username': 'Erin', 'socket_id': 'wat3'},
     {'username': 'Jeremy', 'socket_id': 'wat4'},
 ]
-
-'''
-def setup_room_and_game(db, socket_clients):
-    room, room_id = create_room()
-    usernames = ['user1', 'user2', 'user3', 'user4']
-    clients = [socket_clients.new_client() for _ in range(4)]
-    for username, client in zip(usernames, clients):
-        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
-    room = get_room(room_id)
-    game_id = str(room['game_id'])
-
-    return {
-        'clients': clients,
-        'usernames': usernames,
-        'room': get_room(room_id),
-        'room_id': room_id,
-        'game_id': game_id,
-        'game': get_game(game_id, deserialize=False)
-    }
-'''
 
 
 def test_create_room(db):
@@ -211,6 +191,9 @@ def test_pass_cards_invalid_pass(db, socket_clients):
 
 
 def test_pass_cards_all_users(db, socket_clients):
+    '''After the server receives a 'pass_cards' event from all 4 users,
+    the server should send 'pass_submission_status', 'game_update', and 'receive_cards'
+    '''
     test_env = setup_room_and_game(db, socket_clients)
     game = test_env['game']
     clients = test_env['clients']
@@ -220,10 +203,13 @@ def test_pass_cards_all_users(db, socket_clients):
     user_cards = [current_round['hands'][user][:3] for user in usernames]  # 3 cards from each hand
     for client, cards in zip(clients, user_cards):
         client.emit('pass_cards', {'cards': cards})
+
     for client in clients:
+        # ipdb.set_trace()
         received_events = client.get_received()
-        assert received_events[-2]['name'] == 'pass_submission_status'
-        assert received_events[-1]['name'] == 'game_update'
+        assert received_events[-3]['name'] == 'pass_submission_status'
+        assert received_events[-2]['name'] == 'game_update'
+        assert received_events[-1]['name'] == 'receive_cards'
 
 
 def test_play_card_2c(db, socket_clients):
