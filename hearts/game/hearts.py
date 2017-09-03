@@ -22,6 +22,9 @@ class Player(object):
     def __hash__(self):
         return hash(self.username)
 
+    def __str__(self):
+        return self.username
+
 
 class Game(object):
     def __init__(self, players, points_to_win=100):
@@ -291,9 +294,18 @@ class Round(object):
 
     def pass_cards(self):
         '''
-        Distribute the cards in the pass_selections of the round to the intended player.
+        Distribute the cards in the pass_selections of the round
+        to the intended player.
+        Returns:
+            {
+                Player: {
+                    'cards': [str, str, str],
+                    'from': Player
+                }
+            }
         '''
         passing_shift = {'left': -1, 'right': 1, 'across': 2}
+        received_cards = {}
 
         for passer, cards in self.pass_selections.items():
             for card in cards:
@@ -303,8 +315,14 @@ class Round(object):
             passer_position = self.players.index(passer)
             receiver = self.players[(passer_position + shift) % 4]
 
-            self.hands[receiver] += self.pass_selections[passer]
+            self.hands[receiver] += cards
             self.hands[receiver].hand_sort()
+
+            received_cards[receiver] = {
+                'cards': [card.serialize() for card in cards],
+                'from': passer
+            }
+        return received_cards
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]

@@ -3,13 +3,28 @@ Documentation for the various socket events sent from the
 server to the client:
 
     'chat':   A message to all players in a room.
+
     'message':   An error message sent to a player.
+
     'game_update':   A private serialized view of a game object.
+
     'pass_submission_status':
         Server determines if the 'pass_cards' event data is valid.
         {
-         'status': 'success'|'failure'
+         'status': 'success'|'failure',
          'message': error string
+        }
+
+    'receive_cards':    A list and description of the cards a user receives.
+        {
+         'cards': [str, str, str],
+         'message': str
+        }
+
+    'play_submission_status':
+        {
+         'status': 'success'|'failure',
+         'message': str
         }
 '''
 
@@ -24,8 +39,11 @@ from hearts.api.games import create_game
 from hearts.api.games import get_game
 from hearts.api.games import save_game
 from hearts.game.hearts import Player
-from hearts.api.strings import ROOM_IS_FULL
 from hearts.game.hearts import Card
+from hearts.api.strings import ROOM_IS_FULL
+from hearts.api.strings import played_a_card
+from hearts.api.strings import pass_submit
+from hearts.api.strings import received_cards_from
 
 from bson.objectid import ObjectId
 
@@ -52,7 +70,7 @@ def game_id_lookup():
             raise Exception('User is currently not in a game!')
 
 
-def create_player(room, socket_id):
+def player_from_sid(room, socket_id):
     '''
     Create a Player object based on the socket_id of the user in the room.
     '''
@@ -61,6 +79,15 @@ def create_player(room, socket_id):
         if user_data['socket_id'] == socket_id:
             username = user_data['username']
             return Player(username)
+
+
+def sid_from_player(room, player):
+    '''Retrieve the socket id of a Player object or username
+    in the room.
+    '''
+    for user_data in room['users']:
+        if user_data['username'] == player:
+            return user_data['socket_id']
 
 
 def emit_game_updates(room, game):
@@ -128,14 +155,18 @@ def on_pass_cards(data):
     data: {'cards': [str, str, str]}
     '''
     socket_id = request.sid
+    room = get_room(session['room'])
+
     game_id = game_id_lookup()
     game = get_game(game_id)
     current_round = game.rounds[-1]
-    cards = [Card.deserialize(a) for a in data['cards']]
-    room = get_room(session['room'])
 
-    player = create_player(room, socket_id)
-    confirmation = {'status': 'success'}
+    player = player_from_sid(room, socket_id)
+    cards = [Card.deserialize(a) for a in data['cards']]
+    confirmation = {
+        'status': 'success',
+        'message': pass_submit(data['cards'])
+    }
     try:
         current_round.add_to_pass_selections(player, cards)
         save_game(game, game_id)
@@ -144,7 +175,48 @@ def on_pass_cards(data):
         confirmation['message'] = str(error_message)
 
     io.emit('pass_submission_status', confirmation, room=socket_id)
+
     if len(current_round.pass_selections) == 4:
-        current_round.pass_cards()
+        received_cards = current_round.pass_cards()
         save_game(game, game_id)
+        emit_game_updates(room, game)
+
+        '''Notify each player of the cards they received.'''
+        for user_data in room['users']:
+            receiver_id = user_data['socket_id']
+            receiver = Player(user_data['username'])
+            cards = received_cards[receiver]['cards']
+            passer = received_cards[receiver]['from']
+
+            data = {
+                'cards': cards,
+                'message': received_cards_from(passer, cards)
+            }
+            io.emit('receive_cards', data, room=receiver_id)
+
+
+@socketio.on('play_card')
+def on_play_card(data):
+    socket_id = request.sid
+    room = get_room(session['room'])
+
+    game_id = game_id_lookup()
+    game = get_game(game_id)
+    current_round = game.rounds[-1]
+
+    player = player_from_sid(room, socket_id)
+    card = Card.deserialize(data['card'])
+
+    confirmation = {
+        'status': 'success',
+        'message': played_a_card(player, card)
+    }
+    try:
+        current_round.play_card(player, card)
+        save_game(game, game_id)
+    except ValueError as error_message:
+        confirmation['status'] = 'failure'
+        confirmation['message'] = str(error_message)
+    io.emit('play_submission_status', confirmation, room=socket_id)
+    if confirmation['status'] == 'success':
         emit_game_updates(room, game)

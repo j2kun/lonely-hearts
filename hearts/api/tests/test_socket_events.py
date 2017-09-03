@@ -3,12 +3,14 @@ import pytest
 from bson import ObjectId
 
 from hearts.game.hearts import Game
+from hearts.game.hearts import Player
 from hearts.api.rooms import create_room
 from hearts.api.rooms import get_room
 from hearts.api.games import create_game
 from hearts.api.games import get_game
 from hearts.api.games import save_game
 from hearts.api.games import NotEnoughPlayers
+from hearts.api.strings import NOT_YOUR_TURN
 from hearts.api.tests.setup import setup_room_and_game
 
 
@@ -18,26 +20,6 @@ users = [
     {'username': 'Erin', 'socket_id': 'wat3'},
     {'username': 'Jeremy', 'socket_id': 'wat4'},
 ]
-
-'''
-def setup_room_and_game(db, socket_clients):
-    room, room_id = create_room()
-    usernames = ['user1', 'user2', 'user3', 'user4']
-    clients = [socket_clients.new_client() for _ in range(4)]
-    for username, client in zip(usernames, clients):
-        client.emit('join', {'room': room_id, 'username': username})  # Last user to join starts the game
-    room = get_room(room_id)
-    game_id = str(room['game_id'])
-
-    return {
-        'clients': clients,
-        'usernames': usernames,
-        'room': get_room(room_id),
-        'room_id': room_id,
-        'game_id': game_id,
-        'game': get_game(game_id, deserialize=False)
-    }
-'''
 
 
 def test_create_room(db):
@@ -172,7 +154,7 @@ def test_pass_cards_add_to_pass_selections(db, socket_clients):
     assert game['data']['rounds'][-1]['pass_selections']['user4'] == cards
 
 
-def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
+def test_pass_cards_add_to_pass_selections_confirmation(db, socket_clients):
     test_env = setup_room_and_game(db, socket_clients)
     game = test_env['game']
     game_id = test_env['game_id']
@@ -188,6 +170,7 @@ def test_pass_cards_add_to_pass_selections_2_users(db, socket_clients):
     log = clients[1].get_received()
     assert log[-1]['name'] == 'pass_submission_status'
     assert log[-1]['args'][0]['status'] == 'success'
+    assert 'You chose to pass' in log[-1]['args'][0]['message']
 
     game = get_game(game_id, deserialize=False)
     assert len(game['data']['rounds'][-1]['pass_selections']) == 2
@@ -211,6 +194,9 @@ def test_pass_cards_invalid_pass(db, socket_clients):
 
 
 def test_pass_cards_all_users(db, socket_clients):
+    '''After the server receives a 'pass_cards' event from all 4 users,
+    the server should send 'pass_submission_status', 'game_update', and 'receive_cards'
+    '''
     test_env = setup_room_and_game(db, socket_clients)
     game = test_env['game']
     clients = test_env['clients']
@@ -220,7 +206,73 @@ def test_pass_cards_all_users(db, socket_clients):
     user_cards = [current_round['hands'][user][:3] for user in usernames]  # 3 cards from each hand
     for client, cards in zip(clients, user_cards):
         client.emit('pass_cards', {'cards': cards})
+
     for client in clients:
         received_events = client.get_received()
-        assert received_events[-2]['name'] == 'pass_submission_status'
-        assert received_events[-1]['name'] == 'game_update'
+        assert received_events[-3]['name'] == 'pass_submission_status'
+        assert received_events[-2]['name'] == 'game_update'
+        assert received_events[-1]['name'] == 'receive_cards'
+
+
+def test_play_card_2c_game_update(db, socket_clients):
+    '''
+    Test that the first player can successfully play the two of
+    clubs and all players receive a game update afterwards.
+
+    '''
+    test_env = setup_room_and_game(db, socket_clients, deserialize=True)
+    clients = test_env['clients']
+    usernames = test_env['usernames']
+
+    game = test_env['game']
+    test_round = game.rounds[-1]
+    next_player = test_round.next_player
+
+    for client, name in zip(clients, usernames):
+        if next_player.username == name:
+            client.emit('play_card', {'card': '2c'})  # First player plays the two of clubs.
+            log = client.get_received()  # Inspect the log of the first player.
+            assert log[-1]['name'] == 'game_update'
+            assert log[-2]['name'] == 'play_submission_status'
+            assert log[-2]['args'][0]['status'] == 'success'
+
+    for client in clients:
+        log = client.get_received()
+        if len(log) != 0:       # Inspect the logs of all other players.
+            assert log[-1]['name'] == 'game_update'
+
+
+def test_play_card_2c_confirmation(db, socket_clients):
+    test_env = setup_room_and_game(db, socket_clients, deserialize=True)
+    clients = test_env['clients']
+    usernames = test_env['usernames']
+
+    game = test_env['game']
+    test_round = game.rounds[-1]
+    next_player = test_round.next_player
+
+    for client, name in zip(clients, usernames):
+        if next_player.username == name:
+            client.emit('play_card', {'card': '2c'})  # First player plays the two of clubs.
+            log = client.get_received()  # Inspect the log of the first player.
+            assert log[-2]['name'] == 'play_submission_status'
+            assert log[-2]['args'][0]['status'] == 'success'
+            assert 'played 2c' in log[-2]['args'][0]['message']
+
+
+def test_play_card_2c_fail_confirmation(db, socket_clients):
+    test_env = setup_room_and_game(db, socket_clients, deserialize=True)
+    clients = test_env['clients']
+    usernames = test_env['usernames']
+
+    test_round = test_env['game'].rounds[-1]
+    next_player = test_round.next_player
+
+    for client, name in zip(clients, usernames):
+        if name != next_player.username:
+            dummy_card = test_round.hands[Player(name)][0]
+            client.emit('play_card', {'card': str(dummy_card)})  # Plays a card out of turn
+            log = client.get_received()
+            assert log[-1]['name'] == 'play_submission_status'
+            assert log[-1]['args'][0]['status'] == 'failure'
+            assert NOT_YOUR_TURN in log[-1]['args'][0]['message']

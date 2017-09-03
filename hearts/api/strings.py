@@ -12,6 +12,11 @@ NOT_FOLLOWING_SUIT = 'you still have {} in your hand.'
 NOT_YOUR_TURN = "it's not your turn."
 NO_FIRST_TRICK_POINTS = 'you cannot play hearts or the queen of spades on the first trick.'
 
+PLAYED_A_CARD = '{} played {}.'
+PASSED_CARDS = 'You passed {} to {}.'
+PASS_SUBMIT = 'You chose to pass {}.'
+RECEIVED_CARDS = '{} passed {} to you.'
+
 
 def message(error, error_reason):
     '''
@@ -19,3 +24,19 @@ def message(error, error_reason):
     with the string error_reason.
     '''
     return error.format({}, reason=error_reason)
+
+
+def played_a_card(player, card):
+    return PLAYED_A_CARD.format(player, card)
+
+
+def pass_submit(cards):
+    return PASS_SUBMIT.format(', '.join(cards))
+
+
+def passed_cards_to(receiver, cards):
+    return PASSED_CARDS.format(', '.join(cards), receiver)
+
+
+def received_cards_from(passer, cards):
+    return RECEIVED_CARDS.format(passer, ', '.join(cards))
