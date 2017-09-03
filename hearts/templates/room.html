@@ -9,19 +9,9 @@
 <body class="preload">
 <div id="room">
   <div id="trick" class="center">
-    <div class="card left" id="h2"></div>
-    <div class="card top" id="h3"></div>
-    <div class="card right" id="h7"></div>
-    <div class="card bottom" id="d9"></div>
   </div>
   <div id="hand">
     <ul id="cards_list">
-      <li class="card" id="cA"></li>
-      <li class="card" id="d7"></li>
-      <li class="card" id="hK"></li>
-      <li class="card" id="sJ"></li>
-      <li class="card" id="c7"></li>
-      <li class="card" id="s9"></li>
     </ul>
   </div>
   <div class="opponent left">
@@ -40,17 +30,21 @@
 
 <script src="{{url_for('static', filename='socket.io.min.js')}}"></script>
 <script src="{{url_for('static', filename='jquery.js')}}"></script>
-<script src="{{url_for('static', filename='socket_api.js')}}"></script>
-<script src="{{url_for('static', filename='room.js')}}"></script>
+<script src="{{url_for('static', filename='room_client.js')}}"></script>
+<script src="{{url_for('static', filename='room_socket_client.js')}}"></script>
+<script src="{{url_for('static', filename='room_state.js')}}"></script>
+<script src="{{url_for('static', filename='room_ui.js')}}"></script>
 
 <script>
-var game_client = new HeartsClient();
-var socket_client = new RoomSocket("{{ api_url }}", game_client);
-socket_client.join_room("{{ room_id }}");
+var username = prompt('Enter your name:');
+var socket_client = new RoomSocketClient("{{ api_url }}");
+var room_state = new RoomState(username);
+var room_client = new RoomClient(socket_client, room_state);
+socket_client.join_room("{{ room_id }}", username);
 
 function setup() {
     $("body").removeClass("preload");
-    game_client.render();
+    room_client.refresh();
 }
 
 $(window).load(setup);
