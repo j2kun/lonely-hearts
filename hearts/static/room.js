@@ -1,5 +1,5 @@
 
-/* 
+/*
  * Rendering functions
  */
 
@@ -14,6 +14,10 @@ function apiCard(displayCard) {
 function displayOpponent(position, name) {
     var class_name = '.opponent.' + position;
     $(class_name + ' .name').text(name);
+}
+
+function clearMessage() {
+  $('#message').html('');
 }
 
 function displayOpponents(player, all_players) {
@@ -32,64 +36,89 @@ function displayTrick(trick) {
     var trickToRender = '';
     var orderedPositions = ['bottom', 'left', 'top', 'right'];
     for (var i = 0; i < trick.length; i++) {
-        trickToRender += ('<div class="card ' + orderedPositions[i] + 
+        trickToRender += ('<div class="card ' + orderedPositions[i] +
                            '" id="' + displayCard(trick[i]) + '"></div>');
     }
     $('#trick').html(trickToRender);
 }
 
+function renderPassingInfo(message, includeButton, heartsClient) {
+    var msg = '<div><p>' + message + '</p></div>';
+    var button = '<div><button id="submit_pass">Confirm pass</button></div>';
+    if (includeButton) {
+        $('#message').html(msg + button);
+        $('#submit_pass').click(function() {
+            socket_client.pass_cards(heartsClient.state.chosenCards)
+        });
+        heartsClient.donePassing();
+    } else {
+        $('#message').html(msg);
+    }
+}
 
-/* 
+
+/*
  * Hearts state maintainer
  *
  * example state:
 {
-  "players": [
-    "BillSpsP7", "Bill Xnnqk", "Bill tC3g1", "Bill sEYQH"
-  ],
-  "rounds": [
+  "round": serialized_round,
+  "hand": serialized_hand,
+  "trick": serialized_trick,
+  "game":
     {
-      "hands": {
-        "Bill sEYQH": [ "4c", "8c", "Ac", "4d", "6d", "2h", "3h", 
-                        "5h", "9h", "Jh", "3s", "7s", "Js" ]
-      },
       "players": [
         "BillSpsP7", "Bill Xnnqk", "Bill tC3g1", "Bill sEYQH"
       ],
-      "is_over": false,
-      "current_scores": {
+      "rounds": [
+        {
+          "hands": {
+            "Bill sEYQH": [ "4c", "8c", "Ac", "4d", "6d", "2h", "3h",
+                            "5h", "9h", "Jh", "3s", "7s", "Js" ]
+          },
+          "players": [
+            "BillSpsP7", "Bill Xnnqk", "Bill tC3g1", "Bill sEYQH"
+          ],
+          "is_over": false,
+          "current_scores": {
+            "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
+          },
+          "hearts": false,
+          "turn": 1,
+          "direction": "left",
+          "tricks": [],
+          "final_scores": {
+            "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
+          }
+        }
+      ],
+      "total_scores": {
         "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
       },
-      "hearts": false,
-      "turn": 1,
-      "direction": "left",
-      "tricks": [],
-      "final_scores": {
-        "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
-      }
+      "max_points": 100,
+      "is_over": false,
+      "round_number": 0,
+      "scores": [
+        {
+          "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
+        }
+      ]
     }
-  ],
-  "total_scores": {
-    "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
-  },
-  "max_points": 100,
-  "is_over": false,
-  "round_number": 0,
-  "scores": [
-    {
-      "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
-    }
-  ]
-}
  */
 
 function HeartsClient() {
 
     this.state = {
+        username: '',
         chosenCards: [],
+        mode: 'pass',  // 'play' or 'pass' or 'wait'
+
+        // game, round, hand, trick are updated by incoming
+        // socket events
         game: null,
-        username: 'Jeremy',
-        mode: 'play',  // or 'passing'
+        round: null,
+        hand: null,
+        trick: null,
     };
 
     this.chooseOrUnchooseCard = function(card) {
@@ -105,17 +134,23 @@ function HeartsClient() {
         }
     }
 
+    this.removeCard = function(card) {
+        var index = this.state.hand.indexOf(card);
+        this.state.hand.splice(index, 1);
+        return card;
+    }
+
     this.cardClick = function(card, div) {
         console.log('clicked ' + card);
-        if (this.state.mode === 'passing') {
+        if (this.state.mode === 'pass') {
             if (this.chooseOrUnchooseCard(card)) {
                 div.toggleClass('chosen_to_pass');
-            } // if 3, display button
+            }
+            this.renderPassing();
         } else if (this.state.mode === 'play') {
             var success = true; // playCard(card);  // call the API
             if (success) {
-                var index = this.state.hand.indexOf(card);
-                this.state.hand.splice(index, 1);
+                this.removeCard(card);
                 this.state.trick.push(card);
                 this.render();
             }
@@ -128,7 +163,7 @@ function HeartsClient() {
             handToRender += '<li class="card" id="' + displayCard(hand[i]) + '"></li>'
         }
         $('#hand #cards_list').html(handToRender);
-        $('#hand .card').click({heartsClient: this}, 
+        $('#hand .card').click({heartsClient: this},
             function(event) {
                 var card = apiCard(this.id);
                 var heartsClient = event.data.heartsClient;
@@ -138,7 +173,43 @@ function HeartsClient() {
     }
 
     this.renderWaitingForPlayers = function() {
-        
+        $('#message').html('<div>Waiting for players to join...</div>');
+    }
+
+    this.renderPassing = function() {
+        if (this.state.mode === 'pass') {
+            var passDirection = this.state.round.direction;
+            var indexOfMe = this.state.game.players.indexOf(this.state.username);
+            var offset = {
+                hold: 0,
+                left: 1,
+                across: 2,
+                right: 3,
+            }
+            var indexOfPass = (indexOfMe + offset[passDirection]) % 4;
+            if (indexOfPass != indexOfMe) {
+                var passString = 'Pass 3 cards ' + passDirection +
+                                    ' to ' + this.state.game.players[indexOfPass];
+                renderPassingInfo(passString, this.state.chosenCards.length == 3, this);
+            }
+        }
+    }
+
+    this.resetPassing = function() {
+        this.state.chosenCards = [];
+        this.render();
+    }
+
+    this.donePassing = function() {
+        for (var i = 0; i < this.state.chosenCards.length; i++) {
+            this.removeCard(this.state.chosenCards[i]);
+        }
+        this.resetPassing();
+        this.state.mode = 'wait';
+    }
+
+    this.message = function(messageStr) {
+        alert(messageStr);  // this is temporary
     }
 
     this.render = function() {
@@ -149,12 +220,18 @@ function HeartsClient() {
             displayOpponents(this.state.username, this.state.game.players);
             this.displayHand(this.state.hand);
             displayTrick(this.state.trick);
+            this.renderPassing();
         }
     }
 
     this.gameUpdate = function(data) {
         // Update the local copy of the game state with the server data
         var state = this.state;
+
+        if (state.mode === null) {
+            state.mode = 'pass';  // game starts, first thing is pass
+        }
+
         state.game = data;
         state.round = state.game.rounds[state.game.rounds.length - 1];
         state.hand = state.round.hands[state.username];
