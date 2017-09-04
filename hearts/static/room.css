@@ -68,6 +68,16 @@ html, body {
   text-align: center;
 }
 
+#status {
+  margin-bottom: 30px;
+}
+
+.centered_in_div {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+}
+
 .card_back {
   background: url("/static/back.jpg");
   width: 73px;
@@ -76,7 +86,7 @@ html, body {
   margin-right: auto;
 }
 
-#hand {
+#player {
   position: absolute;
   bottom: 30px;
   width: 100%;
@@ -92,10 +102,7 @@ html, body {
   padding: 0;
   margin: 0;
   list-style: none;
-  
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
+
 }
 
 .card {

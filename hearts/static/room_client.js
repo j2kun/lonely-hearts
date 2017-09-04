@@ -15,7 +15,13 @@ function RoomClient(socket_client, room_state) {
     if (this.state.mode === 'passing') {
       if (this.state.chooseOrUnchooseCard(card)) {
         this.ui.chooseOrUnchooseCard(div);
-      } // if 3, display button
+      }
+
+      if (this.state.chosenCards.length == 3) {
+        this.ui.renderPassButton(true, this.state.round.direction);
+      } else {
+        this.ui.renderPassButton(false);
+      }
     } else if (this.state.mode === 'play') {
       var success = true; // playCard(card);  // call the API
       if (success) {
