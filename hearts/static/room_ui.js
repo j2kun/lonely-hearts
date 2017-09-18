@@ -75,6 +75,15 @@ function RoomUI(callbacks) {
     div.toggleClass('chosen_to_pass');
   }
 
+  this.renderPassButton = function(enable, direction) {
+    var buttonHtml = '';
+    if (enable) {
+      buttonHtml = ('<button id="pass_button">' +
+        'Pass 3 cards ' + direction + '</button>');
+    }
+    $('#status').html(buttonHtml);
+  }
+
   this.renderWaitingForPlayers = function() {
 
   }
