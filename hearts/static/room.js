@@ -1,3 +1,6 @@
+var PASS = 'pass';
+var PLAY = 'play';
+var WAIT = 'wait';
 
 /*
  * Rendering functions
@@ -48,9 +51,10 @@ function renderPassingInfo(message, includeButton, heartsClient) {
     if (includeButton) {
         $('#message').html(msg + button);
         $('#submit_pass').click(function() {
-            socket_client.pass_cards(heartsClient.state.chosenCards)
+            var response = socket_client.pass_cards(heartsClient.state.chosenCards);
+            // check for valid response
+            heartsClient.donePassing();
         });
-        heartsClient.donePassing();
     } else {
         $('#message').html(msg);
     }
@@ -111,7 +115,7 @@ function HeartsClient() {
     this.state = {
         username: '',
         chosenCards: [],
-        mode: 'pass',  // 'play' or 'pass' or 'wait'
+        mode: PASS,
 
         // game, round, hand, trick are updated by incoming
         // socket events
@@ -142,12 +146,12 @@ function HeartsClient() {
 
     this.cardClick = function(card, div) {
         console.log('clicked ' + card);
-        if (this.state.mode === 'pass') {
+        if (this.state.mode === PASS) {
             if (this.chooseOrUnchooseCard(card)) {
                 div.toggleClass('chosen_to_pass');
             }
             this.renderPassing();
-        } else if (this.state.mode === 'play') {
+        } else if (this.state.mode === PLAY) {
             var success = true; // playCard(card);  // call the API
             if (success) {
                 this.removeCard(card);
@@ -176,8 +180,12 @@ function HeartsClient() {
         $('#message').html('<div>Waiting for players to join...</div>');
     }
 
+    this.renderWaitingForPass = function() {
+        $('#message').html('<div>Waiting for other players to pass...</div>');
+    }
+
     this.renderPassing = function() {
-        if (this.state.mode === 'pass') {
+        if (this.state.mode === PASS) {
             var passDirection = this.state.round.direction;
             var indexOfMe = this.state.game.players.indexOf(this.state.username);
             var offset = {
@@ -192,12 +200,17 @@ function HeartsClient() {
                                     ' to ' + this.state.game.players[indexOfPass];
                 renderPassingInfo(passString, this.state.chosenCards.length == 3, this);
             }
+        } else if (this.state.mode === WAIT) {
+            this.renderWaitingForPass();
+        } else if (this.state.mode === PLAY) {
+            clearMessage();
         }
     }
 
     this.resetPassing = function() {
         this.state.chosenCards = [];
         this.render();
+        clearMessage();
     }
 
     this.donePassing = function() {
@@ -205,7 +218,9 @@ function HeartsClient() {
             this.removeCard(this.state.chosenCards[i]);
         }
         this.resetPassing();
-        this.state.mode = 'wait';
+        if (this.state.mode === PASS) {
+          this.state.mode = WAIT;
+        }
     }
 
     this.message = function(messageStr) {
@@ -229,7 +244,9 @@ function HeartsClient() {
         var state = this.state;
 
         if (state.mode === null) {
-            state.mode = 'pass';  // game starts, first thing is pass
+            state.mode = PASS;  // game starts, first thing is pass
+        } else if (state.mode === WAIT) {
+            state.mode = PLAY;  // all players have passed
         }
 
         state.game = data;

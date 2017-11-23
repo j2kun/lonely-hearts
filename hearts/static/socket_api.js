@@ -19,11 +19,8 @@ function RoomSocket(api_url, heartsClient) {
         };
         var result = this.socket.emit('pass_cards', data);
         if (result.status == 'failure') {
-            this.heartsClient.message(result.message);
             this.heartsClient.resetPassing();
         } else {
-            // success
-            this.heartsClient.message(result.message);
             this.heartsClient.donePassing();
         }
     };
