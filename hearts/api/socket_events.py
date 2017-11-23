@@ -186,6 +186,7 @@ def on_pass_cards(data):
 
     if len(current_round.pass_selections) == 4:
         received_cards = current_round.pass_cards()
+        current_round.set_turn_counter()
         save_game(game, game_id)
         emit_game_updates(room, game)
 
