@@ -238,14 +238,21 @@ class Round(object):
         '''
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
-        self.pass_to = pass_to
         self.pass_selections = {}  # A dictionary {player: [card]}
+        self.player_action = {player: None for player in self.players}
+        self.pass_to = pass_to
         self.tricks = []
         self.turn_counter = 0
         self.hearts_broken = False
 
         self.deal()
         self.set_turn_counter()
+
+        if pass_to != 'keep':
+            for player in self.player_action:
+                self.player_action[player] = 'pass'
+        else:
+            self.set_play_action()
 
     @property
     def next_player(self):
@@ -263,6 +270,13 @@ class Round(object):
         for index in range(4):
             if Card('2', 'c') in self.hands[self.players[index]]:
                 self.turn_counter = index
+
+    def set_play_action(self):
+        for player in self.players:
+            if player == self.next_player:
+                self.player_action[player] = 'play'
+            else:
+                self.player_action[player] = 'wait'
 
     def is_valid_pass_for_player(self, player, cards):
         # [Card] --> (Bool, string)
@@ -284,18 +298,20 @@ class Round(object):
         Input: player: A Player object
                cards: A list of Card objects
         Verifies that cards is a valid list of cards to pass and appends
-        it to the pass_selections attribute of Round.
+        it to the pass_selections attribute of Round.  After, updates player_action
+        of the round to 'wait' for remaining players.
         '''
         is_valid, error_message = self.is_valid_pass_for_player(player, cards)
         if is_valid:
             self.pass_selections[player] = cards
+            self.player_action[player] = 'wait'
         else:
             raise ValueError(error_message)
 
     def pass_cards(self):
         '''
         Distribute the cards in the pass_selections of the round
-        to the intended player.
+        to the intended player.  Updates player_action in the round.
         Returns:
             {
                 Player: {
@@ -322,6 +338,9 @@ class Round(object):
                 'cards': [card.serialize() for card in cards],
                 'from': passer
             }
+
+        self.set_turn_counter()    # Reset turn counter after passing
+        self.set_play_action()
         return received_cards
 
     def can_follow_suit(self, player, trick):
@@ -393,7 +412,8 @@ class Round(object):
     def upkeep(self, player, card):
         '''
         Removes a played card from a hand, updates the turn counter,
-        and updates when hearts get broken.
+        and updates when hearts get broken.  After turn counter is
+        updated, update player_action.
         '''
         self.hands[player].remove(card)
         if self.hearts_broken is False and card.suit == 'h':
@@ -404,6 +424,7 @@ class Round(object):
             self.turn_counter = (self.turn_counter + 1) % 4
         else:
             self.turn_counter = self.players.index(last_trick.winner())
+        self.set_play_action()
 
     def play_card(self, player, card):
         if self.is_player_turn(player):
