@@ -37,24 +37,6 @@ function RoomUI(callbacks) {
     $('#trick').html(trickToRender);
   }
 
-  this.cardClick = function(card, div, state) {
-    console.log('clicked ' + card);
-    if (state.mode === 'passing') {
-      if (state.chooseOrUnchooseCard(card)) {
-        div.toggleClass('chosen_to_pass');
-      } // if 3, display button
-    } else if (state.mode === 'play') {
-      var success = true; // playCard(card);  // call the API
-      if (success) {
-        // fake playCard and will be removed in favor of listening for gameUpdate
-        var index = state.hand.indexOf(card);
-        state.hand.splice(index, 1);
-        state.trick.push(card);
-        this.render();
-      }
-    }
-  }
-
   this.displayHand = function(hand) {
     var handToRender = '';
     for (var i = 0; i < hand.length; i++) {
@@ -85,7 +67,17 @@ function RoomUI(callbacks) {
   }
 
   this.renderWaitingForPlayers = function() {
+    // Do I need this? Will this be provided by the server?
+  }
 
+  this.displayMessages = function(messages) {
+    messages_html = '<ul>';
+    for (let i = 0; i < messages.length; i++) {
+      messages_html += '<li>' + messages[i] + '</li>';
+    }
+    messages_html += '</ul>';
+
+    $('#messages').html(messages_html);
   }
 
   this.render = function(started, state) {
@@ -95,6 +87,7 @@ function RoomUI(callbacks) {
       this.displayOpponents(state.username, state.game.players);
       this.displayHand(state.hand);
       this.displayTrick(state.trick);
+      this.displayMessages(state.messages[state.username]);
     }
   }
 }

@@ -19,6 +19,14 @@ function RoomSocketClient(api_url) {
     return result.status;
   };
 
+  this.play_card = function(card) {
+    var data = {
+      card: card
+    };
+    var result = this.socket.emit('play_card', data);
+    return result.status;
+  };
+
   this.setup_game_update_handler = function(gameUpdateFn) {
     this.socket.on('game_update', function(data) {
       console.log('received game update: ');

@@ -72,19 +72,25 @@ function RoomState(username) {
     }
   }
 
-  this.setMode = function(mode) {
-    this.mode = mode;
+  this.round = function() {
+    let rounds = this.game.rounds();
+    return rounds[rounds.length - 1];
+  }
+
+  this.hand = function() {
+    return this.round().hands[this.username];
+  }
+
+  this.trick = function() {
+    let round = this.round();
+    return round.tricks[round.tricks.length - 1];
+  }
+
+  this.mode = function() {
+    return this.game.player_action[this.username];
   }
 
   this.gameUpdate = function(data) {
-    // Update the local copy of the game state with the server data
     this.game = data;
-    this.round = this.game.rounds[this.game.rounds.length - 1];
-    this.hand = this.round.hands[this.username];
-    if (this.round.tricks.length > 0) {
-      this.trick = this.round.tricks[this.round.tricks.length - 1];
-    } else {
-      this.trick = [];
-    }
   }
 }
