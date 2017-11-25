@@ -6,6 +6,18 @@
   "players": [
     "BillSpsP7", "Bill Xnnqk", "Bill tC3g1", "Bill sEYQH"
   ],
+  "messages": {
+    "BillSpsP7": ["message1", "message2"],
+    "BillXnnqk": ["message3"],
+    "BilltC3g1": [],
+    "BillsEyQH": []
+  },
+  "player_action": {
+    "BillSpsP7": "play",
+    "BillXnnqk": "wait",
+    "BilltC3g1": "wait",
+    "BillsEyQH": "wait"
+  },
   "rounds": [
     {
       "hands": {
@@ -46,7 +58,6 @@ function RoomState(username) {
   this.chosenCards = [];
   this.game = null;
   this.username = username;
-  this.mode = 'passing';
 
   this.chooseOrUnchooseCard = function(card) {
     var foundIndex = $.inArray(card, this.chosenCards);
