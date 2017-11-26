@@ -587,6 +587,7 @@ def test_serialize_pass_selections():
         'direction': 'None',
         'pass_selections': serialized_selections,
         'turn': 0,
+        'player_action': {},
         'hands': {},
         'tricks': [],
         'hearts': False,
