@@ -171,9 +171,9 @@ def test_pass_cards_add_to_pass_selections_confirmation(db, socket_clients):
     clients[0].emit('pass_cards', {'cards': user1_cards})
     clients[1].emit('pass_cards', {'cards': user2_cards})
     log = clients[1].get_received()
-    assert log[-1]['name'] == 'pass_submission_status'
-    assert log[-1]['args'][0]['status'] == 'success'
-    assert 'You chose to pass' in log[-1]['args'][0]['message']
+    assert log[-2]['name'] == 'pass_submission_status'
+    assert log[-2]['args'][0]['status'] == 'success'
+    assert 'You chose to pass' in log[-2]['args'][0]['message']
 
     game = get_game(game_id, deserialize=False)
     assert len(game['data']['rounds'][-1]['pass_selections']) == 2
@@ -191,9 +191,9 @@ def test_pass_cards_invalid_pass(db, socket_clients):
     user1_cards = current_round['hands']['user1'][:2]   # Only 2 cards chosen
     clients[0].emit('pass_cards', {'cards': user1_cards})
     log = clients[0].get_received()
-    assert log[-1]['name'] == 'pass_submission_status'
-    assert log[-1]['args'][0]['status'] == 'failure'
-    assert 'You cannot pass' in log[-1]['args'][0]['message']
+    assert log[-2]['name'] == 'pass_submission_status'
+    assert log[-2]['args'][0]['status'] == 'failure'
+    assert 'You cannot pass' in log[-2]['args'][0]['message']
 
 
 def test_pass_cards_all_users(db, socket_clients):
@@ -212,7 +212,8 @@ def test_pass_cards_all_users(db, socket_clients):
 
     for client in clients:
         received_events = client.get_received()
-        assert received_events[-3]['name'] == 'pass_submission_status'
+        assert received_events[-4]['name'] == 'pass_submission_status'
+        assert received_events[-3]['name'] == 'game_update'
         assert received_events[-2]['name'] == 'game_update'
         assert received_events[-1]['name'] == 'receive_cards'
 

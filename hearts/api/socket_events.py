@@ -90,13 +90,20 @@ def sid_from_player(room, player):
             return user_data['socket_id']
 
 
-def emit_game_updates(room, game):
+def emit_game_updates(room, game, player_id=None):
     '''
     Emit a serialized view of the game to each player in the room.
+    Using the optional player_id argument will update only for that player.
     '''
-    for user_info in room['users']:
-        serialized_for_player = game.serialize(for_player=Player(user_info['username']))
-        io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
+
+    if player_id:
+        for_player = player_from_sid(room, player_id)
+        serialized_for_player = game.serialize(for_player)
+        io.emit('game_update', serialized_for_player, room=player_id)
+    else:
+        for user_info in room['users']:
+            serialized_for_player = game.serialize(for_player=Player(user_info['username']))
+            io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
 
 
 @socketio.on('chat')
@@ -175,6 +182,7 @@ def on_pass_cards(data):
         confirmation['message'] = str(error_message)
 
     io.emit('pass_submission_status', confirmation, room=socket_id)
+    emit_game_updates(room, game, player_id=socket_id)      # Refresh the frontend after choosing cards
 
     if len(current_round.pass_selections) == 4:
         received_cards = current_round.pass_cards()

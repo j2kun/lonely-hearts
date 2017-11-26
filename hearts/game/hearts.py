@@ -522,7 +522,7 @@ class Round(object):
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
             'pass_selections': serialize_pass_selections(self.pass_selections, for_player),
-            'turn': self.turn_counter,      # Remove this after serializing player_action
+            'turn': self.turn_counter,
             'player_action': {player.username: action for player, action in self.player_action.items()},
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
