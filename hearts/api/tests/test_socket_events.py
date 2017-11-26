@@ -150,8 +150,11 @@ def test_pass_cards_add_to_pass_selections(db, socket_clients):
 
     clients[3].emit('pass_cards', {'cards': cards})
     game = get_game(game_id, deserialize=False)
-    assert len(game['data']['rounds'][-1]['pass_selections']) == 1
-    assert game['data']['rounds'][-1]['pass_selections']['user4'] == cards
+    current_round = game['data']['rounds'][-1]
+
+    assert len(current_round['pass_selections']) == 1
+    assert current_round['pass_selections']['user4'] == cards
+    assert current_round['player_action']['user4'] == 'wait'
 
 
 def test_pass_cards_add_to_pass_selections_confirmation(db, socket_clients):

@@ -522,7 +522,8 @@ class Round(object):
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
             'pass_selections': serialize_pass_selections(self.pass_selections, for_player),
-            'turn': self.turn_counter,
+            'turn': self.turn_counter,      # Remove this after serializing player_action
+            'player_action': {player.username: action for player, action in self.player_action.items()},
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
             'hearts': self.hearts_broken,
@@ -542,6 +543,8 @@ class Round(object):
         the_round.pass_selections = selections
 
         the_round.turn_counter = serialized['turn']
+
+        the_round.player_action = {Player(username): action for username, action in serialized['player_action'].items()}
         the_round.hands = {Player(username): Hand.deserialize(hand) for (username, hand) in serialized['hands'].items()}
         the_round.tricks = [Trick.deserialize(trick) for trick in serialized['tricks']]
         the_round.hearts_broken = serialized['hearts']
