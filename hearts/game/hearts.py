@@ -9,6 +9,11 @@ from hearts.api.strings import NOT_FOLLOWING_SUIT
 from hearts.api.strings import NOT_TWO_CLUBS
 from hearts.api.strings import NOT_YOUR_TURN
 from hearts.api.strings import NO_FIRST_TRICK_POINTS
+from hearts.api.strings import PLAY_CARD
+from hearts.api.strings import PASS_CARDS
+from hearts.api.strings import WAITING_FOR_PLAY
+from hearts.api.strings import WAITING_FOR_PASS
+
 from hearts.api.strings import message
 
 
@@ -238,21 +243,21 @@ class Round(object):
         '''
         self.players = players   # List of players in seated order
         self.hands = dict()      # Player -> Hand
-        self.pass_selections = {}  # A dictionary {player: [card]}
-        self.player_action = {player: None for player in self.players}
         self.pass_to = pass_to
         self.tricks = []
         self.turn_counter = 0
         self.hearts_broken = False
+        self.pass_selections = {}  # A dictionary {player: [card]}
+        self.player_action = {player: None for player in self.players}
+        self.messages = {player: [] for player in self.players}
 
         self.deal()
         self.set_turn_counter()
 
         if pass_to != 'keep':
-            for player in self.player_action:
-                self.player_action[player] = 'pass'
+            self.set_passing_states()
         else:
-            self.set_play_action()
+            self.set_playing_states()
 
     @property
     def next_player(self):
@@ -271,12 +276,19 @@ class Round(object):
             if Card('2', 'c') in self.hands[self.players[index]]:
                 self.turn_counter = index
 
-    def set_play_action(self):
+    def set_playing_states(self):
         for player in self.players:
             if player == self.next_player:
                 self.player_action[player] = 'play'
+                self.messages[player] = [PLAY_CARD]
             else:
                 self.player_action[player] = 'wait'
+                self.messages[player] = [WAITING_FOR_PLAY.format(self.next_player)]
+
+    def set_passing_states(self):
+        for player in self.players:
+            self.player_action[player] = 'pass'
+            self.messages[player] = [PASS_CARDS.format(self.pass_to)]
 
     def is_valid_pass_for_player(self, player, cards):
         # [Card] --> (Bool, string)
@@ -305,6 +317,7 @@ class Round(object):
         if is_valid:
             self.pass_selections[player] = cards
             self.player_action[player] = 'wait'
+            self.messages[player] = [WAITING_FOR_PASS]
         else:
             raise ValueError(error_message)
 
@@ -340,7 +353,7 @@ class Round(object):
             }
 
         self.set_turn_counter()    # Reset turn counter after passing
-        self.set_play_action()
+        self.set_playing_states()
         return received_cards
 
     def can_follow_suit(self, player, trick):
@@ -424,7 +437,7 @@ class Round(object):
             self.turn_counter = (self.turn_counter + 1) % 4
         else:
             self.turn_counter = self.players.index(last_trick.winner())
-        self.set_play_action()
+        self.set_playing_states()
 
     def play_card(self, player, card):
         if self.is_player_turn(player):

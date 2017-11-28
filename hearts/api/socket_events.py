@@ -186,7 +186,6 @@ def on_pass_cards(data):
 
     if len(current_round.pass_selections) == 4:
         received_cards = current_round.pass_cards()
-        current_round.set_turn_counter()
         save_game(game, game_id)
         emit_game_updates(room, game)
 
@@ -230,6 +229,9 @@ def on_play_card(data):
     io.emit('play_submission_status', confirmation, room=socket_id)
 
     if confirmation['status'] == 'success':
+        emit_game_updates(room, game)
+        save_game(game, game_id)
+
         # check if game is over to notify score update
         if current_round.is_over():
             data = {'message': 'The round is over! The scores have been updated'}
@@ -237,5 +239,3 @@ def on_play_card(data):
         if game.is_over():
             data = {'message': 'The game is over! The final scores have been updated'}
             io.emit('game_over', data, room=socket_id)
-        emit_game_updates(room, game)
-        save_game(game, game_id)
