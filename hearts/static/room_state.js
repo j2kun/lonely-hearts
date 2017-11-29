@@ -87,7 +87,7 @@ function RoomState(username) {
   }
 
   this.mode = function() {
-    return this.game.player_action[this.username];
+    return this.round().player_action[this.username];
   }
 
   this.gameUpdate = function(data) {

@@ -85,9 +85,10 @@ function RoomUI(callbacks) {
       this.renderWaitingForPlayers();
     } else {
       this.displayOpponents(state.username, state.game.players);
-      this.displayHand(state.hand);
-      this.displayTrick(state.trick);
-      this.displayMessages(state.messages[state.username]);
+      console.log(state.hand());
+      this.displayHand(state.hand());
+      this.displayTrick(state.trick());
+      this.displayMessages(state.round().messages[state.username]);
     }
   }
 }
