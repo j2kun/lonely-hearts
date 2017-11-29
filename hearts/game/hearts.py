@@ -288,7 +288,7 @@ class Round(object):
 
     def set_passing_states(self):
         for player in self.players:
-            self.player_action[player] = 'pass'
+            self.player_action[player] = 'passing'
             self.messages[player] = [PASS_CARDS.format(self.pass_to)]
 
     def is_valid_pass_for_player(self, player, cards):
@@ -496,6 +496,8 @@ class Round(object):
             'direction': str,
             'pass_selections': {str: [str, str, str]}
             'turn': int,
+            'player_action': {str: str},
+            'messages': {str: [str]},
             'hands': [str],
             'tricks': {str: {int: str}}
             'hearts': boolean
@@ -535,6 +537,8 @@ class Round(object):
             'direction': self.pass_to,
             'pass_selections': serialize_pass_selections(self.pass_selections, for_player),
             'turn': self.turn_counter,
+            'player_action': {player.username: self.player_action[player] for player in self.players},
+            'messages': {player.username: self.messages[player] for player in self.players},
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
             'hearts': self.hearts_broken,
