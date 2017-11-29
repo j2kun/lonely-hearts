@@ -17,6 +17,11 @@ PASSED_CARDS = 'You passed {} to {}.'
 PASS_SUBMIT = 'You chose to pass {}.'
 RECEIVED_CARDS = '{} passed {} to you.'
 
+PLAY_CARD = "It's your turn. Play a card."
+PASS_CARDS = 'Choose three cards to pass {}'  # format with direction
+WAITING_FOR_PLAY = 'Waiting for {} to play a card.'
+WAITING_FOR_PASS = 'Waiting for all players to choose three cards to pass.'
+
 
 def message(error, error_reason):
     '''
