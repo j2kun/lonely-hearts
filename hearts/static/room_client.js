@@ -31,10 +31,12 @@ function RoomClient(socket_client, room_state) {
   this.passButtonClick = function() {
     console.log('Clicked the pass button!');
     let cards = this.state.chosenCards;
-    this.socket_client.pass_cards(cards);      // Function/method names are sometimes camelCase
-                                               // and sometimes have underscores.  Confusing!
+    this.socket_client.pass_cards(cards);         // Function/method names are sometimes camelCase
+    console.log('passed cards to the backend');   // and sometimes have underscores.  Confusing!
 
-    // Need to return result of pass attempt
+    // Need to return result of pass attempt?
+
+    // Hide the pass button after the player pressed it
   }
 
   this.socket_client = socket_client;
