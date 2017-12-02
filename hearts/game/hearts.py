@@ -9,6 +9,7 @@ from hearts.api.strings import NOT_FOLLOWING_SUIT
 from hearts.api.strings import NOT_TWO_CLUBS
 from hearts.api.strings import NOT_YOUR_TURN
 from hearts.api.strings import NO_FIRST_TRICK_POINTS
+from hearts.api.strings import PASS_SUBMIT
 from hearts.api.strings import PLAY_CARD
 from hearts.api.strings import PASS_CARDS
 from hearts.api.strings import WAITING_FOR_PLAY
@@ -311,14 +312,19 @@ class Round(object):
         Input: player: A Player object
                cards: A list of Card objects
         Verifies that cards is a valid list of cards to pass and appends
-        it to the pass_selections attribute of Round.
+        it to the pass_selections attribute of Round.  Also updates the
+        messages to be displayed to the player.
         '''
         is_valid, error_message = self.is_valid_pass_for_player(player, cards)
         if is_valid:
             self.pass_selections[player] = cards
             self.player_action[player] = 'wait'
+
             self.messages[player] = [WAITING_FOR_PASS]
+            pass_acknowledged = PASS_SUBMIT.format(', '.join(map(str, cards)))
+            self.messages[player].append(pass_acknowledged)
         else:
+            self.messages[player] = error_message
             raise ValueError(error_message)
 
     def pass_cards(self):
