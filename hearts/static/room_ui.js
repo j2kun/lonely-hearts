@@ -2,6 +2,8 @@ function RoomUI(callbacks) {
 
   this.cardClickCallback = callbacks['card_click'];
 
+  this.passButtonClickCallback = callbacks['pass_button_click'];
+
   this.displayCard = function(apiCard) {
     return apiCard[1] + apiCard[0];
   }
@@ -28,13 +30,15 @@ function RoomUI(callbacks) {
 
   this.displayTrick = function(trick) {
     // Need to rewrite this
-    var trickToRender = '';
-    var orderedPositions = ['bottom', 'left', 'top', 'right'];
-    for (var i = 0; i < trick.length; i++) {
-      trickToRender += ('<div class="card ' + orderedPositions[i] +
+    if (trick) {
+      var trickToRender = '';
+      var orderedPositions = ['bottom', 'left', 'top', 'right'];
+      for (var i = 0; i < trick.length; i++) {
+        trickToRender += ('<div class="card ' + orderedPositions[i] +
                '" id="' + this.displayCard(trick[i]) + '"></div>');
+      $('#trick').html(trickToRender);
+      }
     }
-    $('#trick').html(trickToRender);
   }
 
   this.displayHand = function(hand) {
@@ -64,6 +68,9 @@ function RoomUI(callbacks) {
         'Pass 3 cards ' + direction + '</button>');
     }
     $('#status').html(buttonHtml);
+    $('pass_button').click(function(event){
+      this.passButtonClickCallback();
+    })
   }
 
   this.renderWaitingForPlayers = function() {

@@ -6,7 +6,8 @@ function RoomClient(socket_client, room_state) {
 
   this.callbacks = function() {
     return {
-      'card_click': this.cardClick.bind(this)
+      'card_click': this.cardClick.bind(this),
+      'pass_button_click': this.passButtonClick.bind(this)
     };
   }
 
@@ -25,6 +26,14 @@ function RoomClient(socket_client, room_state) {
     } else if (this.state.mode() === 'play') {
       this.socket_client.playCard(card);
     }
+  }
+
+  this.passButtonClick = function() {
+    console.log('passed cards');
+    let cards = this.state.chosenCards;
+    this.socket_client.passCards(cards);
+
+    // Need to return result of pass attempt
   }
 
   this.socket_client = socket_client;
