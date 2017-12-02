@@ -73,7 +73,7 @@ function RoomState(username) {
   }
 
   this.round = function() {
-    let rounds = this.game.rounds();
+    let rounds = this.game.rounds;
     return rounds[rounds.length - 1];
   }
 
