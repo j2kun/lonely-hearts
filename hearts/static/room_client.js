@@ -24,14 +24,15 @@ function RoomClient(socket_client, room_state) {
         this.ui.renderPassButton(false);
       }
     } else if (this.state.mode() === 'play') {
-      this.socket_client.playCard(card);
+      this.socket_client.play_card(card);
     }
   }
 
   this.passButtonClick = function() {
-    console.log('passed cards');
+    console.log('Clicked the pass button!');
     let cards = this.state.chosenCards;
-    this.socket_client.passCards(cards);
+    this.socket_client.pass_cards(cards);      // Function/method names are sometimes camelCase
+                                               // and sometimes have underscores.  Confusing!
 
     // Need to return result of pass attempt
   }
