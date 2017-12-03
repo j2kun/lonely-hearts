@@ -12,6 +12,7 @@ from hearts.api.strings import NO_FIRST_TRICK_POINTS
 from hearts.api.strings import PASS_SUBMIT
 from hearts.api.strings import PLAY_CARD
 from hearts.api.strings import PASS_CARDS
+from hearts.api.strings import RECEIVED_CARDS
 from hearts.api.strings import WAITING_FOR_PLAY
 from hearts.api.strings import WAITING_FOR_PASS
 
@@ -361,6 +362,13 @@ class Round(object):
         self.set_turn_counter()    # Reset turn counter after passing
         self.set_playing_states()
         return received_cards
+
+    def update_messages_after_passing(self, received_cards):
+        for player, data in received_cards.items():
+            passer = data['from']
+            cards = map(str, data['cards'])
+            received_cards_message = RECEIVED_CARDS.format(passer, ', '.join(cards))
+            self.messages[player].append(received_cards_message)
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]

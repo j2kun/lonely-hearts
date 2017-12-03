@@ -44,7 +44,6 @@ from hearts.api.strings import ROOM_IS_FULL
 from hearts.api.strings import played_a_card
 from hearts.api.strings import pass_submit
 from hearts.api.strings import received_cards_from
-from hearts.api.strings import RECEIVED_CARDS
 
 from bson.objectid import ObjectId
 
@@ -188,7 +187,7 @@ def on_pass_cards(data):
         received_cards = current_round.pass_cards()
         current_round.set_playing_states()
 
-        # Remove this.  Instead, store this data in current_round.messages
+        # Remove this.  Passing messages are updated via current_round.update_messages_after_passing()
         '''Notify each player of the cards they received.'''
         for user_data in room['users']:
             receiver_id = user_data['socket_id']
@@ -202,14 +201,7 @@ def on_pass_cards(data):
             }
             io.emit('receive_cards', data, room=receiver_id)
 
-        # Record what each player received after passing in the Round object
-        # This block should be refactored as a function in hearts.py
-        for player, data in received_cards.items():
-            passer = data['from']
-            cards = map(str, data['cards'])
-            received_cards_message = RECEIVED_CARDS.format(passer, ', '.join(cards))
-            current_round.messages[player].append(received_cards_message)
-
+        current_round.update_messages_after_passing(received_cards)
         save_game(game, game_id)
         emit_game_updates(room, game)
 
