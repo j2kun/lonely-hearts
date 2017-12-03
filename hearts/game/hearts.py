@@ -542,6 +542,16 @@ class Round(object):
                 serialized[player.username] = [card.serialize() for card in pass_selections[player]]
             return serialized
 
+        def serialize_messages(messages, for_player=for_player):
+            serialized = {}
+            if for_player is None:
+                for player in messages:
+                    serialized[player.username] = messages[player]
+            else:
+                player = for_player if isinstance(for_player, Player) else Player(for_player)
+                serialized = {player.username: messages[player]}
+            return serialized
+
         def serialize_the_score(score_dict):
             # Return a score dictionary with Player replaced by its username
             return {player.username: points for (player, points) in score_dict.items()}
@@ -549,10 +559,10 @@ class Round(object):
         return {
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
-            'pass_selections': serialize_pass_selections(self.pass_selections, for_player),
+            'pass_selections': serialize_pass_selections(self.pass_selections, for_player=for_player),
             'turn': self.turn_counter,
             'player_action': {player.username: self.player_action[player] for player in self.players},
-            'messages': {player.username: self.messages[player] for player in self.players},
+            'messages': serialize_messages(self.messages, for_player=for_player),
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
             'hearts': self.hearts_broken,
