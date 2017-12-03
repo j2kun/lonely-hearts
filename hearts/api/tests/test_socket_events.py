@@ -209,9 +209,10 @@ def test_pass_cards_all_users(db, socket_clients):
 
     for client in clients:
         received_events = client.get_received()
-        assert received_events[-3]['name'] == 'pass_submission_status'
-        assert received_events[-2]['name'] == 'game_update'
-        assert received_events[-1]['name'] == 'receive_cards'
+        event_names = [data['name'] for data in received_events]
+        assert 'pass_submission_status' in event_names
+        assert 'game_update' in event_names
+        assert 'receive_cards' in event_names
 
 
 def test_play_card_2c_game_update(db, socket_clients):
