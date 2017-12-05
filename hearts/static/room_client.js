@@ -1,4 +1,4 @@
-function RoomClient(socket_client, room_state) {
+function RoomClient(socketClient, roomState) {
 
   this.refresh = function() {
     this.ui.render(this.state.game != null, this.state);
@@ -6,8 +6,8 @@ function RoomClient(socket_client, room_state) {
 
   this.callbacks = function() {
     return {
-      'card_click': this.cardClick.bind(this),
-      'pass_button_click': this.passButtonClick.bind(this)
+      'cardClick': this.cardClick.bind(this),
+      'passButtonClick': this.passButtonClick.bind(this)
     };
   }
 
@@ -24,14 +24,14 @@ function RoomClient(socket_client, room_state) {
         this.ui.renderPassButton(false);
       }
     } else if (this.state.mode() === 'play') {
-      this.socket_client.play_card(card);
+      this.socketClient.playCard(card);
     }
   }
 
   this.passButtonClick = function() {
     console.log('Clicked the pass button!');
     let cards = this.state.chosenCards;
-    this.socket_client.pass_cards(cards);         // Function/method names are sometimes camelCase
+    this.socketClient.passCards(cards);         // Function/method names are sometimes camelCase
     console.log('passed cards to the backend');   // and sometimes have underscores.  Confusing!
 
     // Need to return result of pass attempt?
@@ -39,13 +39,13 @@ function RoomClient(socket_client, room_state) {
     // Hide the pass button after the player pressed it
   }
 
-  this.socket_client = socket_client;
-  this.state = room_state;
+  this.socketClient = socketClient;
+  this.state = roomState;
   this.ui = new RoomUI(this.callbacks());
 
   var that = this;
   this.refresh();
-  this.socket_client.setup_game_update_handler(
+  this.socketClient.setupGameUpdateHandler(
     function(data) {
       that.state.gameUpdate(data);
       that.refresh();

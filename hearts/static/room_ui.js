@@ -1,8 +1,8 @@
 function RoomUI(callbacks) {
 
-  this.cardClickCallback = callbacks['card_click'];
+  this.cardClickCallback = callbacks['cardClick'];
 
-  this.passButtonClickCallback = callbacks['pass_button_click'];
+  this.passButtonClickCallback = callbacks['passButtonClick'];
 
   this.displayCard = function(apiCard) {
     return apiCard[1] + apiCard[0];
@@ -13,14 +13,14 @@ function RoomUI(callbacks) {
   }
 
   this.displayOpponent = function(position, name) {
-    var class_name = '.opponent.' + position;
-    $(class_name + ' .name').text(name);
+    var className = '.opponent.' + position;
+    $(className + ' .name').text(name);
   }
 
-  this.displayOpponents = function(player, all_players) {
-    var ordered_players = all_players.slice(all_players.indexOf(player), all_players.length)
-              .concat(all_players.slice(0, all_players.indexOf(player)));
-    var opponents = ordered_players.slice(1, ordered_players.length);
+  this.displayOpponents = function(player, allPlayers) {
+    var orderedPlayers = allPlayers.slice(allPlayers.indexOf(player), allPlayers.length)
+              .concat(allPlayers.slice(0, allPlayers.indexOf(player)));
+    var opponents = orderedPlayers.slice(1, orderedPlayers.length);
     var positions = ['left', 'top', 'right'];
 
     for (var i = 0; i < positions.length; i++) {
@@ -76,13 +76,13 @@ function RoomUI(callbacks) {
   }
 
   this.displayMessages = function(messages) {
-    messages_html = '<ul>';
+    messagesHtml = '<ul>';
     for (let i = 0; i < messages.length; i++) {
-      messages_html += '<li>' + messages[i] + '</li>';
+      messagesHtml += '<li>' + messages[i] + '</li>';
     }
-    messages_html += '</ul>';
+    messagesHtml += '</ul>';
 
-    $('#messages').html(messages_html);
+    $('#messages').html(messagesHtml);
   }
 
   this.render = function(started, state) {
