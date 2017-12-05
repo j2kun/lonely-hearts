@@ -43,14 +43,14 @@
 
 <script>
 var username = prompt('Enter your name:');
-var socket_client = new RoomSocketClient("{{ api_url }}");
-var room_state = new RoomState(username);
-var room_client = new RoomClient(socket_client, room_state);
-socket_client.join_room("{{ room_id }}", username);
+var socketClient = new RoomSocketClient("{{ api_url }}");
+var roomState = new RoomState(username);
+var roomClient = new RoomClient(socketClient, roomState);
+socketClient.joinRoom("{{ room_id }}", username);
 
 function setup() {
     $("body").removeClass("preload");
-    room_client.refresh();
+    roomClient.refresh();
 }
 
 $(window).load(setup);

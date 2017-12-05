@@ -1,17 +1,17 @@
-function RoomSocketClient(api_url) {
-  this.api_url = api_url;
-  this.socket = io(this.api_url);
+function RoomSocketClient(apiUrl) {
+  this.apiUrl = apiUrl;
+  this.socket = io(this.apiUrl);
 
-  this.join_room = function(room_id, username) {
-    console.log("Joining room " + room_id + " as " + username);
-    var returned_message = this.socket.emit('join', {
-      room: room_id,
+  this.joinRoom = function(roomId, username) {
+    console.log("Joining room " + roomId + " as " + username);
+    var returnedMessage = this.socket.emit('join', {
+      room: roomId,
       username: username,
     });
-    return returned_message;
+    return returnedMessage;
   };
 
-  this.pass_cards = function(cards) {
+  this.passCards = function(cards) {
     var data = {
       cards: cards
     };
@@ -19,7 +19,7 @@ function RoomSocketClient(api_url) {
     return result.status;
   };
 
-  this.play_card = function(card) {
+  this.playCard = function(card) {
     var data = {
       card: card
     };
@@ -27,7 +27,7 @@ function RoomSocketClient(api_url) {
     return result.status;
   };
 
-  this.setup_game_update_handler = function(gameUpdateFn) {
+  this.setupGameUpdateHandler = function(gameUpdateFn) {
     this.socket.on('game_update', function(data) {
       console.log('received game update: ');
       console.log(JSON.stringify(data, null, 2));
