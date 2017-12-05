@@ -90,13 +90,19 @@ def sid_from_player(room, player):
             return user_data['socket_id']
 
 
-def emit_game_updates(room, game):
+def emit_game_updates(room, game, player_id=None):
     '''
     Emit a serialized view of the game to each player in the room.
+    Using the optional player_id argument will update only for that player.
     '''
-    for user_info in room['users']:
-        serialized_for_player = game.serialize(for_player=Player(user_info['username']))
-        io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
+    if player_id:
+            for_player = player_from_sid(room, player_id)
+            serialized_for_player = game.serialize(for_player=for_player)
+            io.emit('game_update', serialized_for_player, room=player_id)
+    else:
+        for user_info in room['users']:
+            serialized_for_player = game.serialize(for_player=Player(user_info['username']))
+            io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
 
 
 @socketio.on('chat')
@@ -169,6 +175,7 @@ def on_pass_cards(data):
     }
     try:
         current_round.add_to_pass_selections(player, cards)
+        emit_game_updates(room, game, player_id=socket_id)
         save_game(game, game_id)
     except ValueError as error_message:
         confirmation['status'] = 'failure'
@@ -178,9 +185,9 @@ def on_pass_cards(data):
 
     if len(current_round.pass_selections) == 4:
         received_cards = current_round.pass_cards()
-        save_game(game, game_id)
-        emit_game_updates(room, game)
+        current_round.set_playing_states()
 
+        # Remove this.  Passing messages are updated via current_round.update_messages_after_passing()
         '''Notify each player of the cards they received.'''
         for user_data in room['users']:
             receiver_id = user_data['socket_id']
@@ -193,6 +200,10 @@ def on_pass_cards(data):
                 'message': received_cards_from(passer, cards)
             }
             io.emit('receive_cards', data, room=receiver_id)
+
+        current_round.update_messages_after_passing(received_cards)
+        save_game(game, game_id)
+        emit_game_updates(room, game)
 
 
 @socketio.on('play_card')

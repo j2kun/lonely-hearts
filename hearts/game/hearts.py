@@ -9,8 +9,10 @@ from hearts.api.strings import NOT_FOLLOWING_SUIT
 from hearts.api.strings import NOT_TWO_CLUBS
 from hearts.api.strings import NOT_YOUR_TURN
 from hearts.api.strings import NO_FIRST_TRICK_POINTS
+from hearts.api.strings import PASS_SUBMIT
 from hearts.api.strings import PLAY_CARD
 from hearts.api.strings import PASS_CARDS
+from hearts.api.strings import RECEIVED_CARDS
 from hearts.api.strings import WAITING_FOR_PLAY
 from hearts.api.strings import WAITING_FOR_PASS
 
@@ -288,7 +290,7 @@ class Round(object):
 
     def set_passing_states(self):
         for player in self.players:
-            self.player_action[player] = 'pass'
+            self.player_action[player] = 'passing'
             self.messages[player] = [PASS_CARDS.format(self.pass_to)]
 
     def is_valid_pass_for_player(self, player, cards):
@@ -311,14 +313,19 @@ class Round(object):
         Input: player: A Player object
                cards: A list of Card objects
         Verifies that cards is a valid list of cards to pass and appends
-        it to the pass_selections attribute of Round.
+        it to the pass_selections attribute of Round.  Also updates the
+        messages to be displayed to the player.
         '''
         is_valid, error_message = self.is_valid_pass_for_player(player, cards)
         if is_valid:
             self.pass_selections[player] = cards
             self.player_action[player] = 'wait'
+
             self.messages[player] = [WAITING_FOR_PASS]
+            pass_acknowledged = PASS_SUBMIT.format(', '.join(map(str, cards)))
+            self.messages[player].append(pass_acknowledged)
         else:
+            self.messages[player] = error_message
             raise ValueError(error_message)
 
     def pass_cards(self):
@@ -355,6 +362,13 @@ class Round(object):
         self.set_turn_counter()    # Reset turn counter after passing
         self.set_playing_states()
         return received_cards
+
+    def update_messages_after_passing(self, received_cards):
+        for player, data in received_cards.items():
+            passer = data['from']
+            cards = map(str, data['cards'])
+            received_cards_message = RECEIVED_CARDS.format(passer, ', '.join(cards))
+            self.messages[player].append(received_cards_message)
 
     def can_follow_suit(self, player, trick):
         hand = self.hands[player]
@@ -496,6 +510,8 @@ class Round(object):
             'direction': str,
             'pass_selections': {str: [str, str, str]}
             'turn': int,
+            'player_action': {str: str},
+            'messages': {str: [str]},
             'hands': [str],
             'tricks': {str: {int: str}}
             'hearts': boolean
@@ -526,6 +542,16 @@ class Round(object):
                 serialized[player.username] = [card.serialize() for card in pass_selections[player]]
             return serialized
 
+        def serialize_messages(messages, for_player=for_player):
+            serialized = {}
+            if for_player is None:
+                for player in messages:
+                    serialized[player.username] = messages[player]
+            else:
+                player = for_player if isinstance(for_player, Player) else Player(for_player)
+                serialized = {player.username: messages[player]}
+            return serialized
+
         def serialize_the_score(score_dict):
             # Return a score dictionary with Player replaced by its username
             return {player.username: points for (player, points) in score_dict.items()}
@@ -533,8 +559,10 @@ class Round(object):
         return {
             'players': [player.username for player in self.players],
             'direction': self.pass_to,
-            'pass_selections': serialize_pass_selections(self.pass_selections, for_player),
+            'pass_selections': serialize_pass_selections(self.pass_selections, for_player=for_player),
             'turn': self.turn_counter,
+            'player_action': {player.username: self.player_action[player] for player in self.players},
+            'messages': serialize_messages(self.messages, for_player=for_player),
             'hands': hands,
             'tricks': [trick.serialize() for trick in self.tricks],
             'hearts': self.hearts_broken,

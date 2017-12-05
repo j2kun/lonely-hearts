@@ -6,7 +6,8 @@ function RoomClient(socket_client, room_state) {
 
   this.callbacks = function() {
     return {
-      'card_click': this.cardClick.bind(this)
+      'card_click': this.cardClick.bind(this),
+      'pass_button_click': this.passButtonClick.bind(this)
     };
   }
 
@@ -23,8 +24,19 @@ function RoomClient(socket_client, room_state) {
         this.ui.renderPassButton(false);
       }
     } else if (this.state.mode() === 'play') {
-      this.socket_client.playCard(card);
+      this.socket_client.play_card(card);
     }
+  }
+
+  this.passButtonClick = function() {
+    console.log('Clicked the pass button!');
+    let cards = this.state.chosenCards;
+    this.socket_client.pass_cards(cards);         // Function/method names are sometimes camelCase
+    console.log('passed cards to the backend');   // and sometimes have underscores.  Confusing!
+
+    // Need to return result of pass attempt?
+
+    // Hide the pass button after the player pressed it
   }
 
   this.socket_client = socket_client;
