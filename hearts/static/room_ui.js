@@ -69,6 +69,10 @@ function RoomUI(callbacks) {
       $('#status').html(buttonHtml);
       $('#pass_button').click(this.passButtonClickCallback);
     }
+    else {
+      console.log('disable pass button');
+      $('#pass_button').hide();
+    }
   }
 
   this.renderWaitingForPlayers = function() {
