@@ -67,7 +67,10 @@ function RoomUI(callbacks) {
       buttonHtml = ('<button id="pass_button">' +
         'Pass 3 cards ' + direction + '</button>');
       $('#status').html(buttonHtml);
-      $('#pass_button').click(this.passButtonClickCallback);
+      var that = this;
+      $('#pass_button').click(function(event) {
+        that.passButtonClickCallback();
+      });
     }
     else {
       console.log('disable pass button');

@@ -159,6 +159,11 @@ def on_leave(data):
 def on_pass_cards(data):
     '''
     data: {'cards': [str, str, str]}
+    Returns:
+        {
+            'status': 'success'||'failure',
+            'message': str
+        }
     '''
     socket_id = request.sid
     room = get_room(session['room'])
@@ -181,7 +186,8 @@ def on_pass_cards(data):
         confirmation['status'] = 'failure'
         confirmation['message'] = str(error_message)
 
-    io.emit('pass_submission_status', confirmation, room=socket_id)
+    io.emit('pass_submission_status', confirmation, room=socket_id)   # Remove this. Return the confirmation
+                                                                      # instead of emitting it.
 
     if len(current_round.pass_selections) == 4:
         received_cards = current_round.pass_cards()
@@ -204,6 +210,7 @@ def on_pass_cards(data):
         current_round.update_messages_after_passing(received_cards)
         save_game(game, game_id)
         emit_game_updates(room, game)
+    return confirmation
 
 
 @socketio.on('play_card')

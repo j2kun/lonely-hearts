@@ -15,15 +15,18 @@ function RoomSocketClient(apiUrl) {
     var data = {
       cards: cards
     };
-    var result = this.socket.emit('pass_cards', data);
-    return result.status;
+    this.socket.emit('pass_cards', data, function(result){
+      console.log('received confirmation', result);
+    });
   };
 
   this.playCard = function(card) {
     var data = {
       card: card
     };
-    var result = this.socket.emit('play_card', data);
+    var result = this.socket.emit('play_card', data);   // The emit function does return values.  Instead,
+                                                        // use a callback function that takes the server-side
+                                                        // returned value as input.  See passCards above.
     return result.status;
   };
 
