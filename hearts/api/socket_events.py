@@ -186,8 +186,8 @@ def on_pass_cards(data):
         confirmation['status'] = 'failure'
         confirmation['message'] = str(error_message)
 
-    io.emit('pass_submission_status', confirmation, room=socket_id)   # Remove this. Return the confirmation
-                                                                      # instead of emitting it.
+    # Remove this.  Return the confirmation instead of emitting it.
+    io.emit('pass_submission_status', confirmation, room=socket_id)
 
     if len(current_round.pass_selections) == 4:
         received_cards = current_round.pass_cards()

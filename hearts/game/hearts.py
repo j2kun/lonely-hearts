@@ -285,7 +285,7 @@ class Round(object):
                 self.player_action[player] = 'play'
                 self.messages[player] = [PLAY_CARD]
             else:
-                self.player_action[player] = 'wait'
+                self.player_action[player] = 'wait for play'
                 self.messages[player] = [WAITING_FOR_PLAY.format(self.next_player)]
 
     def set_passing_states(self):
@@ -319,7 +319,7 @@ class Round(object):
         is_valid, error_message = self.is_valid_pass_for_player(player, cards)
         if is_valid:
             self.pass_selections[player] = cards
-            self.player_action[player] = 'wait'
+            self.player_action[player] = 'wait for pass'
 
             self.messages[player] = [WAITING_FOR_PASS]
             pass_acknowledged = PASS_SUBMIT.format(', '.join(map(str, cards)))

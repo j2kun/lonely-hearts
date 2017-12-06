@@ -92,15 +92,24 @@ function RoomUI(callbacks) {
     $('#messages').html(messagesHtml);
   }
 
+  this.hideActionButtons = function(mode) {
+    // Hide the pass Button when in waiting mode
+    if (mode == 'wait for pass') {
+      $('#pass_button').hide();
+    }
+    // Should we make a Play Button and hide it too?
+  }
+
   this.render = function(started, state) {
     if (!started) {
       this.renderWaitingForPlayers();
     } else {
+      console.log('rendering UI');
       this.displayOpponents(state.username, state.game.players);
-      console.log(state.hand());
       this.displayHand(state.hand());
       this.displayTrick(state.trick());
       this.displayMessages(state.round().messages[state.username]);
+      this.hideActionButtons(state.mode());
     }
   }
 }
