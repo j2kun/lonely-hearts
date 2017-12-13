@@ -23,7 +23,7 @@ function RoomClient(socketClient, roomState) {
       } else {
         this.ui.renderPassButton(false);
       }
-    } else if (this.state.mode() === 'play'||'wait for play') {
+    } else if (this.state.mode() === 'play' || this.state.mode() === 'wait for play') {
       this.socketClient.playCard(card);
     }
   }

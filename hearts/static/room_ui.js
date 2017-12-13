@@ -67,12 +67,8 @@ function RoomUI(callbacks) {
       buttonHtml = ('<button id="pass_button">' +
         'Pass 3 cards ' + direction + '</button>');
       $('#status').html(buttonHtml);
-      var that = this;
-      $('#pass_button').click(function(event) {
-        that.passButtonClickCallback();
-      });
-    }
-    else {
+      $('#pass_button').click(this.passButtonClickCallback);
+    } else {
       console.log('disable pass button');
       $('#pass_button').hide();
     }
@@ -97,7 +93,6 @@ function RoomUI(callbacks) {
     if (mode == 'wait for pass') {
       $('#pass_button').hide();
     }
-    // Should we make a Play Button and hide it too?
   }
 
   this.render = function(started, state) {
