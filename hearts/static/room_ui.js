@@ -70,7 +70,7 @@ function RoomUI(callbacks) {
       $('#pass_button').click(this.passButtonClickCallback);
     } else {
       console.log('disable pass button');
-      $('#pass_button').hide();
+      this.hideActionButtons();
     }
   }
 
@@ -88,11 +88,8 @@ function RoomUI(callbacks) {
     $('#messages').html(messagesHtml);
   }
 
-  this.hideActionButtons = function(mode) {
-    // Hide the pass Button when in waiting mode
-    if (mode == 'wait for pass') {
+  this.hideActionButtons = function() {
       $('#pass_button').hide();
-    }
   }
 
   this.render = function(started, state) {
@@ -104,7 +101,7 @@ function RoomUI(callbacks) {
       this.displayHand(state.hand());
       this.displayTrick(state.trick());
       this.displayMessages(state.round().messages[state.username]);
-      this.hideActionButtons(state.mode());
+      this.hideActionButtons();
     }
   }
 }
