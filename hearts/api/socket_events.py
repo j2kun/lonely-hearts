@@ -231,7 +231,6 @@ def on_play_card(data):
     }
     try:
         current_round.play_card(player, card)
-        save_game(game, game_id)
     except ValueError as error_message:
         confirmation['status'] = 'failure'
         confirmation['message'] = str(error_message)
@@ -239,12 +238,14 @@ def on_play_card(data):
     io.emit('play_submission_status', confirmation, room=socket_id)
 
     if confirmation['status'] == 'success':
-        # check if game is over to notify score update
+        emit_game_updates(room, game)
+        save_game(game, game_id)
+
+        # emit end of round message.
         if current_round.is_over():
             data = {'message': 'The round is over! The scores have been updated'}
             io.emit('round_over', data, room=socket_id)
+        # Emit end of game message.
         if game.is_over():
             data = {'message': 'The game is over! The final scores have been updated'}
             io.emit('game_over', data, room=socket_id)
-        emit_game_updates(room, game)
-        save_game(game, game_id)
