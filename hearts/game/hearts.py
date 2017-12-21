@@ -649,7 +649,7 @@ class Trick(object):
         '''
             Return a serialized representation of the trick.
         Output:
-            {str: {int: str}}
+            {str: {'turn': int, 'card': str}}
         '''
         return {
             player.username: dict(turn=i, card=card.serialize())

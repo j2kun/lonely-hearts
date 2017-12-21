@@ -14,9 +14,9 @@
   },
   "player_action": {
     "BillSpsP7": "play",
-    "BillXnnqk": "wait",
-    "BilltC3g1": "wait",
-    "BillsEyQH": "wait"
+    "BillXnnqk": "wait for play",
+    "BilltC3g1": "wait for play",
+    "BillsEyQH": "wait for play"
   },
   "rounds": [
     {
@@ -34,7 +34,11 @@
       "hearts": false,
       "turn": 1,
       "direction": "left",
-      "tricks": [],
+      "tricks": [{"Bill tC3g1": {"turn": 0, "card": "2c"},
+                  "Bill SpsP7": {"turn": 1, "card": "Tc"},
+                  "Bill Xnnqk": {"turn": 2, "card": "Ac"},
+                  "Bill sEYQH": {"turn": 3, "card": "Kc"}
+      }],
       "final_scores": {
         "Bill tC3g1": 0, "BillSpsP7": 0, "Bill Xnnqk": 0, "Bill sEYQH": 0
       }
