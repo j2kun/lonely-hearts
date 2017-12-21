@@ -249,3 +249,4 @@ def on_play_card(data):
         if game.is_over():
             data = {'message': 'The game is over! The final scores have been updated'}
             io.emit('game_over', data, room=socket_id)
+    return confirmation
