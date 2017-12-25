@@ -32,9 +32,7 @@
       window.location.href = data.url;
     }).fail(function(xhr, status, error) {
       console.log("Ajax call failed");
-      console.log("xhr: " + xhr);
-      console.log("status: " + status);
-      console.log("error: " + error);
+      console.log("xhr: " + JSON.stringify(xhr));
     });
   });
 </script>
