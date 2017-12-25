@@ -11,7 +11,14 @@
 <script src="{{url_for('static', filename='jquery.js')}}"></script>
 
 <script>
-  var base_url = "http://{{ config['WWW_HOST'] }}:{{ config['PORT'] }}";
+  var base_url = "http";
+  var debug = "{{ config['DEBUG'] }}"[0];
+  console.log("Debug = " + debug);
+  if (debug !== "t" && debug !== "T") {
+    base_url += "s";
+  }
+  base_url += "://{{ config['WWW_HOST'] }}:{{ config['PORT'] }}";
+
   console.log(base_url);
   $('form').submit(function(){
     $.ajax({
