@@ -33,6 +33,7 @@ def rooms():
 
     Visit the given url to join the created room.
     '''
+    logger.info('rooms - creating a new room')
     if request.method == 'POST':
         try:
             room, room_id = create_room()
