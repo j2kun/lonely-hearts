@@ -7,7 +7,9 @@ Werkzeug==0.11.11
 click==6.6
 eventlet==0.19.0
 flake8==3.0.4
+gevent==1.2.2
 greenlet==0.4.10
+gunicorn==19.7.1
 itsdangerous==0.24
 py==1.4.31
 pylint==1.6.4
