@@ -26,6 +26,7 @@
     $.ajax({
       url: base_url + '/rooms/',
       type: 'POST',
+      timeout: 15000
     }).done(function(data){
       console.log("Ajax call successful");
       console.log(data.url);
