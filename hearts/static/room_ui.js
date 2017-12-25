@@ -12,32 +12,43 @@ function RoomUI(callbacks) {
     return displayCard[1] + displayCard[0];
   }
 
+  this.orderedPlayerPositions = function(player, allPlayers) {
+    var orderedPlayers = allPlayers.slice(allPlayers.indexOf(player), allPlayers.length)
+              .concat(allPlayers.slice(0, allPlayers.indexOf(player)));
+    var positions = ['bottom', 'left', 'top', 'right'];
+    var playerDict = {};
+    for (let i = 0; i < positions.length; i++) {
+      playerDict[orderedPlayers[i]] = positions[i];
+    }
+    return playerDict;
+  }
+
   this.displayOpponent = function(position, name) {
     var className = '.opponent.' + position;
     $(className + ' .name').text(name);
   }
 
   this.displayOpponents = function(player, allPlayers) {
-    var orderedPlayers = allPlayers.slice(allPlayers.indexOf(player), allPlayers.length)
-              .concat(allPlayers.slice(0, allPlayers.indexOf(player)));
-    var opponents = orderedPlayers.slice(1, orderedPlayers.length);
-    var positions = ['left', 'top', 'right'];
+    var positionDict = this.orderedPlayerPositions(player, allPlayers);
 
-    for (var i = 0; i < positions.length; i++) {
-      this.displayOpponent(positions[i], opponents[i]);
+    for (let p in positionDict) {
+      if (p === player) {
+        continue;
+      } 
+      this.displayOpponent(positionDict[p], p);
     }
   }
 
-  this.displayTrick = function(trick) {
-    // Need to rewrite this
+  this.displayTrick = function(trick, player, allPlayers) {
+    console.log("Rendering trick " + JSON.stringify(trick, null, 2));
     if (trick) {
       var trickToRender = '';
-      var orderedPositions = ['bottom', 'left', 'top', 'right'];
-      for (var i = 0; i < trick.length; i++) {
-        trickToRender += ('<div class="card ' + orderedPositions[i] +
-               '" id="' + this.displayCard(trick[i]) + '"></div>');
-      $('#trick').html(trickToRender);
+      var positionDict = this.orderedPlayerPositions(player, allPlayers);
+      for (let p in trick) {
+        trickToRender += ('<div class="card ' + positionDict[p] +
+               '" id="' + this.displayCard(trick[p]["card"]) + '"></div>');
       }
+      $('#trick').html(trickToRender);
     }
   }
 
@@ -99,7 +110,7 @@ function RoomUI(callbacks) {
       console.log('rendering UI');
       this.displayOpponents(state.username, state.game.players);
       this.displayHand(state.hand());
-      this.displayTrick(state.trick());
+      this.displayTrick(state.trick(), state.username, state.game.players);
       this.displayMessages(state.round().messages[state.username]);
       this.hideActionButtons();
     }
