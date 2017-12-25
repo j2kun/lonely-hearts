@@ -20,7 +20,8 @@
   base_url += "://{{ config['WWW_HOST'] }}:{{ config['PORT'] }}";
 
   console.log(base_url);
-  $('form').submit(function(){
+  $('form').submit(function(e){
+    e.preventDefault();
     $.ajax({
       url: base_url + '/rooms/',
       type: 'POST',
