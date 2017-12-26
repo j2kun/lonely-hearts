@@ -27,6 +27,7 @@ server to the client:
          'message': str
         }
 '''
+import logging
 
 from flask import session
 from flask import request
@@ -46,6 +47,9 @@ from hearts.api.strings import pass_submit
 from hearts.api.strings import received_cards_from
 
 from bson.objectid import ObjectId
+
+
+logger = logging.getLogger('hearts')
 
 
 def chat(message, room):
@@ -96,13 +100,18 @@ def emit_game_updates(room, game, player_id=None):
     Using the optional player_id argument will update only for that player.
     '''
     if player_id:
-            for_player = player_from_sid(room, player_id)
-            serialized_for_player = game.serialize(for_player=for_player)
-            io.emit('game_update', serialized_for_player, room=player_id)
+        for_player = player_from_sid(room, player_id)
+        serialized_for_player = game.serialize(for_player=for_player)
+        io.emit('game_update', serialized_for_player, room=player_id)
     else:
         for user_info in room['users']:
             serialized_for_player = game.serialize(for_player=Player(user_info['username']))
             io.emit('game_update', serialized_for_player, room=user_info['socket_id'])
+
+
+@socketio.on('connect')
+def on_connect(*args):
+    logger.info('on_connect - args={}'.format(args))
 
 
 @socketio.on('chat')
@@ -194,7 +203,7 @@ def on_pass_cards(data):
         current_round.set_playing_states()
 
         # Remove this.  Passing messages are updated via current_round.update_messages_after_passing()
-        '''Notify each player of the cards they received.'''
+        # Notify each player of the cards they received.
         for user_data in room['users']:
             receiver_id = user_data['socket_id']
             receiver = Player(user_data['username'])
