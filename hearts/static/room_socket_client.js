@@ -1,6 +1,6 @@
 function RoomSocketClient(apiUrl) {
   this.apiUrl = apiUrl;
-  this.socket = io('/');
+  this.socket = io();
 
   this.joinRoom = function(roomId, username) {
     console.log("Joining room " + roomId + " as " + username);
